@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jianlai-tech-pg
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: jianlai
+      POSTGRES_PASSWORD: jianlai_dev
+      POSTGRES_DB: jianlai
+    volumes:
+      - jianlai_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jianlai -d jianlai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  jianlai_pg:

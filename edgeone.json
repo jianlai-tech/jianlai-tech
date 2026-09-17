@@ -1,0 +1,9 @@
+{
+  "name": "jianlai-tech",
+  "rewrites": [
+    {
+      "source": "/*",
+      "destination": "/index.html"
+    }
+  ]
+}
