@@ -1,6 +1,6 @@
-# 见来 · jianlai-tech
+# 剑来科技 · jianlai-tech
 
-驻场做经营系统的工作室。本仓是接单留资站，不是客户业务后台。
+驻场做经营系统的工作室。本仓是接单留资站、案例集和驻场名册，不是客户业务后台。
 
 ## 结构
 
@@ -8,7 +8,7 @@
 jianlai-tech/
 ├── apps/jianlai-api/    FastAPI，端口 8020
 ├── apps/jianlai-web/    React 19 + TanStack，端口 5190
-├── knowledge/           业务知识
+├── knowledge/           业务知识与案例底稿
 ├── schemas/             PostgreSQL DDL
 └── AGENTS.md            L1 热启动
 ```

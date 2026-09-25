@@ -1,4 +1,4 @@
-# 见来部署
+# 剑来科技部署
 
 前台走腾讯云 EdgeOne Makers。API 后期再接 Railway。默认 `.edgeone.cool` 未绑自定义域时浏览器直开会 401，控制台点「预览」或绑域名。
 

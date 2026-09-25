@@ -1,13 +1,37 @@
 import { RouterProvider, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
+import { SiteShell } from '@/components/SiteShell'
+import { CasePage } from '@/pages/CasePage'
 import { HomePage } from '@/pages/HomePage'
+import { PeoplePage } from '@/pages/PeoplePage'
 import { StartPage } from '@/pages/StartPage'
+import { WorkPage } from '@/pages/WorkPage'
 
-const rootRoute = createRootRoute()
+const rootRoute = createRootRoute({
+  component: SiteShell,
+})
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: HomePage,
+})
+
+const workRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/work',
+  component: WorkPage,
+})
+
+const caseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/work/$slug',
+  component: CasePage,
+})
+
+const peopleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/people',
+  component: PeoplePage,
 })
 
 const startRoute = createRoute({
@@ -16,7 +40,7 @@ const startRoute = createRoute({
   component: StartPage,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, startRoute])
+const routeTree = rootRoute.addChildren([indexRoute, workRoute, caseRoute, peopleRoute, startRoute])
 
 const router = createRouter({
   routeTree,

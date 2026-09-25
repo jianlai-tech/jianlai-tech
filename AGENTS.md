@@ -1,14 +1,15 @@
 ---
-description: jianlai-tech — 见来 FDE 工作室（L1 热启动）
+description: jianlai-tech — 剑来科技 FDE 工作室（L1 热启动）
 alwaysApply: true
 ---
 
-# jianlai-tech · 见来
+# jianlai-tech · 剑来科技
 
 ```text
-角色：驻场做经营系统的工作室（FDE）
-边界：官网接单留资 + 日后现场笔记；不做客户业务后台
+角色：AI + 大学生驻场，打通系统、自研底座、定制智能体的工作室（组织上像建筑事务所）
+边界：官网接单留资 + 案例集 + 驻场名册；不做客户业务后台
 语言：中文沟通 · 中文注释 · 中文提交
+对外名：剑来科技 / 剑来。禁止写「见来」
 ```
 
 ## 仓库结构
@@ -17,7 +18,7 @@ alwaysApply: true
 |------|------|
 | `apps/jianlai-api` | FastAPI，默认端口 **8020** |
 | `apps/jianlai-web` | React 人机界面，默认端口 **5190** |
-| `knowledge/` | 产品业务知识 |
+| `knowledge/` | 产品业务知识；案例底稿在 `knowledge/案例/` |
 | `schemas/` | PostgreSQL DDL |
 
 ## 工程 SOP
@@ -33,6 +34,7 @@ alwaysApply: true
 
 - bun + Vite + React 19 + TanStack Router / Query
 - API 走 `src/lib/http.ts`
+- 案例与名册先走 `src/content/`，与 `knowledge/` 同步
 - 完成改动后 `bun run build`
 
 ## 红线
@@ -42,6 +44,7 @@ alwaysApply: true
 3. 禁止把本站做成家教招生或 SaaS 定价
 4. 本地只用 `docker-compose` 开发库
 5. 视觉世界未锁定前，禁止把 jpp / 洋葱的界面皮抄过来
+6. 对内档位以 `knowledge/工作室.md` 的剑修门派为准，禁止再编一套；人名未收入本仓不上官网；道长、门派、境界禁止写进官网正文
 
 ## 端口
 
@@ -61,4 +64,4 @@ alwaysApply: true
 中文 Commit：`<类型>(<范围>): <描述>`
 
 类型：`新增` / `修复` / `优化` / `重构` / `文档` / `配置`
-范围示例：`官网` / `留资` / `部署`
+范围示例：`官网` / `留资` / `案例` / `名册` / `部署`

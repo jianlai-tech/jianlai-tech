@@ -19,3 +19,4 @@ apps/jianlai-web/.tsbuildinfo
 .impeccable/build/
 .impeccable/mocks/decision/*.png
 !.impeccable/mocks/decision/.gitkeep
+.impeccable/cases/

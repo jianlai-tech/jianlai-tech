@@ -2,12 +2,231 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Ma Shan Zheng';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/ma-shan-zheng.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/zcool-kuaile.ttf') format('truetype');
+}
+
 @layer base {
   html {
     color-scheme: light;
   }
 
-  body {
-    @apply min-h-dvh bg-neutral-50 text-neutral-900 antialiased;
+  ::selection {
+    background: #f5d84a;
+    color: #111111;
   }
+
+  :focus-visible {
+    outline: 2px solid #2bb3b1;
+    outline-offset: 3px;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: #f3e6c9;
+    color: #111111;
+    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  input,
+  textarea,
+  select {
+    caret-color: #2bb3b1;
+  }
+}
+
+@layer components {
+  .zine-root {
+    min-height: 100dvh;
+    background-color: #f3e6c9;
+    background-image:
+      radial-gradient(ellipse at 12% 0%, rgba(255, 255, 255, 0.42), transparent 42%),
+      radial-gradient(ellipse at 88% 18%, rgba(238, 123, 160, 0.08), transparent 36%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 31px,
+        rgba(17, 17, 17, 0.028) 32px
+      );
+  }
+
+  .zine-mark {
+    background-image: linear-gradient(transparent 62%, var(--hl, #f5d84a) 62%);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 0 0.08em;
+  }
+
+  .zine-mark-yellow {
+    --hl: #f5d84a;
+  }
+
+  .zine-mark-pink {
+    --hl: #f3b6c8;
+  }
+
+  .zine-mark-teal {
+    --hl: #9ee4e2;
+  }
+
+  .zine-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #f5d84a;
+    padding: 0.5rem 1.25rem;
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 1rem;
+    color: #111111;
+    box-shadow: 2px 4px 0 rgba(17, 17, 17, 0.12);
+  }
+
+  .zine-cta:hover {
+    transform: rotate(-1deg) translateY(-1px);
+  }
+
+  .zine-link {
+    font-family: 'ZCOOL KuaiLe', cursive;
+    color: #111111;
+    text-decoration: underline;
+    text-decoration-color: #2bb3b1;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .zine-photo {
+    position: relative;
+    background: #fff;
+    padding: 0.5rem;
+    box-shadow: 3px 8px 18px rgba(17, 17, 17, 0.12);
+  }
+
+  .zine-tape {
+    position: absolute;
+    height: 1.15rem;
+    width: 4.6rem;
+    background: linear-gradient(180deg, rgba(255, 244, 170, 0.92), rgba(236, 196, 70, 0.78));
+    box-shadow: 0 2px 4px rgba(17, 17, 17, 0.08);
+    mix-blend-mode: multiply;
+  }
+
+  .zine-caption {
+    margin-top: 0.75rem;
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 0.875rem;
+    color: rgba(17, 17, 17, 0.8);
+  }
+
+  .zine-note {
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.5rem 0.75rem;
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    box-shadow: 2px 3px 0 rgba(17, 17, 17, 0.06);
+    transform: rotate(-0.6deg);
+  }
+
+  .zine-field {
+    margin-top: 0.25rem;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid rgba(17, 17, 17, 0.25);
+    background: transparent;
+    padding: 0.5rem 0;
+    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    color: #111111;
+  }
+
+  .zine-field:focus {
+    border-bottom-color: #2bb3b1;
+    outline: none;
+  }
+}
+
+@layer utilities {
+  .font-mark {
+    font-family: 'Ma Shan Zheng', cursive;
+  }
+
+  .font-doodle {
+    font-family: 'ZCOOL KuaiLe', cursive;
+  }
+
+  .text-ink {
+    color: #111111;
+  }
+
+  .text-ink\/80 {
+    color: rgba(17, 17, 17, 0.8);
+  }
+
+  .text-ink\/55 {
+    color: rgba(17, 17, 17, 0.55);
+  }
+
+  .text-lake {
+    color: #2bb3b1;
+  }
+
+  .text-blush {
+    color: #ee7ba0;
+  }
+
+  .bg-mark {
+    background-color: #f5d84a;
+  }
+
+  .bg-mark\/40 {
+    background-color: rgba(245, 216, 74, 0.4);
+  }
+
+  .bg-mark\/50 {
+    background-color: rgba(245, 216, 74, 0.5);
+  }
+
+  .bg-blush\/20 {
+    background-color: rgba(238, 123, 160, 0.2);
+  }
+
+  .bg-blush\/25 {
+    background-color: rgba(238, 123, 160, 0.25);
+  }
+
+  .bg-blush\/70 {
+    background-color: rgba(238, 123, 160, 0.7);
+  }
+
+  .decoration-mark {
+    text-decoration-color: #f5d84a;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ead7ae;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c9b17a;
+  border-radius: 999px;
 }

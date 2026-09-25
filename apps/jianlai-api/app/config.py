@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://jianlai:jianlai_dev@127.0.0.1:5434/jianlai"
     cors_origins: str = "http://localhost:5190"
     leads_admin_token: str = ""
+    wecom_group_webhook: str = ""
+    wecom_bot_id: str = ""
+    wecom_bot_secret: str = ""
+    wecom_group_chat_id: str = ""
 
 
 settings = Settings()
