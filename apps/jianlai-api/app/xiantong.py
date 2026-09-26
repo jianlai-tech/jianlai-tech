@@ -1,14 +1,18 @@
-"""仙童穗儿：往企业微信群机器人 webhook 发入群欢迎语。
+"""仙童穗儿：入门报信，以及用 Sophnet DeepSeek-Flash 回群聊。
 
 用法：
+    uv run python -m app.xiantong serve
     uv run python -m app.xiantong 木木 破阵门 开锋境 男
     uv run python -m app.xiantong 木木 破阵门 开锋境 男 --dry-run
 """
 
 import argparse
+import asyncio
 import json
+import re
 import sys
 import urllib.request
+from collections import defaultdict
 
 from app.config import settings
 
@@ -43,6 +47,91 @@ def compose(name: str, sect: str, realm: str, gender: str) -> str:
     )
 
 
+SYSTEM = """你是剑来科技山门的仙童穗儿，系在剑柄上的一缕红穗。
+说话像山门里的小孩：短、清楚、带一点仙气，不端着，不叫人宝宝。
+剑是驻场的人。进企业现场是修行入世。斩的是流程上的不平：重复劳动、对不上的账、说不清谁负责的交接。
+三门：问剑门管销售，破阵门管开发，映剑门管设计。境界从识剑到剑仙，中三境第一层是开锋境。道长是书剑。
+别人问剑来，就按上面说。不知道的事实不要编，尤其不要编客户名、人数、报价和业绩。报价口径只有一句：同样的活比传统软件公司低 30%–50%。
+回应用中文，尽量控制在两三句。"""
+
+_HISTORY: dict[str, list[dict[str, str]]] = defaultdict(list)
+_MENTION = re.compile(r"@穗儿\s*")
+
+
+def strip_mention(content: str) -> str:
+    return _MENTION.sub("", content or "").strip()
+
+
+def ask(history: list[dict[str, str]], question: str) -> str:
+    if not settings.sophnet_api_key:
+        raise RuntimeError("缺 SOPHNET_API_KEY")
+    url = settings.sophnet_base_url.rstrip("/") + "/chat/completions"
+    messages = [{"role": "system", "content": SYSTEM}, *history, {"role": "user", "content": question}]
+    payload = {
+        "model": settings.sophnet_model or "DeepSeek-Flash",
+        "messages": messages,
+        "enable_thinking": False,
+        "chat_template_kwargs": {"enable_thinking": False},
+        "reasoning": {"enabled": False},
+    }
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {settings.sophnet_api_key}",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=45) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    text = ((data.get("choices") or [{}])[0].get("message") or {}).get("content") or ""
+    return text.strip() or "穗儿这次没想出话来，道友再说一遍。"
+
+
+def remember(chatid: str, question: str, answer: str) -> None:
+    turns = _HISTORY[chatid]
+    turns.append({"role": "user", "content": question})
+    turns.append({"role": "assistant", "content": answer})
+    del turns[:-8]
+
+
+async def serve() -> None:
+    from aibot import WSClient, WSClientOptions
+    from aibot.utils import generate_random_string
+
+    if not settings.wecom_bot_id or not settings.wecom_bot_secret:
+        raise RuntimeError("缺 WECOM_BOT_ID 或 WECOM_BOT_SECRET")
+
+    client = WSClient(
+        WSClientOptions(
+            bot_id=settings.wecom_bot_id,
+            secret=settings.wecom_bot_secret,
+            max_reconnect_attempts=-1,
+        )
+    )
+
+    async def on_text(frame: dict) -> None:
+        body = frame.get("body") or {}
+        question = strip_mention((body.get("text") or {}).get("content") or "")
+        chatid = body.get("chatid") or "single"
+        if not question:
+            answer = "道友唤我何事？说给我听。"
+        else:
+            try:
+                answer = await asyncio.to_thread(ask, list(_HISTORY[chatid]), question)
+                remember(chatid, question, answer)
+            except (OSError, RuntimeError, ValueError, KeyError) as exc:
+                print(f"模型失败：{exc}", file=sys.stderr)
+                answer = "穗儿这会儿接不上剑上的锋，稍后再问我。"
+        await client.reply_stream(frame, generate_random_string(16), answer, finish=True)
+
+    client.on("message.text", lambda frame: asyncio.create_task(on_text(frame)))
+    print("穗儿在听。群里 @穗儿 说话。")
+    await client.connect()
+    await asyncio.Event().wait()
+
+
 def send(text: str, webhook: str) -> dict:
     body = json.dumps({"msgtype": "text", "text": {"content": text}}).encode("utf-8")
     req = urllib.request.Request(
@@ -53,7 +142,14 @@ def send(text: str, webhook: str) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="仙童穗儿：发入群欢迎语")
+    if len(sys.argv) == 1 or sys.argv[1] == "serve":
+        try:
+            asyncio.run(serve())
+        except KeyboardInterrupt:
+            return 0
+        return 0
+
+    parser = argparse.ArgumentParser(description="仙童穗儿：入门报信，或挂着听群聊")
     parser.add_argument("name", help="道友别名")
     parser.add_argument("sect", help="问剑门 / 破阵门 / 映剑门")
     parser.add_argument("realm", help="境界，例如 开锋境；未入境写 剑胚")

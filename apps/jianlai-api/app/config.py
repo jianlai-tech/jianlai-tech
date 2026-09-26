@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     wecom_bot_id: str = ""
     wecom_bot_secret: str = ""
     wecom_group_chat_id: str = ""
+    sophnet_api_key: str = ""
+    sophnet_base_url: str = "https://www.sophnet.com/api/open-apis/v1"
+    sophnet_model: str = "DeepSeek-Flash"
 
 
 settings = Settings()

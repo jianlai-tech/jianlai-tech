@@ -1,3 +1,5 @@
+import asyncio
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,11 +12,27 @@ from app.db.migrate import run_migrations
 from app.db.pool import close_pool, init_pool
 
 
+async def _run_suier() -> None:
+    from app.xiantong import serve
+
+    try:
+        await serve()
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:
+        print(f"穗儿退出：{exc}", file=sys.stderr)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    bot_task = None
+    if settings.wecom_bot_id and settings.wecom_bot_secret:
+        bot_task = asyncio.create_task(_run_suier())
     pool = await init_pool()
     await run_migrations(pool)
     yield
+    if bot_task is not None:
+        bot_task.cancel()
     await close_pool()
 
 

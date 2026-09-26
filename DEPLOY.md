@@ -14,7 +14,7 @@
 
 | 项 | 值 |
 |----|-----|
-| 项目 | `jianlai-tech`（创建后填 id） |
+| 项目 | `jianlai-tech` · `makers-pxoxlmfaivpn` |
 | Git | `ShukriChiu/jianlai-tech` · `main` |
 | 加速区域 | 全球可用区（含中国大陆） |
 | 根目录 | `apps/jianlai-web` |
@@ -23,7 +23,9 @@
 | 输出 | `dist` |
 | 构建变量 | 生产 API 就绪后加 `VITE_API_BASE_URL` |
 
-控制台已有 `onion-dashboard`、`jpp-aios`。新建项目点「创建项目 → 导入 Git 仓库」。
+项目已在跑，代码源 `jianlai-tech/jianlai-tech` 的 `main`。默认域名 `jianlai-tech-wfgfq1vg.edgeone.cool`。
+
+自定义域 `jianlai.tech` 已在本账号云解析（免费版，4 条记录）。2026-09-26 在域名管理里添加时，控制台提示未在工信部备案，含中国大陆的加速区域加不上去。备案完成后再绑；或把加速区域改成不含中国大陆后再加。
 
 本期免费构建次数曾见 586/500，超额后新构建可能失败，要升配额或清旧部署。
 
