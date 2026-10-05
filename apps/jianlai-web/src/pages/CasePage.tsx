@@ -1,83 +1,67 @@
 import { Link, useParams } from '@tanstack/react-router'
-import { FenxiaoSketch } from '@/components/FenxiaoSketch'
-import { Mark } from '@/components/Mark'
-import { TapePhoto } from '@/components/TapePhoto'
-import { caseBySlug } from '@/content/cases'
+import { BookSpread } from '@/components/BookSpread'
+import { CaseBook } from '@/components/CaseBook'
+import { caseBySlug, publishedCases } from '@/content/cases'
+import { cnNum } from '@/lib/numerals'
 
 export function CasePage() {
   const { slug } = useParams({ strict: false })
   const item = slug ? caseBySlug(slug) : undefined
+  const cases = publishedCases()
+  const index = item ? cases.findIndex((entry) => entry.slug === item.slug) : -1
 
   if (!item || !item.published) {
     return (
       <main className="mx-auto max-w-2xl px-5 py-16">
-        <p className="font-doodle">这条案例还没对外。</p>
-        <Link to="/work" className="zine-link mt-4 inline-block">
-          回案例集
+        <p className="text-[18px]">这个项目还没公开。</p>
+        <Link to="/work" className="ink-link mt-4 inline-block">
+          回到案例集
         </Link>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-5 pb-16">
-      <Link to="/work" className="zine-link">
-        案例集
+    <main className="mx-auto max-w-[1280px] px-5 pb-10 sm:px-[54px]">
+      <Link to="/work" className="ink-link mt-8 inline-block text-[16px]">
+        ← 案例集
       </Link>
-      <h1 className="mt-3 font-mark text-5xl leading-tight sm:text-6xl">{item.industry}</h1>
-      {item.pitch ? (
-        <p className="mt-4 max-w-prose text-lg leading-relaxed text-ink/80">{item.pitch}</p>
-      ) : null}
-      {item.processWords.length > 0 ? (
-        <p className="mt-5 font-doodle text-lg">
-          {item.processWords.map((word, index) => (
-            <span key={word}>
-              <Mark tone={index % 3 === 1 ? 'pink' : index % 3 === 2 ? 'teal' : 'yellow'}>
-                {word}
-              </Mark>
-              {index < item.processWords.length - 1 ? ' → ' : ''}
-            </span>
-          ))}
-        </p>
-      ) : null}
+      <div className="mt-6">
+        {item.chapters?.length ? (
+          <CaseBook item={item} vol={Math.max(index, 0) + 1} />
+        ) : (
+          <BookSpread
+            item={item}
+            showLink={false}
+            pageLabel={`卷${cnNum(Math.max(index, 0) + 1)} · 共 ${cases.length} 册`}
+          />
+        )}
+      </div>
 
-      {item.plates.length > 0 ? (
-        <section className="mt-10 space-y-10">
-          {item.plates.map((plate, index) => (
-            <TapePhoto
-              key={plate.src}
-              src={plate.src}
-              alt={`${item.industry}脱敏截图`}
-              caption={plate.caption}
-              tilt={index % 2 === 0 ? 'left' : 'right'}
-            />
-          ))}
-        </section>
-      ) : (
-        <section className="mt-10">
-          <FenxiaoSketch />
-        </section>
-      )}
-
-      {item.stuckAt ? (
-        <section className="mt-12 max-w-prose">
-          <h2 className="font-mark text-3xl">进场时卡在哪</h2>
-          <p className="mt-3 leading-relaxed text-ink/80">{item.stuckAt}</p>
-        </section>
-      ) : null}
-      {item.built ? (
-        <section className="mt-8 max-w-prose">
-          <h2 className="font-mark text-3xl">做成了什么</h2>
-          <p className="mt-3 leading-relaxed text-ink/80">{item.built}</p>
+      {item.plates.length > 1 && !item.chapters?.length ? (
+        <section className="mt-14" aria-labelledby="plates-title">
+          <h2 id="plates-title" className="brush text-[40px] leading-none">
+            系统里的几页
+          </h2>
+          <div className="mt-8 grid gap-10 md:grid-cols-2">
+            {item.plates.slice(1).map((plate) => (
+              <figure key={plate.src}>
+                <div className="border border-ink/30 bg-[#f7efdd] p-2">
+                  <img
+                    src={plate.src}
+                    alt={`${item.industry}系统截图，已打码`}
+                    loading="lazy"
+                    className="block w-full [filter:sepia(0.28)_saturate(0.7)]"
+                  />
+                </div>
+                <figcaption className="kai mt-3 text-[14px] text-ink/70">
+                  {plate.caption}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </section>
       ) : null}
-      {item.whoUses ? (
-        <p className="mt-6 font-doodle text-ink/65">谁在用：{item.whoUses}</p>
-      ) : null}
-
-      <Link to="/start" className="zine-cta mt-10 inline-flex no-underline">
-        留个联系方式
-      </Link>
     </main>
   )
 }

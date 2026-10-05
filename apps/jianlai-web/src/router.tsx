@@ -38,6 +38,8 @@ const startRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/start',
   component: StartPage,
+  validateSearch: (search: Record<string, unknown>): { kind?: 'project' | 'referral' } =>
+    search.kind === 'referral' ? { kind: 'referral' } : {},
 })
 
 const routeTree = rootRoute.addChildren([indexRoute, workRoute, caseRoute, peopleRoute, startRoute])

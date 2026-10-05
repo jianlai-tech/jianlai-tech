@@ -1,0 +1,18 @@
+{
+  "generator": "google/gemini-3.1-flash-image-preview via OpenRouter",
+  "date": "2026-10-05",
+  "assets": {
+    "public/art/baitie.webp": {
+      "source": "assets/plates/baitie.png",
+      "use": "留资页「帖已递到道长手里」",
+      "prompt": "traditional Chinese folded visiting card (拜帖), vermilion paper, no writing, warm rice paper background #EDDEC4"
+    },
+    "public/art/case-cloth.webp": {
+      "source": "assets/plates/cloth.png（中间裁 512 缩 256 平铺）",
+      "use": "案例书架函套布纹",
+      "prompt": "seamless faded indigo cotton book-case cloth texture (函套布)"
+    }
+  },
+  "unused_plates": ["assets/plates/shelf.png", "assets/plates/scroll.png"],
+  "note": "书架、立轴最后用 CSS 画，生图只当参考，没上线"
+}

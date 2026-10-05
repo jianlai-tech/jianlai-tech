@@ -1,0 +1,63 @@
+{
+  "generator": "google/gemini-3.1-flash-image-preview via OpenRouter（baitie、cloth）；Cursor 生图（yuanshan、songzhi、jiansui、bimo、meiping、bitong、jiangzhou、sajin）",
+  "date": "2026-10-05",
+  "assets": {
+    "public/art/baitie.webp": {
+      "source": "assets/plates/baitie.png",
+      "use": "留资页「帖已递到道长手里」",
+      "prompt": "traditional Chinese folded visiting card (拜帖), vermilion paper, no writing, warm rice paper background #EDDEC4"
+    },
+    "public/art/case-cloth.webp": {
+      "source": "assets/plates/cloth.png（中间裁 512 缩 256 平铺）",
+      "use": "案例书架函套布纹",
+      "prompt": "seamless faded indigo cotton book-case cloth texture (函套布)"
+    },
+    "public/art/yuanshan.webp": {
+      "source": "assets/plates/yuanshan.jpg（按亮度抠成墨色透明，裁掉上方留白，960 宽）",
+      "use": "首页「喊一声，剑来」、名册「想让哪位剑修下山」底下的远山",
+      "prompt": "ink-wash distant layered mountains (远山), pale, mist, pure white background"
+    },
+    "public/art/songzhi.webp": {
+      "source": "assets/plates/songzhi.jpg（按亮度抠透明，420 宽）",
+      "use": "剑修名册页头右上角的松枝（xl 以上才显示）",
+      "prompt": "single pine branch (松枝) in Chinese ink painting style from the top-right corner, pure white background"
+    },
+    "public/art/jiansui.webp": {
+      "source": "assets/plates/jiansui.jpg（抠白底，高 360）",
+      "use": "九式红穗书签的穗子、案例书架抽出那一函的骨签扣穗子",
+      "prompt": "traditional Chinese sword tassel (剑穗), red cord, Chinese knot, jade bead, vermilion fringe, pure white background"
+    },
+    "public/art/meiping.webp": {
+      "source": "assets/plates/meiping.jpg（从四边连通的白底抠掉，保住白梅花瓣，高 260）",
+      "use": "案例博古架左上格的青瓷梅瓶",
+      "prompt": "small antique celadon vase (梅瓶) with one plum blossom branch, gongbi style, pure white background"
+    },
+    "public/art/bitong.webp": {
+      "source": "assets/plates/bitong.jpg（同上抠法，高 220）",
+      "use": "案例博古架左下格的竹笔筒",
+      "prompt": "antique bamboo brush pot (笔筒) with four calligraphy brushes, gongbi style, pure white background"
+    },
+    "public/art/bimo.webp": {
+      "source": "assets/plates/bimo.jpg（按亮度抠透明，480 宽）",
+      "use": "CSS .title-swash 的遮罩：案例集、剑修名册、「同一件事，两种做法」标题下的一笔朱砂飞白",
+      "prompt": "one horizontal dry-brush (飞白) calligraphy stroke in black ink, pure white background"
+    },
+    "public/art/jiangzhou.webp": {
+      "source": "assets/plates/jiangzhou.jpg（按亮度抠成墨色透明，上下裁掉留白，1200 宽）",
+      "use": "页脚江上一叶扁舟，接在 CTA 远山下面",
+      "prompt": "minimalist ink-wash wide calm river, one tiny boat with a straw-hat fisherman at the left third, faint distant shoreline with reeds, pure white background"
+    },
+    "public/art/fengqi.webp": {
+      "source": "assets/plates/fengqi.png（google/gemini-3.1-flash-image-preview via OpenRouter；按亮度抠成墨色透明，900 宽）",
+      "use": "首页「喊一声，剑来」右侧：崖上一人负剑、衣带当风",
+      "prompt": "sparse ink-wash steep cliff peak at lower right, mist at base, lone tiny swordsman from behind on top, robe and sash blowing left, sword on back, one leaning pine, pure white background"
+    },
+    "public/art/sajin.webp": {
+      "source": "assets/plates/sajin.jpg（按离白距离抠透明并还原金色，420 方，平铺）",
+      "use": "九式书磁青封面的洒金、页脚对联洒金笺",
+      "prompt": "scattered small irregular gold leaf flakes (洒金), sparse, pure white background"
+    }
+  },
+  "unused_plates": ["assets/plates/shelf.png", "assets/plates/scroll.png"],
+  "note": "书架、立轴用 CSS 画，生图只当参考。点缀素材都只当装饰叠在 CSS 布局上，alt 为空、读屏跳过"
+}

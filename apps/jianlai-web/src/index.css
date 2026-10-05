@@ -1,22 +1,8 @@
+@import './brush-font.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@font-face {
-  font-family: 'Ma Shan Zheng';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/ma-shan-zheng.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'ZCOOL KuaiLe';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/zcool-kuaile.ttf') format('truetype');
-}
 
 @layer base {
   html {
@@ -24,196 +10,552 @@
   }
 
   ::selection {
-    background: #f5d84a;
-    color: #111111;
+    background: #a8322a;
+    color: #f5ecd9;
   }
 
   :focus-visible {
-    outline: 2px solid #2bb3b1;
+    outline: 2px solid #3f4b45;
     outline-offset: 3px;
   }
 
   body {
     min-height: 100dvh;
-    background-color: #f3e6c9;
-    color: #111111;
+    background-color: #eddec4;
+    color: #1c1a17;
     font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   input,
   textarea,
   select {
-    caret-color: #2bb3b1;
+    caret-color: #a8322a;
   }
 }
 
 @layer components {
-  .zine-root {
+  .paper {
+    position: relative;
+    isolation: isolate;
     min-height: 100dvh;
-    background-color: #f3e6c9;
-    background-image:
-      radial-gradient(ellipse at 12% 0%, rgba(255, 255, 255, 0.42), transparent 42%),
-      radial-gradient(ellipse at 88% 18%, rgba(238, 123, 160, 0.08), transparent 36%),
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 31px,
-        rgba(17, 17, 17, 0.028) 32px
-      );
+    background-color: #eddec4;
   }
 
-  .zine-mark {
-    background-image: linear-gradient(transparent 62%, var(--hl, #f5d84a) 62%);
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-    padding: 0 0.08em;
+  .paper::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: url('/art/paper.png');
+    background-size: 256px 144px;
+    opacity: 0.55;
   }
 
-  .zine-mark-yellow {
-    --hl: #f5d84a;
+  .brush {
+    font-family: 'Zhi Mang Xing', 'STXingkai', cursive;
+    font-weight: 400;
+    letter-spacing: 0.01em;
   }
 
-  .zine-mark-pink {
-    --hl: #f3b6c8;
+  .kai {
+    font-family: 'LXGW WenKai', 'Kaiti SC', 'STKaiti', serif;
   }
 
-  .zine-mark-teal {
-    --hl: #9ee4e2;
-  }
-
-  .zine-cta {
+  .ink-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 999px;
-    background: #f5d84a;
-    padding: 0.5rem 1.25rem;
-    font-family: 'ZCOOL KuaiLe', cursive;
-    font-size: 1rem;
-    color: #111111;
-    box-shadow: 2px 4px 0 rgba(17, 17, 17, 0.12);
+    gap: 0.6em;
+    background: #394838;
+    color: #f4e7c8;
+    padding: 0.9rem 1.6rem;
+    font-size: 1.15rem;
+    letter-spacing: 0.08em;
+    border-radius: 2px;
+    box-shadow: 0 6px 14px -8px rgba(28, 26, 23, 0.55);
+    transition:
+      background-color 280ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .zine-cta:hover {
-    transform: rotate(-1deg) translateY(-1px);
+  .ink-btn-framed {
+    color: #fbf3df;
+    box-shadow:
+      inset 0 0 0 3px #394838,
+      inset 0 0 0 4px rgba(244, 231, 200, 0.4),
+      0 6px 14px -8px rgba(28, 26, 23, 0.55);
   }
 
-  .zine-link {
-    font-family: 'ZCOOL KuaiLe', cursive;
-    color: #111111;
+  .ink-btn:hover {
+    background: #2b3a2b;
+    transform: translateY(-1px);
+  }
+
+  .ink-btn:disabled {
+    opacity: 0.55;
+    transform: none;
+  }
+
+  .ink-link {
+    color: #1c1a17;
     text-decoration: underline;
-    text-decoration-color: #2bb3b1;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
+    text-decoration-color: rgba(28, 26, 23, 0.3);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+    transition: text-decoration-color 240ms ease;
   }
 
-  .zine-photo {
-    position: relative;
-    background: #fff;
-    padding: 0.5rem;
-    box-shadow: 3px 8px 18px rgba(17, 17, 17, 0.12);
+  .ink-link:hover {
+    text-decoration-color: #a8322a;
   }
 
-  .zine-tape {
-    position: absolute;
-    height: 1.15rem;
-    width: 4.6rem;
-    background: linear-gradient(180deg, rgba(255, 244, 170, 0.92), rgba(236, 196, 70, 0.78));
-    box-shadow: 0 2px 4px rgba(17, 17, 17, 0.08);
+  .plate-ink {
     mix-blend-mode: multiply;
   }
 
-  .zine-caption {
-    margin-top: 0.75rem;
-    font-family: 'ZCOOL KuaiLe', cursive;
-    font-size: 0.875rem;
-    color: rgba(17, 17, 17, 0.8);
+  .ink-portrait {
+    filter: grayscale(1) sepia(0.25) contrast(1.08);
+    mix-blend-mode: multiply;
   }
 
-  .zine-note {
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.5);
-    padding: 0.5rem 0.75rem;
-    font-family: 'ZCOOL KuaiLe', cursive;
-    font-size: 0.875rem;
-    line-height: 1.6;
-    box-shadow: 2px 3px 0 rgba(17, 17, 17, 0.06);
-    transform: rotate(-0.6deg);
+  .hairline {
+    border-color: rgba(28, 26, 23, 0.22);
   }
 
-  .zine-field {
-    margin-top: 0.25rem;
+  .field {
+    margin-top: 0.4rem;
     width: 100%;
     border: 0;
-    border-bottom: 1px solid rgba(17, 17, 17, 0.25);
+    border-bottom: 1px solid rgba(28, 26, 23, 0.3);
     background: transparent;
-    padding: 0.5rem 0;
-    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
-    color: #111111;
+    padding: 0.55rem 0;
+    font-size: 1.05rem;
+    color: #1c1a17;
+    border-radius: 0;
   }
 
-  .zine-field:focus {
-    border-bottom-color: #2bb3b1;
+  .field:focus {
+    border-bottom-color: #a8322a;
     outline: none;
   }
-}
 
-@layer utilities {
-  .font-mark {
-    font-family: 'Ma Shan Zheng', cursive;
+  .book {
+    position: relative;
+    background: #f1e6cf;
+    box-shadow:
+      0 30px 50px -30px rgba(28, 26, 23, 0.55),
+      0 2px 0 rgba(28, 26, 23, 0.06);
+    border: 1px solid rgba(28, 26, 23, 0.18);
   }
 
-  .font-doodle {
-    font-family: 'ZCOOL KuaiLe', cursive;
+  .book-frame {
+    border: 1.5px solid rgba(28, 26, 23, 0.55);
+    outline: 1px solid rgba(28, 26, 23, 0.35);
+    outline-offset: 4px;
   }
 
-  .text-ink {
-    color: #111111;
+  .book-rules {
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(100% / 8 - 1px),
+      rgba(28, 26, 23, 0.14) calc(100% / 8 - 1px),
+      rgba(28, 26, 23, 0.14) calc(100% / 8)
+    );
   }
 
-  .text-ink\/80 {
-    color: rgba(17, 17, 17, 0.8);
+  .book-gutter {
+    background: linear-gradient(
+      90deg,
+      rgba(28, 26, 23, 0) 0%,
+      rgba(28, 26, 23, 0.14) 45%,
+      rgba(28, 26, 23, 0.22) 50%,
+      rgba(28, 26, 23, 0.14) 55%,
+      rgba(28, 26, 23, 0) 100%
+    );
   }
 
-  .text-ink\/55 {
-    color: rgba(17, 17, 17, 0.55);
+  .page-turn {
+    animation: page-turn 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: left center;
   }
 
-  .text-lake {
-    color: #2bb3b1;
+  .page-turn-back {
+    animation: page-turn-back 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: right center;
   }
 
-  .text-blush {
-    color: #ee7ba0;
+  @keyframes page-turn {
+    from {
+      transform: perspective(1600px) rotateY(-24deg);
+      opacity: 0.2;
+    }
+    to {
+      transform: perspective(1600px) rotateY(0deg);
+      opacity: 1;
+    }
   }
 
-  .bg-mark {
-    background-color: #f5d84a;
+  @keyframes page-turn-back {
+    from {
+      transform: perspective(1600px) rotateY(24deg);
+      opacity: 0.2;
+    }
+    to {
+      transform: perspective(1600px) rotateY(0deg);
+      opacity: 1;
+    }
   }
 
-  .bg-mark\/40 {
-    background-color: rgba(245, 216, 74, 0.4);
+  @media (prefers-reduced-motion: reduce) {
+    .seal-press,
+    .ink-reveal,
+    .tie-fold,
+    .tie-fly,
+    .tie-stamp,
+    .spine-pull {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 
-  .bg-mark\/50 {
-    background-color: rgba(245, 216, 74, 0.5);
+  /* —— 藏书印：钤下去的一下 —— */
+  .seal-press {
+    animation: seal-press 700ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
   }
 
-  .bg-blush\/20 {
-    background-color: rgba(238, 123, 160, 0.2);
+  @keyframes seal-press {
+    0% {
+      transform: scale(1.8) rotate(-8deg);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(0.92) rotate(2deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(0);
+    }
   }
 
-  .bg-blush\/25 {
-    background-color: rgba(238, 123, 160, 0.25);
+  /* —— 画像册：题跋像墨迹一样洇出来 —— */
+  .ink-reveal {
+    opacity: 0;
+    filter: blur(6px);
+    clip-path: inset(0 0 100% 0);
+    transition:
+      opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+      clip-path 1200ms cubic-bezier(0.65, 0, 0.35, 1);
   }
 
-  .bg-blush\/70 {
-    background-color: rgba(238, 123, 160, 0.7);
+  figure.ink-reveal-on .ink-reveal,
+  .ink-reveal-on .ink-reveal.ink-reveal,
+  .ink-reveal-on.ink-reveal {
+    opacity: 1;
+    filter: blur(0);
+    clip-path: inset(0 0 0 0);
   }
 
-  .decoration-mark {
-    text-decoration-color: #f5d84a;
+  /* —— 拜帖：折起、盖印、飞走 —— */
+  .tie-fold {
+    animation: tie-fold 700ms cubic-bezier(0.65, 0, 0.35, 1) both;
+    transform-origin: center top;
+  }
+
+  @keyframes tie-fold {
+    0% {
+      transform: perspective(1400px) rotateX(0) scale(1);
+    }
+    100% {
+      transform: perspective(1400px) rotateX(64deg) scaleY(0.42) scale(0.86);
+      filter: brightness(0.92);
+    }
+  }
+
+  .tie-stamp {
+    animation: tie-stamp 520ms cubic-bezier(0.2, 0.9, 0.3, 1.25) both;
+  }
+
+  @keyframes tie-stamp {
+    0% {
+      transform: translate(-50%, -50%) scale(2.4) rotate(-14deg);
+      opacity: 0;
+    }
+    70% {
+      transform: translate(-50%, -50%) scale(0.9) rotate(-6deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1) rotate(-6deg);
+      opacity: 1;
+    }
+  }
+
+  .tie-fly {
+    animation: tie-fly 900ms cubic-bezier(0.55, 0, 0.75, 0.2) both;
+  }
+
+  @keyframes tie-fly {
+    0% {
+      transform: translate(0, 0) rotate(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(46vw, -70vh) rotate(18deg) scale(0.35);
+      opacity: 0;
+    }
+  }
+
+  .vertical {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+  }
+
+  /* —— 古籍：一叶书 —— */
+  .guji-leaf {
+    position: relative;
+    background-color: #f2e7cf;
+    background-image:
+      radial-gradient(ellipse at 18% 12%, rgba(176, 140, 86, 0.13), transparent 55%),
+      radial-gradient(ellipse at 86% 88%, rgba(150, 112, 64, 0.12), transparent 50%);
+    box-shadow:
+      0 34px 60px -34px rgba(28, 26, 23, 0.6),
+      0 2px 0 rgba(28, 26, 23, 0.05);
+  }
+
+  /* 四周双边：外粗内细 */
+  .guji-frame {
+    border: 2.5px solid rgba(28, 26, 23, 0.82);
+    box-shadow: inset 0 0 0 3px #f2e7cf, inset 0 0 0 4px rgba(28, 26, 23, 0.6);
+  }
+
+  /* 朱笔圈点：横排时圈在字下 */
+  .zhu-dot-under {
+    text-emphasis: open circle #a8322a;
+    -webkit-text-emphasis: open circle #a8322a;
+    text-emphasis-position: under right;
+    -webkit-text-emphasis-position: under;
+  }
+
+  /* 版心 */
+  .guji-banxin {
+    border-left: 1px solid rgba(28, 26, 23, 0.6);
+    border-right: 1px solid rgba(28, 26, 23, 0.6);
+  }
+
+  /* 翻页：书脊在左，右缘掀起、绕左缘翻过去 */
+  .leaf-stage {
+    perspective: 2400px;
+  }
+
+  .leaf-turn-out,
+  .leaf-turn-in {
+    transform-origin: left center;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  .leaf-turn-out {
+    animation: leaf-out 760ms cubic-bezier(0.45, 0.05, 0.25, 1) both;
+  }
+
+  .leaf-turn-in {
+    animation: leaf-in 760ms cubic-bezier(0.45, 0.05, 0.25, 1) both;
+  }
+
+  .leaf-turn-out::after,
+  .leaf-turn-in::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(270deg, rgba(28, 26, 23, 0.32), rgba(28, 26, 23, 0) 70%);
+    animation: leaf-shade 760ms ease-in both;
+  }
+
+  .leaf-turn-in::after {
+    animation-direction: reverse;
+  }
+
+  .leaf-under {
+    animation: leaf-under 760ms ease-out both;
+  }
+
+  @keyframes leaf-out {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(-118deg);
+    }
+  }
+
+  @keyframes leaf-in {
+    from {
+      transform: rotateY(-118deg);
+    }
+    to {
+      transform: rotateY(0deg);
+    }
+  }
+
+  @keyframes leaf-shade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes leaf-under {
+    from {
+      filter: brightness(0.86);
+    }
+    to {
+      filter: brightness(1);
+    }
+  }
+
+  /* 书角：右下角卷起一点，提示可翻 */
+  .leaf-corner {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(315deg, #d8c7a2 0 49%, rgba(28, 26, 23, 0.25) 50%, #fbf4e3 52%, #e6d6b5 100%);
+    box-shadow: -3px -3px 8px -4px rgba(28, 26, 23, 0.45);
+    transition:
+      width 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      height 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .leaf-corner:hover,
+  .leaf-corner:focus-visible {
+    width: 58px;
+    height: 58px;
+  }
+
+  /* 标题底下一笔朱砂飞白，用素材当遮罩，颜色仍由 CSS 控制 */
+  .title-swash {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .title-swash::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: -0.18em;
+    right: -0.55em;
+    top: 46%;
+    height: 0.58em;
+    background: #a8322a;
+    opacity: 0.2;
+    transform: rotate(-2.5deg);
+    -webkit-mask: url('/art/bimo.webp') no-repeat center / 100% 100%;
+    mask: url('/art/bimo.webp') no-repeat center / 100% 100%;
+    pointer-events: none;
+  }
+
+  /* 博古架牙板：顶上留一道横料，中间挖壸门弧，两端是架脚 */
+  .shelf-apron {
+    -webkit-mask: radial-gradient(ellipse 45% 78% at 50% 100%, transparent 98%, #000 100%);
+    mask: radial-gradient(ellipse 45% 78% at 50% 100%, transparent 98%, #000 100%);
+  }
+
+  /* 远山两侧化进纸里，不留硬边 */
+  .ink-mountains {
+    mix-blend-mode: multiply;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  }
+
+  /* 书架横向推拉：滚得动，但不露滚动条 */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 换门类时，书一册册从格底升上来；用 translate 属性，不和 hover 的 transform 打架 */
+  .shelf-rise {
+    animation: shelf-rise 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes shelf-rise {
+    from {
+      translate: 0 18px;
+      opacity: 0;
+    }
+    to {
+      translate: 0 0;
+      opacity: 1;
+    }
+  }
+
+  /* 崖上剑客：左边、下边化进雾里 */
+  .ink-cliff {
+    mix-blend-mode: multiply;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%), linear-gradient(0deg, transparent, #000 22%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent, #000 30%), linear-gradient(0deg, transparent, #000 22%);
+    mask-composite: intersect;
+  }
+
+  /* 首页白描上的批注：SVG 用户坐标，手机上画缩得厉害，字号放大 */
+  .slash-notes text {
+    font-size: 27px;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 1023px) {
+    .slash-notes text {
+      font-size: 36px;
+    }
+  }
+
+  /* 页脚江面：左右化进纸里 */
+  .ink-river {
+    mix-blend-mode: multiply;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  /* 一笔淡墨横划，代替发丝线 */
+  .brush-rule {
+    height: 14px;
+    background: #1c1a17;
+    opacity: 0.22;
+    -webkit-mask: url('/art/bimo.webp') no-repeat center / 100% 100%;
+    mask: url('/art/bimo.webp') no-repeat center / 100% 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shelf-rise {
+      animation: none;
+    }
+
+    .page-turn,
+    .page-turn-back,
+    .leaf-turn-out,
+    .leaf-turn-in,
+    .leaf-turn-out::after,
+    .leaf-turn-in::after,
+    .leaf-under {
+      animation: none;
+    }
+
+    .ink-btn {
+      transition: none;
+    }
   }
 }
 
@@ -223,10 +565,10 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #ead7ae;
+  background: #e4d3b4;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c9b17a;
+  background: #9a8c72;
   border-radius: 999px;
 }

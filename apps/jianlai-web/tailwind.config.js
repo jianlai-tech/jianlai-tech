@@ -4,20 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: '#F3E6C9',
-        ink: '#111111',
-        mark: '#F5D84A',
-        blush: '#EE7BA0',
-        lake: '#2BB3B1',
-        tape: '#F4E08A',
+        paper: '#EDDEC4',
+        ink: '#1C1A17',
+        cinnabar: '#A8322A',
+        slate: '#394838',
+        moss: '#43462F',
       },
       fontFamily: {
-        mark: ['"Ma Shan Zheng"', 'cursive'],
-        doodle: ['"ZCOOL KuaiLe"', 'cursive'],
         body: ['"Noto Serif SC"', 'Songti SC', 'STSong', 'serif'],
-      },
-      boxShadow: {
-        taped: '3px 8px 18px rgba(17, 17, 17, 0.12)',
       },
     },
   },

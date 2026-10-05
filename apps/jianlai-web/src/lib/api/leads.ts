@@ -1,12 +1,16 @@
 import { httpJson } from '@/lib/http'
 
+export type LeadKind = 'project' | 'referral'
+
 export type LeadPayload = {
-  company_name: string
+  kind: LeadKind
+  /** 简要介绍：项目写哪里卡住，转介绍写引荐的是谁、什么情况 */
+  note: string
   contact_name: string
   phone: string
+  company_name?: string
   wechat?: string
   scene?: string
-  note?: string
   source?: string
 }
 
