@@ -1,0 +1,156 @@
+{
+  "title": "见来官网的视觉世界",
+  "question": "重抽落到企业内刊。留下它、换一张、或再抽。",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "企业内刊",
+      "kicker": "THE ROLL",
+      "lineage": "地方晚报 / 厂报头版：红报头、栏外题、通讯员登记",
+      "thesis": "打开就像拿到今天的厂报。头版就讲驻场，登记栏就是留资。",
+      "palette": ["#C41E3A", "#1A1A1A", "#E8E2D4", "#F4F1EA", "#4A5560"],
+      "materials": ["新闻纸", "红报头", "栏外铅字", "骑缝墨", "朱红登记章"],
+      "viewport": "头版铺满第一屏。报头见来现场，主稿派人驻进公司。三栏行业现场，底栏通讯员登记。",
+      "risk": "会看成媒体站或招生小报，不像能进厂做系统的人。",
+      "raised": [
+        {
+          "from": "提花穿孔卡",
+          "raise": "每篇对得上一条工序，能从文章追回现场，不是散文栏目。"
+        },
+        {
+          "from": "月影市集",
+          "raise": "每条现场笔记带行业来源小票，不写客户名。"
+        },
+        {
+          "from": "磷光终端",
+          "raise": "没有网站导航皮。期数、栏目、登记状态印在栏外。"
+        },
+        {
+          "from": "萨普尔肖像",
+          "raise": "工序名有引出线，点到试课成交消课，不空摆现场照。"
+        }
+      ],
+      "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/decision/assigned.webp"
+    },
+    {
+      "id": "model-pick",
+      "label": "作业指导书",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "车间工艺卡：步骤号、注意框、过塑卡",
+      "thesis": "驻场按卡上的步把系统装上。第 01 步就是派人进来。",
+      "palette": ["#F7F4EA", "#111111", "#C41E3A", "#1F4E79"],
+      "materials": ["过塑白卡", "工程黑体", "注意红框", "打孔挂绳"],
+      "viewport": "一张指导书铺满屏。步骤 01 进现场，零件是试课成交消课。底边留电话。",
+      "risk": "这类站点常落到说明书风，会看成培训课件。",
+      "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/decision/model-pick.webp"
+    },
+    {
+      "id": "challenger-zine",
+      "label": "手绘小册",
+      "verdict": "competitive",
+      "lineage": "手绘 zine：马克笔标题、餐巾草图、高亮那一行",
+      "thesis": "朋友在纸上把驻场画给你看。箭头指到该做的那一步。",
+      "palette": ["#F3E6C9", "#111111", "#F5D84A", "#EE7BA0", "#2BB3B1"],
+      "materials": ["奶油纸", "马克笔", "高亮条", "涂鸦箭头"],
+      "viewport": "分格漫画。第一格派人进公司，高亮留电话那一行。",
+      "case": "把「做系统」讲清楚；管材老板可能当成互联网小报。",
+      "risk": "会看成教程博主，不像驻场的人。",
+      "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/decision/challenger-zine.webp",
+      "hero": "https://impeccable.style/worlds/cards/hand-drawn-zine-explainer-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/hand-drawn-zine-explainer.webp"
+    },
+    {
+      "id": "challenger-flyer",
+      "label": "叠贴街招",
+      "verdict": "competitive",
+      "lineage": "街头叠贴海报：一层压一层，只留一块白票",
+      "thesis": "墙已经贴满，只剩一块白票写见来，一个词大到能赢。",
+      "palette": ["#F3EDE0", "#111111", "#FF6A00", "#EE1F8A", "#7B57F0"],
+      "materials": ["孔版颗粒", "撕边", "平涂色块", "白票登记栏"],
+      "viewport": "满版拼贴墙。中间白票是留资。大词：驻场。",
+      "case": "老板认得街招；太响会看成招生或活动海报。",
+      "risk": "会看成培训招生，触碰本站红线。",
+      "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/decision/challenger-flyer.webp",
+      "hero": "https://impeccable.style/worlds/cards/fly-posted-festival-hoarding-built-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/fly-posted-festival-hoarding-built.webp"
+    },
+    {
+      "id": "challenger-jacquard",
+      "label": "提花穿孔卡",
+      "verdict": "declined",
+      "lineage": "提花机：穿孔指令织出金鸟",
+      "thesis": "千万个是否，织成一套能跑的系统。",
+      "palette": ["#0B1C3A", "#C9A227", "#F3E6C9"],
+      "materials": ["午夜绸", "金纬", "穿孔卡"],
+      "viewport": "上排穿孔卡，下排织纹慢慢聚成现场工序。",
+      "case": "老板对不上织机；诗意盖过驻场。",
+      "kept": "每篇对得上一条工序，能往回追。",
+      "risk": "像布料品牌。",
+      "hero": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-jacquard-punched-brocade-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-jacquard-punched-brocade.webp"
+    },
+    {
+      "id": "challenger-shadow",
+      "label": "月影市集",
+      "verdict": "declined",
+      "lineage": "集市卖影子：按长度、来处、温度论价",
+      "thesis": "每条现场是一团带出处的影子，小票写行业。",
+      "palette": ["#0B1220", "#C4A574", "#E8E8E0"],
+      "materials": ["月色巷", "摊布", "来处小票"],
+      "viewport": "一条巷，三摊：家教、分销、管材。",
+      "case": "卖影子不是驻场，老板对不上。",
+      "kept": "每条笔记带行业来源小票。",
+      "risk": "像奇幻店。",
+      "hero": "https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-moon-shadow-bazaar-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-moon-shadow-bazaar.webp"
+    },
+    {
+      "id": "challenger-phosphor",
+      "label": "磷光终端",
+      "verdict": "declined",
+      "lineage": "机房绿屏：光标呼吸、余辉",
+      "thesis": "整站是一份滚动记录，状态自己打出来。",
+      "palette": ["#07140A", "#41F35A"],
+      "materials": ["弯曲玻璃", "磷光绿", "余辉"],
+      "viewport": "黑底绿字，光标在留电话后面闪。",
+      "case": "老板用的是微信和进销存，不是终端。",
+      "kept": "没有网站导航皮，状态印在栏外。",
+      "risk": "像黑客演示。",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-phosphor-terminal-midnight-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-phosphor-terminal-midnight.webp"
+    },
+    {
+      "id": "challenger-sapeur",
+      "label": "肖像图注",
+      "verdict": "declined",
+      "lineage": "全身肖像：三色套装，衣物名印在框下",
+      "thesis": "一个人站在底上，图注引出每道工序。",
+      "palette": ["#E8D9C0", "#1A3A6B", "#C41E3A", "#D4A017"],
+      "materials": ["画布底", "正光", "框下图注"],
+      "viewport": "全身像，引出线点到试课成交消课。",
+      "case": "时装肖像不是驻场，老板对不上。",
+      "kept": "工序名必须有引出线。",
+      "risk": "像时装片。",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-sapeur-portrait-plate-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/pop-culture-shelf-sapeur-portrait-plate.webp"
+    }
+  ],
+  "reroll": {
+    "registers": ["safer", "bolder"]
+  },
+  "buildPath": {
+    "value": "comp",
+    "toggle": true
+  },
+  "canon": true,
+  "canonCard": {
+    "label": "咨询公司官网",
+    "thesis": "深色首屏、我们做 AI、客户 logo 墙、底部表单。按行规做满。",
+    "palette": ["#0B0F14", "#F8FAFC", "#2563EB"],
+    "materials": ["无衬线", "产品摄影", "渐变光"],
+    "viewport": "暗英雄区加一句口号，右或下是留资表。",
+    "risk": "跟所有 AI 咨询站长得一样。",
+    "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/decision/canon.webp"
+  },
+  "steer": true
+}

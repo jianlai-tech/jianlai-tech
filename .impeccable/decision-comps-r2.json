@@ -1,0 +1,44 @@
+{
+  "title": "剑谱首页：三张效果图",
+  "question": "挑一张当首页的样子。也可以说要把哪两张的哪部分合在一起。",
+  "options": [
+    {
+      "id": "kuaye",
+      "label": "跨页",
+      "kicker": "一",
+      "lineage": "剑谱打开成左右两页",
+      "thesis": "左页一式图谱，右页竖排大字。最像一本真书。",
+      "palette": ["#1C1A17", "#EFE6D2", "#A8322A", "#3F4B45"],
+      "materials": ["线装书口", "竖排大字", "招式线描", "朱印"],
+      "viewport": "一本打开的剑谱占满首屏，竖排「我有一剑」在右，第一式搬山在左。",
+      "risk": "竖排大字在手机上要改成横排，书的感觉会弱一些。",
+      "comp": ".impeccable/mocks/comp-r2-01-kuaye.png"
+    },
+    {
+      "id": "mulu",
+      "label": "目录",
+      "kicker": "二",
+      "lineage": "剑谱目录页",
+      "thesis": "九式一眼看完，每式一句大白话。最好懂。",
+      "palette": ["#1C1A17", "#EFE6D2", "#A8322A", "#3F4B45"],
+      "materials": ["刻本目录", "细横线", "竖排大字", "朱印"],
+      "viewport": "左边九行目录：第几式、名字、一句话；右边竖排「我有一剑」。",
+      "risk": "没有图，首屏偏静，靠字撑。",
+      "comp": ".impeccable/mocks/comp-r2-02-mulu.png"
+    },
+    {
+      "id": "yishi",
+      "label": "一式",
+      "kicker": "三",
+      "lineage": "满版一页，一式挥剑",
+      "thesis": "大字标题加一剑斩乱线的图，最有冲击力。",
+      "palette": ["#1C1A17", "#EFE6D2", "#A8322A", "#3F4B45"],
+      "materials": ["横排毛笔大字", "挥剑线描", "引出标注", "九式一行"],
+      "viewport": "左边大字「我有一剑，斩尽企业不平事」和按钮，右边学生挥剑斩乱线，底边一行九式。",
+      "risk": "最像海报；图里「私钱」是生成的错字，做的时候改成「省钱」。",
+      "comp": ".impeccable/mocks/comp-r2-03-yishi.png"
+    }
+  ],
+  "steer": true,
+  "buildPath": { "value": "comp", "toggle": false }
+}

@@ -1,0 +1,42 @@
+{
+  "title": "见来首页怎么摊开",
+  "question": "世界已经是手绘小册。三种铺法，留下一张，或说要改哪一块。",
+  "options": [
+    {
+      "id": "comp-01-spread",
+      "label": "分格摊开",
+      "kicker": "THE ROLL",
+      "lineage": "方向桌上那张：分格漫画 + 侧栏目录",
+      "thesis": "一页小册同时看见驻场、工序、留电话。",
+      "palette": ["#F3E6C9", "#111111", "#F5D84A", "#EE7BA0", "#2BB3B1"],
+      "materials": ["奶油纸", "马克笔", "高亮条", "涂鸦箭头"],
+      "viewport": "左到右三格。第一格进门，高亮留电话那一行。侧栏是家教 / 分销 / 管材。",
+      "risk": "格子一多，老板扫不到该留电话。",
+      "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/comp-01-spread.webp"
+    },
+    {
+      "id": "comp-02-notebook",
+      "label": "对开一册",
+      "kicker": "SPREAD",
+      "lineage": "打开的小册：订口在中间",
+      "thesis": "左页把驻场讲完，右页只做一件事：留下电话。",
+      "palette": ["#F3E6C9", "#111111", "#F5D84A", "#EE7BA0", "#2BB3B1"],
+      "materials": ["奶油纸", "订口", "马克笔", "高亮条"],
+      "viewport": "中间一条订口。左页标题和工序，右页手写栏，黄笔划过留个电话。",
+      "risk": "对开像杂志，不像能立刻填的页。",
+      "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/comp-02-notebook.webp"
+    },
+    {
+      "id": "comp-03-strip",
+      "label": "一条连环画",
+      "kicker": "STRIP",
+      "lineage": "一条横格：驻场 → 工序 → 便签",
+      "thesis": "一眼从进门读到撕下来的那张联系条。",
+      "palette": ["#F3E6C9", "#111111", "#F5D84A", "#EE7BA0", "#2BB3B1"],
+      "materials": ["奶油纸", "马克笔", "撕边便签", "高亮条"],
+      "viewport": "一条横带铺满屏。第三格是撕下来的留资便签。",
+      "risk": "连环画会看成儿童读物。",
+      "comp": "/Users/shujianzhao/Documents/shujian-coding/jianlai-tech/.impeccable/mocks/comp-03-strip.webp"
+    }
+  ]
+}
