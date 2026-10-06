@@ -39,7 +39,7 @@ export function HomePage() {
             />
           </picture>
           <figcaption>
-            <span className="sr-only">图注：表格并成一套口径；系统之间的锁打通；这一剑是会自己迭代的数字员工，补上财务、经营分析这类企业缺的专业人手，AI 给建议，人来判断和执行。</span>
+            <span className="sr-only">图注：表格并成一套口径；系统之间的锁打通；数字员工会自己迭代，补上财务、经营分析这类企业缺的专业人手，AI 给建议，人来判断和执行。</span>
             {/* 批注跟着画走：坐标是原图 1024 方格，slice 和 object-cover 裁法一致 */}
             <svg
               aria-hidden
@@ -50,7 +50,7 @@ export function HomePage() {
               {[
                 { k: '散在各处的表格', v: '并成一套口径', x: 44, y: 196, path: 'M 120 236 C 118 300, 132 360, 150 420', dot: [152, 432] },
                 { k: '系统之间的锁', v: 'OA、CRM、ERP 打通', x: 330, y: 214, path: 'M 340 254 C 330 300, 312 340, 300 392', dot: [298, 404] },
-                { k: '这一剑 · 数字员工', v: ['补财务、经营分析的专业缺口', 'AI 给建议，人判断、执行', '能自己迭代，越用越懂行'], x: 330, y: 846, path: 'M 340 806 C 340 740, 334 690, 322 618', dot: [320, 606] },
+                { k: '数字员工', v: ['补财务、经营分析的专业缺口', 'AI 给建议，人判断、执行', '能自己迭代，越用越懂行'], x: 330, y: 846, path: 'M 340 806 C 340 740, 334 690, 322 618', dot: [320, 606] },
               ].map((n) => (
                 <g key={n.k}>
                   <path d={n.path} fill="none" stroke="#1c1a17" strokeOpacity="0.55" strokeWidth="1.6" strokeDasharray="5 6" strokeLinecap="round" />
