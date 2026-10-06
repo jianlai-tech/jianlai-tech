@@ -25,13 +25,16 @@ export type CaseModel = {
   insight?: string
 }
 
-/** 投入与产出：只写我们自己的投入和交付，客户的经营数字一律不写 */
+/** 投入与产出：不写价格；只写我们的投入（人、时间）和交付，客户的经营数字一律不写 */
 export type CaseLedger = {
   span: string
-  invest: string
+  /** 账页大字，一句话说清结果，例如「十个月，全公司上线」 */
+  headline: string
   team: string
   phases: { when: string; who: string; what: string }[]
   output: { k: string; v: string }[]
+  /** 怎么干：响应、速度、往后 */
+  craft: { k: string; v: string }[]
   /** 估算口径，必须写明，页面上一起展示 */
   basis: string
 }

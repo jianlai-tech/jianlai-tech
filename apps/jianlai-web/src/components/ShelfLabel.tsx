@@ -20,7 +20,7 @@ export function ShelfLabel({
   const { item, ready, vol } = entry
   const facts = [
     item.ledger ? item.ledger.span : null,
-    item.ledger ? `投入${item.ledger.invest}` : null,
+    item.ledger ? item.ledger.headline : null,
     item.processWords.length ? item.processWords.join(' · ') : null,
   ].filter(Boolean) as string[]
 

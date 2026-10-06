@@ -52,7 +52,7 @@ function CaseCover({ item, vol }: { item: CaseRecord; vol: number }) {
           <p className="kai text-[14px] tracking-[0.3em] text-[#efe3c6]/60">{item.industry}</p>
           {item.ledger ? (
             <p className="kai mt-2 text-[15px] leading-[1.9] text-[#efe3c6]/80">
-              {item.ledger.span} · 投入{item.ledger.invest}
+              {item.ledger.span} · {item.ledger.headline}
             </p>
           ) : null}
         </div>
@@ -89,7 +89,7 @@ function CaseContents({ item, onPick }: { item: CaseRecord; onPick: (page: numbe
       <Banxin book="剑来案例集" label="目录" folio="二" />
       <ol className="flex-1 border-t border-ink/30 md:flex md:flex-col md:justify-center md:border-t-0 md:px-8 md:py-6">
         {[
-          ...(item.ledger ? [{ k: '账页', name: '投入', line: '投了多少、多久、换来什么', page: 2 }] : []),
+          ...(item.ledger ? [{ k: '账页', name: '投入', line: '多久、几个人、交了什么、怎么干', page: 2 }] : []),
           { k: '序', name: '生意', line: '两门生意怎么赚钱，怎么盘活', page: item.ledger ? 3 : 2 },
           { k: '序', name: '驻场', line: '人怎么进去，怎么做', page: item.ledger ? 4 : 3 },
           ...chapters.map((c, i) => ({ k: `第${cnNum(i + 1)}式`, name: c.form, line: c.title, page: i + (item.ledger ? 5 : 4) })),
@@ -111,26 +111,17 @@ function CaseContents({ item, onPick }: { item: CaseRecord; onPick: (page: numbe
   )
 }
 
-/** 账页：投入与产出。左半叶是时间线（谁、什么时候、做了什么），右半叶是交付和估值 */
+/** 账页：投入与产出。左半叶是时间线（谁、什么时候、做了什么），右半叶是交付和怎么干。不写价格 */
 function LedgerPage({ item }: { item: CaseRecord }) {
   const l = item.ledger
   if (!l) return null
   return (
     <div className={H}>
-      <div className="flex shrink-0 flex-col gap-5 p-6 md:w-[44%] md:p-9">
-        <p className="kai text-[15px] text-ink/55">账页 · 投入</p>
-        <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
-          <p>
-            <span className="kai block text-[14px] text-ink/55">投入</span>
-            <span className="brush text-[52px] leading-none text-cinnabar">{l.invest}</span>
-          </p>
-          <p className="pb-1">
-            <span className="kai block text-[14px] text-ink/55">周期</span>
-            <span className="text-[16px]">{l.span}</span>
-          </p>
-        </div>
+      <div className="flex shrink-0 flex-col gap-4 p-6 md:w-[42%] md:p-8">
+        <p className="kai text-[15px] text-ink/55">账页 · {l.span}</p>
+        <p className="brush text-[40px] leading-[1.1] text-cinnabar sm:text-[44px]">{l.headline}</p>
         <p className="kai text-[15px] text-ink/70">{l.team}</p>
-        <ol className="relative mt-1 space-y-3.5 border-l border-ink/30 pl-5">
+        <ol className="relative mt-1 space-y-3 border-l border-ink/30 pl-5">
           {l.phases.map((p) => (
             <li key={p.when} className="relative">
               <span aria-hidden className="absolute -left-[25px] top-[0.45em] h-2.5 w-2.5 rounded-full border-[1.5px] border-cinnabar bg-[#f2e7cf]" />
@@ -138,23 +129,36 @@ function LedgerPage({ item }: { item: CaseRecord }) {
                 {p.when}
                 <span className="ml-2 text-cinnabar/85">{p.who}</span>
               </p>
-              <p className="text-[15.5px] leading-[1.7] text-ink/85">{p.what}</p>
+              <p className="text-[15px] leading-[1.65] text-ink/85">{p.what}</p>
             </li>
           ))}
         </ol>
       </div>
       <Banxin book="剑来案例集" label="账页 · 投入与产出" folio="三" />
-      <div className="flex flex-1 flex-col justify-center gap-3 border-t border-ink/20 p-6 md:border-t-0 md:px-9">
-        <p className="kai text-[15px] text-ink/55">产出</p>
-        <dl className="space-y-2.5">
-          {l.output.map((o) => (
-            <div key={o.k} className="grid grid-cols-[2.6rem_1fr] gap-3 border-b border-ink/15 pb-2.5 last:border-b-0">
-              <dt className="brush text-[22px] leading-none text-cinnabar">{o.k}</dt>
-              <dd className="text-[15.5px] leading-[1.75] text-ink/85">{o.v}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="kai mt-1 text-[13px] leading-[1.7] text-ink/50">估算口径：{l.basis}</p>
+      <div className="flex flex-1 flex-col justify-center gap-4 border-t border-ink/20 p-6 md:border-t-0 md:px-8">
+        <div>
+          <p className="kai mb-1.5 text-[15px] text-ink/55">交了什么</p>
+          <dl className="space-y-1.5">
+            {l.output.map((o) => (
+              <div key={o.k} className="grid grid-cols-[2.4rem_1fr] gap-3 border-b border-ink/15 pb-1.5 last:border-b-0">
+                <dt className="brush text-[20px] leading-[1.3] text-cinnabar">{o.k}</dt>
+                <dd className="text-[15px] leading-[1.7] text-ink/85">{o.v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <div>
+          <p className="kai mb-2 text-[15px] text-ink/55">怎么干的</p>
+          <dl className="grid gap-x-5 gap-y-2.5 sm:grid-cols-2">
+            {l.craft.map((c) => (
+              <div key={c.k} className="flex gap-2.5">
+                <dt className="brush shrink-0 text-[26px] leading-none text-ink">{c.k}</dt>
+                <dd className="text-[14px] leading-[1.7] text-ink/75">{c.v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <p className="kai text-[12.5px] leading-[1.6] text-ink/45">注：{l.basis}</p>
       </div>
     </div>
   )
