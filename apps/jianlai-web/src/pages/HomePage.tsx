@@ -22,7 +22,7 @@ export function HomePage() {
             </p>
             <p className="mt-3 text-[17px] leading-[1.85] text-ink/80 sm:text-[18px]">
               驻场的人进你公司，把卡住的地方一剑一剑斩开。
-              <span className="kai text-cinnabar">不交方案，交一套你们天天在用的系统。</span>
+              <span className="kai text-cinnabar">不交方案，只认结果：成本降下来，效率提上去，或者多长出一块新业务。</span>
             </p>
           </div>
         </div>
