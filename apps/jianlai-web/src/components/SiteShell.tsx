@@ -32,9 +32,12 @@ export function SiteShell() {
   return (
     <div className="paper">
       <header className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between gap-4 px-5 sm:px-6">
-        <Link to="/" aria-label="剑来科技 · 回首页" className="flex shrink-0 items-center gap-2.5 no-underline">
+        <Link to="/" aria-label="剑来科技 · AI落地，回首页" className="flex shrink-0 items-center gap-2.5 no-underline">
           <Seal chars="剑来" size={22} className="-rotate-2" />
-          <span className="brush hidden text-[30px] leading-none text-ink sm:inline">剑来</span>
+          <span className="flex flex-col justify-center">
+            <span className="brush hidden text-[30px] leading-none text-ink sm:inline">剑来</span>
+            <span className="kai text-[12px] leading-none tracking-[0.14em] text-ink/55 sm:mt-1">AI落地</span>
+          </span>
         </Link>
         <nav aria-label="主导航" className="flex items-center gap-5 text-[16px] sm:gap-12 sm:text-[19px]">
           {NAV.map((item) => {
