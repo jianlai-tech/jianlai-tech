@@ -23,8 +23,9 @@ apps/jianlai-web/.tsbuildinfo
 !.impeccable/mocks/decision/.gitkeep
 .impeccable/cases/
 
-# 含身份证号 / 住所，公开仓库禁止提交
+# 含身份证号 / 住所 / 银行卡，公开仓库禁止提交
 knowledge/公司章程*.md
+knowledge/*.local.md
 *.pdf
 .impeccable/mocks/
 .impeccable/quality-bar/

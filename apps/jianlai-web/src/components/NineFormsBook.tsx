@@ -1,12 +1,20 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { GujiBook, type GujiPage } from '@/components/GujiBook'
 import { Contents, Cover, FormPage } from '@/components/NineFormsPages'
 import { FORMS, ORDINALS } from '@/content/forms'
-import { stamp } from '@/lib/seals'
 
 /** 剑来剑谱：封面 + 目录 + 九式，翻页机制和案例册共用 GujiBook */
-export function NineFormsBook() {
-  const [page, setPage] = useState(0)
+export function NineFormsBook({
+  page: controlled,
+  onPageChange,
+}: {
+  /** 首页九式条点进来时由外面控制翻到哪页 */
+  page?: number
+  onPageChange?: (page: number) => void
+} = {}) {
+  const [inner, setInner] = useState(0)
+  const page = controlled ?? inner
+  const setPage = onPageChange ?? setInner
 
   const pages = useMemo<GujiPage[]>(
     () => [
@@ -18,13 +26,8 @@ export function NineFormsBook() {
         render: () => <FormPage form={form} index={index} />,
       })),
     ],
-    [],
+    [setPage],
   )
-
-  // 翻进第三式往后，算读过剑谱
-  const onPage = useCallback((p: number) => {
-    if (p >= 4) stamp('forms')
-  }, [])
 
   return (
     <GujiBook
@@ -32,7 +35,6 @@ export function NineFormsBook() {
       pages={pages}
       page={page}
       onPageChange={setPage}
-      onPage={onPage}
     />
   )
 }

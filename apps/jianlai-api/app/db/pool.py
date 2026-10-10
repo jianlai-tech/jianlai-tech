@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ssl
 from urllib.parse import parse_qs, urlparse, urlunparse
 
 import asyncpg
@@ -13,18 +14,28 @@ def row_to_dict(row: asyncpg.Record) -> dict:
     return dict(row)
 
 
+def _ssl_for(host: str, sslmode: str):
+    railway_proxy = host.endswith((".proxy.rlwy.net", ".rlwy.net"))
+    needs_ssl = sslmode in {"require", "verify-ca", "verify-full"} or railway_proxy
+    if not needs_ssl:
+        return None
+    ctx = ssl.create_default_context()
+    if railway_proxy or sslmode == "require":
+        # Railway TCP 代理链上是自签中间证，校验会失败。
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+    return ctx
+
+
 def _asyncpg_connect_args(database_url: str) -> dict:
     parsed = urlparse(database_url)
     query = parse_qs(parsed.query)
     sslmode = (query.get("sslmode") or [""])[0].lower()
     host = parsed.hostname or ""
-    needs_ssl = sslmode in {"require", "verify-ca", "verify-full"} or host.endswith(
-        ".proxy.rlwy.net"
-    )
     clean = parsed._replace(query="")
     return {
         "dsn": urlunparse(clean),
-        "ssl": True if needs_ssl else None,
+        "ssl": _ssl_for(host, sslmode),
     }
 
 

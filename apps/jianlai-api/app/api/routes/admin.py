@@ -67,8 +67,8 @@ async def create_staff(body: StaffAccountIn, _: AdminAccount):
     async with pool.acquire() as conn, conn.transaction():
         row = await conn.fetchrow(
             """
-                INSERT INTO accounts (kind, phone, name, password_hash, staff_slug, status)
-                VALUES ('staff', $1, $2, $3, $4, 'active')
+                INSERT INTO accounts (kind, phone, name, password_hash, staff_slug, status, must_change_password)
+                VALUES ('staff', $1, $2, $3, $4, 'active', false)
                 ON CONFLICT (phone) DO NOTHING
                 RETURNING id
                 """,
@@ -151,7 +151,7 @@ async def reset_password(account_id: str, body: ResetIn, _: AdminAccount):
     pool = await get_pool()
     async with pool.acquire() as conn:
         result = await conn.execute(
-            "UPDATE accounts SET password_hash = $2, must_change_password = true WHERE id = $1::uuid",
+            "UPDATE accounts SET password_hash = $2, must_change_password = (kind <> 'staff') WHERE id = $1::uuid",
             account_id,
             hash_password(body.new_password),
         )

@@ -7,7 +7,7 @@ alwaysApply: false
 
 剑来科技**自己**的内务后台，不是客户业务后台。总览、销售、人事、财务四个模块。端口 **5191**，本地和线上都挂在 `/dashboard`。
 
-线上：`https://jianlai.brewshujian.cafe/dashboard`（Cloudflare Pages 项目 `jianlai`，和官网打在同一个站点里）。重新发布用仓库根目录 `just deploy-pages`。
+线上：`https://jianlai.brewshujian.cafe/dashboard`（Cloudflare Pages 项目 `jianlai`，和官网打在同一个站点里）。发版走仓库技能 `jianlai-ship`，重新发布用根目录 `just deploy-pages`。
 
 - bun + Vite + React 19 + TanStack Router + Tailwind 3 + lucide-react
 - 单独成 App，不并进 `jianlai-web`：名册里有门派、境界，对内信息不能打进官网的公开包
@@ -25,7 +25,8 @@ alwaysApply: false
 | 数据 | 真假 | 来源 |
 |---|---|---|
 | 账号、登录、剑来认证、项目进度与角色 | 真 | `apps/jianlai-api`（`accounts` / `sessions` / `staff_profiles` / `staff_certs` / `projects` / `project_members`，DDL `schemas/004_accounts.sql`） |
-| 名册、门派、境界、四维口径 | 真 | `knowledge/工作室.md`，落在 `src/data/studio.ts` |
+| 名册、门派、境界、四维口径 | 真 | `knowledge/工作室.md`，落在 `src/data/studio.ts`（含 `staff.id` UUID） |
+| 身份证、银行卡、手机 | 真，不进仓库 | `staff_hr`（DDL `schemas/005_staff_hr.sql`），名单 `apps/jianlai-api/staff_hr.local.csv` / `knowledge/人事.local.md` |
 | 公司主体 | 真 | `knowledge/公司.md`，落在 `studio.ts` 的 `COMPANY` |
 | 留资线索、现场分配、流水、应收、时间窗口 | **示意** | `src/data/store.tsx`，页面上都带「示意」标 |
 
@@ -39,10 +40,11 @@ alwaysApply: false
 | 同门（驻场） | 名单经 `seed_accounts` 或「账号 → 新开同门」开通；初始密码身份证后 6 位，末位 X 大写 | 只有「我的档案」 |
 | 合作企业 | 管理员建号后是「待付款开通」，确认收款点「确认付款并开通」才能登录 | 只有「项目进度」，只看挂在自己名下的项目 |
 
-- 首次登录（或被重置）必须先改密码，至少 8 位。身份证号不入库，只存初始密码的 scrypt 哈希。
+- 剑修密码就是身份证后 6 位（末位 X 大写），不强制改。想改去「我的档案」。合作企业被重置后仍要先改密码。身份证号不入库，只存密码的 scrypt 哈希。
 - 个人信息分两块：**个性化**（称呼、一句话、擅长、想做的、性格、有空时间）本人改，对外展示用；**剑来认证**（门派、境界、四维、参与项目的角色和进度）只有管理员改，本人只读。
 - 停用账号会立刻踢掉它的全部会话；管理员不能停用自己。
 - 批量开同门：在 `apps/jianlai-api/staff_accounts.local.csv` 按 `staff_accounts.example.csv` 填真实手机号和身份证后 6 位（`*.local.csv` 已 gitignore），`uv run python -m app.seed_accounts` 先预览，加 `--apply` 写库。
+- 人事档案：身份证全号、银行卡、手机只放 `staff_hr.local.csv`，`uv run python -m app.seed_staff_hr --apply` 写入 `staff_hr`。后台账号表仍然不存身份证号。
 
 - 示意数据日期一律用 `fromToday(n)` 偏移，不写死日历日。
 - 接库之前改动只活在内存里，刷新回到初始。

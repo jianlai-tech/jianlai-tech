@@ -20,7 +20,7 @@ alwaysApply: true
 | `apps/jianlai-web` | React 人机界面（官网），默认端口 **5190** |
 | `apps/jianlai-console` | 内务后台（总览 / 销售 / 人事 / 财务），默认端口 **5191**，细则见该目录 `AGENTS.md` |
 | `knowledge/` | 产品业务知识；案例底稿在 `knowledge/案例/`；驻场怎么干见 `knowledge/驻场SOP.md` |
-| `schemas/` | PostgreSQL DDL |
+| `schemas/` | PostgreSQL DDL（留资 / 名册 / 账号 / 人事档案结构） |
 
 ## 工程 SOP
 
@@ -58,8 +58,11 @@ alwaysApply: true
 
 ## 部署
 
+发版走 `.agents/skills/jianlai-ship`（说 ship / 上线 / 推上去就用它）。脚本：`python3 .agents/skills/jianlai-ship/scripts/jianlai_ship.py plan|check|verify`。
+
 前台 + 内务：Cloudflare Pages 项目 `jianlai`（账号 onion）。官网在站点根路径，内务在 `/dashboard`。发布：`just deploy-pages`。
-内务后台的登录、账号、认证、项目都走 `apps/jianlai-api`；线上 API 还没部署，Pages 构建时要用 `VITE_API_BASE_URL` 指向线上 API，否则后台登录不了。
+内务后台的登录、账号、认证、项目都走 `apps/jianlai-api`。线上 API：Railway 项目 `jianlai-tech`、服务 `jianlai-api`、域名 `https://jianlai-api-production.up.railway.app`。Root Directory 是 `apps/jianlai-api`。默认 `git push main` 触发构建；本地直传用 `just deploy-api`，不要进 `apps/jianlai-api` 里 `railway up`。
+Pages 用 `just deploy-pages`，会把 `VITE_API_BASE_URL` 打进内务包。
 自定义域 `jianlai.brewshujian.cafe` 的 DNS 在 DNSPod，不在 Cloudflare 上。
 
 EdgeOne Makers 仍接 GitHub `main`、根目录 `apps/jianlai-web`，但本期免费构建次数已超额。默认 `.edgeone.cool` 未绑自定义域时直开会 401。

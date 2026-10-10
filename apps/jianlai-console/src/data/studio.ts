@@ -6,6 +6,8 @@
 export type Gate = '问剑门' | '破阵门' | '映剑门'
 
 export type Person = {
+  /** 与 staff.id / 人事档案一致 */
+  id: string
   slug: string
   alias: string
   name: string
@@ -49,6 +51,7 @@ export function realmName(person: Person) {
 
 export const PEOPLE: Person[] = [
   {
+    id: 'b2600128-feb6-5147-a88c-cf8b53ca841c',
     slug: 'shujian',
     alias: '书剑',
     name: '赵书剑',
@@ -57,12 +60,12 @@ export const PEOPLE: Person[] = [
     portrait: '/people/shujian.webp',
     chief: true,
   },
-  { slug: 'mumu', alias: '木木', name: '吴桐', gate: '破阵门', realmNo: 4, portrait: '/people/mumu.webp' },
-  { slug: 'yungu', alias: '云故', name: '杨成焯', gate: '破阵门', realmNo: 4, portrait: '/people/yungu.webp' },
-  { slug: 'huangyixuan', alias: '黄奕轩', name: '黄奕轩', gate: '破阵门', realmNo: 4, portrait: '/people/huangyixuan.webp' },
-  { slug: 'jiong', alias: '囧', name: '易鑫辉', gate: '破阵门', realmNo: 4, portrait: '/people/jiong.webp' },
-  { slug: 'xiaoyu', alias: '小鱼', name: '喻翔宇', gate: '破阵门', realmNo: 4, portrait: '/people/xiaoyu.webp' },
-  { slug: 'xiaodui', alias: '小兑', name: '王悦', gate: '映剑门', realmNo: 4, portrait: '/people/xiaodui.webp' },
+  { id: '15688b82-f327-58cc-a86f-816764767d6b', slug: 'mumu', alias: '木木', name: '吴桐', gate: '破阵门', realmNo: 4, portrait: '/people/mumu.webp' },
+  { id: '8c9ad04e-d4b9-5bfe-86d6-17279944e606', slug: 'yungu', alias: '云故', name: '杨成焯', gate: '破阵门', realmNo: 4, portrait: '/people/yungu.webp' },
+  { id: '6ba1272e-959e-5c65-9503-6315c30cd590', slug: 'huangyixuan', alias: '黄奕轩', name: '黄奕轩', gate: '破阵门', realmNo: 4, portrait: '/people/huangyixuan.webp' },
+  { id: '46a6d7f2-56dc-5a57-9322-fcda5f4f5993', slug: 'jiong', alias: '囧', name: '易鑫辉', gate: '破阵门', realmNo: 4, portrait: '/people/jiong.webp' },
+  { id: '8e5cf881-fb87-5047-b12d-4ac69bc32a0d', slug: 'xiaoyu', alias: '小鱼', name: '喻翔宇', gate: '破阵门', realmNo: 4, portrait: '/people/xiaoyu.webp' },
+  { id: 'c731f666-f84e-5fd6-b7e1-5c9cfc076ffe', slug: 'xiaodui', alias: '小兑', name: '王悦', gate: '映剑门', realmNo: 4, portrait: '/people/xiaodui.webp' },
 ]
 
 export const GATES: { name: Gate; craft: string; line: string }[] = [

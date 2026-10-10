@@ -38,17 +38,23 @@ CREATE TABLE IF NOT EXISTS case_staff (
     PRIMARY KEY (case_id, staff_id)
 );
 
-INSERT INTO staff (slug, name, role, specialty, bio, sort_order, public)
-VALUES (
-    'shujian',
-    '书剑',
-    'principal',
-    '接现场、派驻场',
-    '剑来科技主理人。',
-    0,
-    true
-)
-ON CONFLICT (slug) DO NOTHING;
+-- id 用 uuid5(jianlai.tech, staff:<slug>)，人事档案 staff_hr 按这个主键挂。
+INSERT INTO staff (id, slug, name, role, specialty, bio, sort_order, public)
+VALUES
+    ('b2600128-feb6-5147-a88c-cf8b53ca841c', 'shujian', '赵书剑', 'principal', '接现场、派驻场', '剑来科技主理人。', 0, true),
+    ('15688b82-f327-58cc-a86f-816764767d6b', 'mumu', '吴桐', 'fde', NULL, NULL, 10, true),
+    ('8c9ad04e-d4b9-5bfe-86d6-17279944e606', 'yungu', '杨成焯', 'fde', NULL, NULL, 20, true),
+    ('6ba1272e-959e-5c65-9503-6315c30cd590', 'huangyixuan', '黄奕轩', 'fde', NULL, NULL, 30, true),
+    ('46a6d7f2-56dc-5a57-9322-fcda5f4f5993', 'jiong', '易鑫辉', 'fde', NULL, NULL, 40, true),
+    ('8e5cf881-fb87-5047-b12d-4ac69bc32a0d', 'xiaoyu', '喻翔宇', 'fde', NULL, NULL, 50, true),
+    ('c731f666-f84e-5fd6-b7e1-5c9cfc076ffe', 'xiaodui', '王悦', 'fde', NULL, NULL, 60, true)
+ON CONFLICT (slug) DO UPDATE SET
+    name = EXCLUDED.name,
+    role = EXCLUDED.role,
+    specialty = COALESCE(EXCLUDED.specialty, staff.specialty),
+    bio = COALESCE(EXCLUDED.bio, staff.bio),
+    sort_order = EXCLUDED.sort_order,
+    public = EXCLUDED.public;
 
 INSERT INTO cases (slug, industry, title, stuck_at, built, process_words, who_uses, pitch, status, published, sort_order)
 VALUES

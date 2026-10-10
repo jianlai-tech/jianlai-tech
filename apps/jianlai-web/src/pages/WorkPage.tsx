@@ -7,7 +7,6 @@ import { ShelfLabel } from '@/components/ShelfLabel'
 import { CASES } from '@/content/cases'
 import { cn } from '@/lib/cn'
 import { cnNum } from '@/lib/numerals'
-import { stamp } from '@/lib/seals'
 
 const ALL = '全部'
 
@@ -60,14 +59,6 @@ export function WorkPage() {
     if (index >= 0) go(index, true)
   }
 
-  const currentVol = currentEntry?.vol
-  useEffect(() => {
-    // 翻开第二册或停留片刻，算看过案例集
-    if (currentVol && currentVol !== 1) stamp('cases')
-    const t = window.setTimeout(() => stamp('cases'), 8000)
-    return () => window.clearTimeout(t)
-  }, [currentVol])
-
   useEffect(() => {
     // 整册案例自己接 ← → 翻页；只有单页册才用 ← → 换册
     if (current?.chapters?.length) return
@@ -100,12 +91,12 @@ export function WorkPage() {
                 className={cn(
                   'kai border px-3.5 py-1 text-[15px] transition-colors duration-200',
                   sector === s.name
-                    ? 'border-cinnabar bg-cinnabar text-[#f5ecd9]'
+                    ? 'border-ink bg-ink text-[#f2e7cf]'
                     : 'border-ink/30 text-ink/70 hover:border-ink hover:text-ink',
                 )}
               >
                 {s.name}
-                <span className={cn('ml-1.5 text-[12px]', sector === s.name ? 'text-[#f5ecd9]/75' : 'text-ink/40')}>
+                <span className={cn('ml-1.5 text-[12px]', sector === s.name ? 'text-[#f2e7cf]/70' : 'text-ink/40')}>
                   {s.count}
                 </span>
               </button>

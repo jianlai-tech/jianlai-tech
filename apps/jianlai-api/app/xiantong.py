@@ -100,6 +100,8 @@ async def serve() -> None:
     from aibot import WSClient, WSClientOptions
     from aibot.utils import generate_random_string
 
+    from app.logging_config import QuietAiBotLogger
+
     if not settings.wecom_bot_id or not settings.wecom_bot_secret:
         raise RuntimeError("缺 WECOM_BOT_ID 或 WECOM_BOT_SECRET")
 
@@ -108,6 +110,7 @@ async def serve() -> None:
             bot_id=settings.wecom_bot_id,
             secret=settings.wecom_bot_secret,
             max_reconnect_attempts=-1,
+            logger=QuietAiBotLogger(),
         )
     )
 

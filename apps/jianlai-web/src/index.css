@@ -538,6 +538,128 @@
     mask: url('/art/bimo.webp') no-repeat center / 100% 100%;
   }
 
+  /* —— 首屏开场：一笔写出 → 一剑劈开 → 批注落墨 → 钤印 —— */
+  .hero-write {
+    display: inline-block;
+    animation: hero-write 900ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  @keyframes hero-write {
+    from {
+      clip-path: inset(-10% 100% -10% 0);
+      filter: blur(3px);
+    }
+    to {
+      clip-path: inset(-10% -2% -10% 0);
+      filter: blur(0);
+    }
+  }
+
+  .hero-seal {
+    animation: seal-press 640ms cubic-bezier(0.2, 0.9, 0.3, 1.2) 1250ms both;
+  }
+
+  .hero-rise {
+    animation: hero-rise 800ms cubic-bezier(0.16, 1, 0.3, 1) 900ms both;
+  }
+
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      translate: 0 14px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* 白描顺着剑势从右上往左下劈开 */
+  .hero-slash {
+    animation: hero-slash 1100ms cubic-bezier(0.7, 0, 0.2, 1) 250ms both;
+  }
+
+  @keyframes hero-slash {
+    from {
+      clip-path: polygon(100% 0, 100% 0, 100% 0, 100% 0);
+    }
+    to {
+      clip-path: polygon(-60% 0, 100% 0, 100% 100%, -60% 160%);
+    }
+  }
+
+  .hero-note {
+    animation: hero-note 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes hero-note {
+    from {
+      opacity: 0;
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  /* 九式条：停在哪一式，底下一笔朱墨扫过去 */
+  .form-tab {
+    position: relative;
+  }
+
+  .form-tab::after {
+    content: '';
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 6px;
+    height: 9px;
+    background: #a8322a;
+    opacity: 0.55;
+    -webkit-mask: url('/art/bimo.webp') no-repeat center / 100% 100%;
+    mask: url('/art/bimo.webp') no-repeat center / 100% 100%;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 420ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .form-tab:hover::after,
+  .form-tab:focus-visible::after {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* 读卷进度：顶上一道朱线随滚动拉长，像剑出鞘 */
+  @supports (animation-timeline: scroll()) {
+    .read-progress {
+      animation: read-progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  @keyframes read-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-write,
+    .hero-seal,
+    .hero-rise,
+    .hero-slash,
+    .hero-note,
+    .read-progress {
+      animation: none !important;
+    }
+
+    .form-tab::after {
+      transition: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .shelf-rise {
       animation: none;

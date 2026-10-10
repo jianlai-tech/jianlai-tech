@@ -1,4 +1,4 @@
-import { Navigate, RouterProvider, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
+import { Navigate, RouterProvider, createRootRoute, createRoute, createRouter, useRouterState } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { Shell } from '@/components/Shell'
 import { useAuth } from '@/data/auth'
@@ -12,14 +12,34 @@ import { MePage } from '@/pages/MePage'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { SalesPage } from '@/pages/SalesPage'
 
-/** 登录闸：没登录给登录页，初始密码先改，再按身份分流 */
+const ADMIN_PATHS = new Set(['/', '/sales', '/hr', '/finance', '/accounts'])
+
+function homeFor(kind: string, isAdmin: boolean) {
+  if (kind === 'client') return '/project'
+  if (isAdmin) return '/'
+  return '/me'
+}
+
+/** 登录闸：没登录给登录页。剑修非管理员只能待在档案；合作企业待在项目进度。 */
 function Gate() {
   const { me, loading } = useAuth()
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
   if (loading) {
     return <div className="grid min-h-dvh place-items-center text-ink3">载入中…</div>
   }
   if (!me) return <LoginPage />
-  if (me.account.must_change_password) return <ForcePasswordPage />
+  if (me.account.kind !== 'staff' && me.account.must_change_password) return <ForcePasswordPage />
+
+  const home = homeFor(me.account.kind, me.account.is_admin)
+  if (!me.account.is_admin && ADMIN_PATHS.has(pathname)) {
+    return <Navigate to={home} replace />
+  }
+  if (me.account.kind === 'staff' && pathname === '/project') {
+    return <Navigate to={home} replace />
+  }
+  if (me.account.kind === 'client' && pathname !== '/project') {
+    return <Navigate to="/project" replace />
+  }
   return <Shell />
 }
 

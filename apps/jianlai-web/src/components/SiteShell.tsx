@@ -1,6 +1,5 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
 import { cn } from '@/lib/cn'
-import { CollectorSeals } from '@/components/CollectorSeals'
 import { InkRiver } from '@/components/Accents'
 import { Seal } from '@/components/Seal'
 
@@ -31,15 +30,16 @@ export function SiteShell() {
 
   return (
     <div className="paper">
+      <div aria-hidden className="read-progress pointer-events-none fixed inset-x-0 top-0 z-50 h-[2px] origin-left scale-x-0 bg-cinnabar/80" />
       <header className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between gap-4 px-5 sm:px-6">
-        <Link to="/" aria-label="剑来科技 · AI落地，回首页" className="flex shrink-0 items-center gap-2.5 no-underline">
-          <Seal chars="剑来" size={22} className="-rotate-2" />
-          <span className="flex flex-col justify-center">
-            <span className="brush hidden text-[30px] leading-none text-ink sm:inline">剑来</span>
-            <span className="kai text-[12px] leading-none tracking-[0.14em] text-ink/55 sm:mt-1">AI落地</span>
-          </span>
+        {/* 落款式标识：印在前，名在后，一道细界行隔开题旨 */}
+        <Link to="/" aria-label="剑来科技 · 企业 AI 落地，回首页" className="group flex shrink-0 items-center no-underline">
+          <Seal chars="剑来" size={22} className="-rotate-3 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:rotate-0" />
+          <span className="brush ml-2.5 text-[30px] leading-none text-ink sm:ml-3 sm:text-[36px]">剑来</span>
+          <span aria-hidden className="ml-3 hidden h-7 w-px bg-ink/30 sm:block" />
+          <span className="kai ml-3 hidden text-[14px] leading-none tracking-[0.06em] text-ink/60 sm:block">企业 AI 落地</span>
         </Link>
-        <nav aria-label="主导航" className="flex items-center gap-5 text-[16px] sm:gap-12 sm:text-[19px]">
+        <nav aria-label="主导航" className="flex items-center gap-3.5 text-[15px] sm:gap-12 sm:text-[19px]">
           {NAV.map((item) => {
             const active =
               pathname === item.to || (item.to !== '/' && pathname.startsWith(item.to))
@@ -58,7 +58,7 @@ export function SiteShell() {
           })}
           <a
             href="/dashboard/"
-            className="whitespace-nowrap rounded-sm border border-ink/35 px-3 py-1 text-[15px] text-ink/80 no-underline transition-colors hover:border-ink hover:text-ink sm:text-[16px]"
+            className="whitespace-nowrap rounded-sm border border-ink/35 px-2 py-1 text-[14px] sm:px-3 sm:text-[15px] text-ink/80 no-underline transition-colors hover:border-ink hover:text-ink sm:text-[16px]"
           >
             登录
           </a>
@@ -93,14 +93,38 @@ export function SiteShell() {
         {/* 江上一叶扁舟：接住 CTA 的远山，山之后是水 */}
         <InkRiver className="mx-auto mt-4 block w-full max-w-[1100px] opacity-55 md:-mt-4" />
 
-        <div className="relative -mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 sm:-mt-10">
-          <CollectorSeals />
-          <span className="flex flex-wrap items-center gap-x-5 gap-y-1">
-            <a href="/dashboard/" className="text-ink/65 no-underline hover:text-ink">
-              同门 / 合作企业登录
-            </a>
-            <span>长沙市望城区剑来科技有限责任公司</span>
-          </span>
+        {/* 卷末：一道双界行，下面是去处和刊记 */}
+        <div className="relative mt-2 border-t-2 border-ink/70 pt-[3px]">
+          <div className="border-t border-ink/30" />
+          <div className="mt-5 flex flex-col items-center gap-4 sm:flex-row sm:items-baseline sm:justify-between">
+            <nav aria-label="页脚" className="kai flex flex-wrap items-center justify-center gap-x-1 gap-y-2 text-[15px]">
+              {[
+                { to: '/work', label: '案例集' },
+                { to: '/people', label: '剑修名册' },
+                { to: '/start', label: '企业喊一声' },
+              ].map((item) => (
+                <span key={item.to} className="flex items-center">
+                  <Link to={item.to} className="px-2 text-ink/75 no-underline transition-colors hover:text-cinnabar">
+                    {item.label}
+                  </Link>
+                  <span aria-hidden className="text-ink/30">·</span>
+                </span>
+              ))}
+              <a href="/dashboard/" className="px-2 text-ink/75 no-underline transition-colors hover:text-cinnabar">
+                同门 / 合作企业登录
+              </a>
+            </nav>
+            <div className="flex items-baseline gap-5">
+              <p className="kai text-[13px] tracking-[0.12em] text-ink/50">长沙市望城区剑来科技有限责任公司</p>
+              <button
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="kai text-[14px] text-ink/60 transition-colors hover:text-cinnabar"
+              >
+                回卷首 ↑
+              </button>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

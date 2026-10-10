@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { PineBranch } from '@/components/Accents'
 import { ScrollPortrait } from '@/components/ScrollPortrait'
 import {
@@ -9,7 +9,6 @@ import {
   type StaffRecord,
 } from '@/content/studio'
 import { cn } from '@/lib/cn'
-import { stamp } from '@/lib/seals'
 
 type CraftFilter = '全部' | StaffRecord['craft']
 
@@ -54,12 +53,6 @@ export function PeoplePage() {
   const total = team.length + (lead ? 1 : 0)
   const [query, setQuery] = useState('')
   const [craft, setCraft] = useState<CraftFilter>('全部')
-
-  // 在名册停一会儿，钤上「册」印
-  useEffect(() => {
-    const t = window.setTimeout(() => stamp('people'), 6000)
-    return () => window.clearTimeout(t)
-  }, [])
 
   const crafts = useMemo<CraftFilter[]>(
     () => ['全部', ...Array.from(new Set(team.map((p) => p.craft)))],
@@ -109,7 +102,7 @@ export function PeoplePage() {
                 className={cn(
                   'kai border px-3.5 py-1 text-[15px] transition-colors duration-200',
                   craft === item
-                    ? 'border-cinnabar bg-cinnabar text-[#f5ecd9]'
+                    ? 'border-ink bg-ink text-[#f2e7cf]'
                     : 'border-ink/30 text-ink/70 hover:border-ink hover:text-ink',
                 )}
               >

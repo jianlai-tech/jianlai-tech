@@ -90,6 +90,7 @@ function PersonDetail({ item }: { item: Person }) {
         <div className="min-w-0">
           <h3 className="title-serif text-[20px] leading-7">{item.alias}</h3>
           <p className="text-[14px] text-ink2">{item.name}</p>
+          <p className="mt-1 font-mono text-[12px] text-ink3">{item.id}</p>
           <p className="mt-1">
             <Chip tone={item.chief ? 'cinnabar' : 'plain'}>{personTitle(item)}</Chip>
           </p>

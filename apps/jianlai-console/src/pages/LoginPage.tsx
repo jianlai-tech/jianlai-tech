@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/data/auth'
 import { login } from '@/lib/account'
 import { errorText } from '@/lib/api'
@@ -10,7 +11,7 @@ const DOORS: Record<Door, { tab: string; hint: string; pwHint: string }> = {
   staff: {
     tab: '剑来同门',
     hint: '驻场、主理人用。',
-    pwHint: '初始密码是身份证后 6 位，末位 X 用大写。首次登录要改密码。',
+    pwHint: '密码是身份证后 6 位，末位 X 用大写。想改的话进「我的档案」。',
   },
   client: {
     tab: '合作企业',
@@ -21,6 +22,7 @@ const DOORS: Record<Door, { tab: string; hint: string; pwHint: string }> = {
 
 export function LoginPage() {
   const { signIn } = useAuth()
+  const navigate = useNavigate()
   const [door, setDoor] = useState<Door>('staff')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -36,6 +38,13 @@ export function LoginPage() {
         setDoor(res.account.kind)
       }
       await signIn(res.token)
+      if (res.account.kind === 'client') {
+        await navigate({ to: '/project', replace: true })
+      } else if (res.account.is_admin) {
+        await navigate({ to: '/', replace: true })
+      } else {
+        await navigate({ to: '/me', replace: true })
+      }
     } catch (err) {
       setError(errorText(err, '登录失败'))
       setBusy(false)

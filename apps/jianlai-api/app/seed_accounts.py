@@ -83,8 +83,8 @@ async def main() -> None:
             async with conn.transaction():
                 account_id = await conn.fetchval(
                     """
-                    INSERT INTO accounts (kind, phone, name, password_hash, staff_slug, is_admin, status)
-                    VALUES ('staff', $1, $2, $3, $4, $5, 'active')
+                    INSERT INTO accounts (kind, phone, name, password_hash, staff_slug, is_admin, status, must_change_password)
+                    VALUES ('staff', $1, $2, $3, $4, $5, 'active', false)
                     ON CONFLICT (phone) DO NOTHING
                     RETURNING id
                     """,

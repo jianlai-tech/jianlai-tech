@@ -3,7 +3,7 @@ import { useAuth } from '@/data/auth'
 import { changePassword } from '@/lib/account'
 import { errorText } from '@/lib/api'
 
-/** 首次登录（或被重置后）必须先改密码，不让带着身份证后 6 位一直用 */
+/** 合作企业首次登录（或被重置后）必须先改密码。剑修不走这页。 */
 export function ForcePasswordPage() {
   const { me, refresh, signOut } = useAuth()
   const [busy, setBusy] = useState(false)

@@ -24,7 +24,7 @@ const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1***
 function StatusChip({ row }: { row: AdminAccountRow }) {
   if (row.status === 'pending') return <Chip tone="ochre">待付款开通</Chip>
   if (row.status === 'disabled') return <Chip tone="cinnabar">已停用</Chip>
-  if (row.must_change_password) return <Chip>未改初始密码</Chip>
+  if (row.must_change_password && row.kind !== 'staff') return <Chip>未改初始密码</Chip>
   return <Chip tone="jade">正常</Chip>
 }
 
@@ -157,7 +157,7 @@ function NewStaff({ onDone }: { onDone: () => void }) {
       <button type="submit" className="btn btn-primary">
         开号
       </button>
-      <span className="kai text-[12px] text-ink3">身份证后 6 位只当初始密码，库里只存哈希。</span>
+      <span className="kai text-[12px] text-ink3">身份证后 6 位就是登录密码，库里只存哈希。</span>
       {msg ? <span className="text-[13px] text-cinnabar">{msg}</span> : null}
     </form>
   )
@@ -361,7 +361,7 @@ export function AccountsPage() {
           <Sheet>
             <SectionHead
               title={tab === 'staff' ? '同门账号' : '合作企业账号'}
-              hint={tab === 'staff' ? '手机号 + 密码，初始密码身份证后 6 位' : '付款后开通'}
+              hint={tab === 'staff' ? '手机号 + 密码，密码是身份证后 6 位' : '付款后开通'}
               aside={
                 <button type="button" className="btn" onClick={() => setAdding((v) => !v)}>
                   {adding ? '收起' : tab === 'staff' ? '新开同门' : '新建企业账号'}
