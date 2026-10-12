@@ -1,13 +1,15 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import { BadgeCheck, Coins, FolderKanban, LogOut, ScrollText, Swords, UserRound, Users, type LucideIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { BadgeCheck, Coins, FolderKanban, LogOut, Scroll, ScrollText, Swords, UserRound, Users, type LucideIcon } from 'lucide-react'
 import { asset, cn } from '@/lib/cn'
 import { diffDays, fmtMDWeek, todayIso } from '@/lib/date'
 import { person } from '@/data/studio'
 import { useAuth } from '@/data/auth'
 import { useStore } from '@/data/store'
 import { Avatar } from '@/components/ui'
+import { fetchRecruits } from '@/lib/recruits'
 
-type NavTo = '/' | '/sales' | '/hr' | '/finance' | '/accounts' | '/me' | '/project'
+type NavTo = '/' | '/sales' | '/recruits' | '/hr' | '/finance' | '/accounts' | '/me' | '/project'
 
 type NavItem = {
   to: NavTo
@@ -19,6 +21,7 @@ type NavItem = {
 const ADMIN_NAV: NavItem[] = [
   { to: '/', label: '总览', hint: '今日要办', icon: ScrollText },
   { to: '/sales', label: '销售', hint: '留资到派人', icon: Swords },
+  { to: '/recruits', label: '英雄帖', hint: '招剑修', icon: Scroll },
   { to: '/hr', label: '人事', hint: '名册与四维', icon: Users },
   { to: '/finance', label: '财务', hint: '流水与应收', icon: Coins },
   { to: '/accounts', label: '账号', hint: '开通与认证', icon: BadgeCheck },
@@ -29,8 +32,20 @@ const STAFF_NAV: NavItem[] = [{ to: '/me', label: '我的档案', hint: '个性�
 
 const CLIENT_NAV: NavItem[] = [{ to: '/project', label: '项目进度', hint: '驻场在做什么', icon: FolderKanban }]
 
-function useBadges(): Partial<Record<NavTo, number>> {
+function useBadges(isAdmin: boolean): Partial<Record<NavTo, number>> {
   const { leads, receivables } = useStore()
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const [newRecruits, setNewRecruits] = useState(0)
+  useEffect(() => {
+    if (!isAdmin) return
+    let alive = true
+    fetchRecruits({ status: 'new' })
+      .then((res) => alive && setNewRecruits(res.counts.new))
+      .catch(() => undefined)
+    return () => {
+      alive = false
+    }
+  }, [isAdmin, pathname])
   const today = todayIso()
   const toFollow = leads.filter(
     (lead) =>
@@ -39,7 +54,7 @@ function useBadges(): Partial<Record<NavTo, number>> {
       diffDays(lead.nextFollow, today) <= 0,
   ).length
   const overdue = receivables.filter((row) => !row.paidOn && diffDays(row.due, today) < 0).length
-  return { '/sales': toFollow, '/finance': overdue }
+  return { '/sales': toFollow, '/recruits': newRecruits, '/finance': overdue }
 }
 
 function isActive(pathname: string, to: NavTo) {
@@ -57,8 +72,8 @@ function Count({ n }: { n: number | undefined }) {
 
 export function Shell() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
-  const badges = useBadges()
   const { me, signOut } = useAuth()
+  const badges = useBadges(Boolean(me?.account.is_admin))
   if (!me) return null
   const account = me.account
   const NAV = account.kind === 'client' ? CLIENT_NAV : account.is_admin ? ADMIN_NAV : STAFF_NAV
@@ -124,7 +139,7 @@ export function Shell() {
           {account.is_admin ? (
             <div className="mb-3 rounded-sm border border-paper/20 px-3 py-2 text-[13px] leading-5 text-[#d9d2bb]">
               销售、财务、现场分配是<strong className="font-bold text-paper">示意数据</strong>
-              ，还没接库。账号、认证、项目是真的。
+              ，还没接库。账号、认证、项目、英雄帖是真的。
             </div>
           ) : null}
           <div className="flex items-center gap-3">

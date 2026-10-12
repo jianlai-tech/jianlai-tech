@@ -2,6 +2,7 @@ import { RouterProvider, createRootRoute, createRoute, createRouter } from '@tan
 import { SiteShell } from '@/components/SiteShell'
 import { CasePage } from '@/pages/CasePage'
 import { HomePage } from '@/pages/HomePage'
+import { JoinPage } from '@/pages/JoinPage'
 import { PeoplePage } from '@/pages/PeoplePage'
 import { StartPage } from '@/pages/StartPage'
 import { WorkPage } from '@/pages/WorkPage'
@@ -42,7 +43,13 @@ const startRoute = createRoute({
     search.kind === 'referral' ? { kind: 'referral' } : {},
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, workRoute, caseRoute, peopleRoute, startRoute])
+const joinRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/join',
+  component: JoinPage,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, workRoute, caseRoute, peopleRoute, startRoute, joinRoute])
 
 const router = createRouter({
   routeTree,

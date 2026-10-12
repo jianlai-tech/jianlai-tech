@@ -10,9 +10,10 @@ import { HrPage } from '@/pages/HrPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { MePage } from '@/pages/MePage'
 import { OverviewPage } from '@/pages/OverviewPage'
+import { RecruitsPage } from '@/pages/RecruitsPage'
 import { SalesPage } from '@/pages/SalesPage'
 
-const ADMIN_PATHS = new Set(['/', '/sales', '/hr', '/finance', '/accounts'])
+const ADMIN_PATHS = new Set(['/', '/sales', '/recruits', '/hr', '/finance', '/accounts'])
 
 function homeFor(kind: string, isAdmin: boolean) {
   if (kind === 'client') return '/project'
@@ -72,6 +73,7 @@ const admin = (Page: () => ReactNode) => () => (
 
 const overviewRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: admin(OverviewPage) })
 const salesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sales', component: admin(SalesPage) })
+const recruitsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/recruits', component: admin(RecruitsPage) })
 const hrRoute = createRoute({ getParentRoute: () => rootRoute, path: '/hr', component: admin(HrPage) })
 const financeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/finance', component: admin(FinancePage) })
 const accountsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/accounts', component: admin(AccountsPage) })
@@ -97,6 +99,7 @@ const projectRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   overviewRoute,
   salesRoute,
+  recruitsRoute,
   hrRoute,
   financeRoute,
   accountsRoute,

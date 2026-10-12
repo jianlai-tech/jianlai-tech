@@ -10,6 +10,7 @@ from app.api.routes.accounts import router as accounts_router
 from app.api.routes.admin import router as admin_router
 from app.api.routes.health import router as health_router
 from app.api.routes.leads import router as leads_router
+from app.api.routes.recruits import router as recruits_router
 from app.config import settings
 from app.db.migrate import run_migrations
 from app.db.pool import close_pool, init_pool
@@ -98,5 +99,6 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(leads_router)
+app.include_router(recruits_router)
 app.include_router(accounts_router)
 app.include_router(admin_router)

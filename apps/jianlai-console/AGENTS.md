@@ -28,6 +28,7 @@ alwaysApply: false
 | 名册、门派、境界、四维口径 | 真 | `knowledge/工作室.md`，落在 `src/data/studio.ts`（含 `staff.id` UUID） |
 | 身份证、银行卡、手机 | 真，不进仓库 | `staff_hr`（DDL `schemas/005_staff_hr.sql`），名单 `apps/jianlai-api/staff_hr.local.csv` / `knowledge/人事.local.md` |
 | 公司主体 | 真 | `knowledge/公司.md`，落在 `studio.ts` 的 `COMPANY` |
+| 英雄帖（招剑修报名） | 真 | 官网 `/join` 写入 `recruits`（DDL `schemas/006_recruits.sql`），后台「英雄帖」页，接口 `/api/admin/recruits` 只给管理员；口径见 `knowledge/产品-英雄帖.md` |
 | 留资线索、现场分配、流水、应收、时间窗口 | **示意** | `src/data/store.tsx`，页面上都带「示意」标 |
 
 ## 登录与权限
@@ -36,7 +37,7 @@ alwaysApply: false
 
 | 身份 | 怎么来 | 能看 |
 |---|---|---|
-| 管理员 | 只有赵书剑（`is_admin`） | 总览 / 销售 / 人事 / 财务 / 账号与认证 / 我的档案 |
+| 管理员 | 只有赵书剑（`is_admin`） | 总览 / 销售 / 英雄帖 / 人事 / 财务 / 账号与认证 / 我的档案 |
 | 同门（驻场） | 名单经 `seed_accounts` 或「账号 → 新开同门」开通；初始密码身份证后 6 位，末位 X 大写 | 只有「我的档案」 |
 | 合作企业 | 管理员建号后是「待付款开通」，确认收款点「确认付款并开通」才能登录 | 只有「项目进度」，只看挂在自己名下的项目 |
 

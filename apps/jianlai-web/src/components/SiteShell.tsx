@@ -7,6 +7,7 @@ const NAV = [
   { to: '/', label: '首页' },
   { to: '/work', label: '案例集' },
   { to: '/people', label: '剑修名册' },
+  { to: '/join', label: '英雄帖' },
 ] as const
 
 /** 洒金笺对联条，竖写一联 */
@@ -39,7 +40,7 @@ export function SiteShell() {
           <span aria-hidden className="ml-3 hidden h-7 w-px bg-ink/30 sm:block" />
           <span className="kai ml-3 hidden text-[14px] leading-none tracking-[0.06em] text-ink/60 sm:block">企业 AI 落地</span>
         </Link>
-        <nav aria-label="主导航" className="flex items-center gap-3.5 text-[15px] sm:gap-12 sm:text-[19px]">
+        <nav aria-label="主导航" className="flex items-center gap-3 text-[15px] sm:gap-10 sm:text-[19px]">
           {NAV.map((item) => {
             const active =
               pathname === item.to || (item.to !== '/' && pathname.startsWith(item.to))
@@ -49,6 +50,7 @@ export function SiteShell() {
                 to={item.to}
                 className={cn(
                   'whitespace-nowrap pb-1 no-underline transition-colors',
+                  item.to === '/' && 'hidden sm:inline',
                   active ? 'border-b-2 border-moss text-ink' : 'text-ink/75 hover:text-ink',
                 )}
               >
@@ -102,6 +104,7 @@ export function SiteShell() {
                 { to: '/work', label: '案例集' },
                 { to: '/people', label: '剑修名册' },
                 { to: '/start', label: '企业喊一声' },
+                { to: '/join', label: '英雄帖 · 招剑修' },
               ].map((item) => (
                 <span key={item.to} className="flex items-center">
                   <Link to={item.to} className="px-2 text-ink/75 no-underline transition-colors hover:text-cinnabar">
