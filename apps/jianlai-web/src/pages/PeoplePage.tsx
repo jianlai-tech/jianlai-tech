@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { PineBranch } from '@/components/Accents'
 import { ScrollPortrait } from '@/components/ScrollPortrait'
@@ -78,12 +77,6 @@ export function PeoplePage() {
       </div>
       <p className="mt-5 max-w-2xl text-[18px] leading-[1.8] text-ink/80">
         现在一共 {total} 位：1 位道长，{team.length} 位剑修。剑修大多还在上大学，跟着真实项目边做边学，用 AI 干活。道长负责接活，看你公司的情况，再派合适的剑修下山。
-      </p>
-      <p className="kai mt-3 text-[16px] text-ink/65">
-        你也在上大学、对 AI 上心？
-        <Link to="/join" className="ink-link ml-1">
-          揭一张英雄帖
-        </Link>
       </p>
 
       <div className="sticky top-0 z-10 -mx-5 mt-10 border-y border-ink/25 bg-[#eddec4]/95 px-5 py-4 backdrop-blur-[2px] sm:-mx-[54px] sm:px-[54px]">

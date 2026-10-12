@@ -65,6 +65,7 @@ deploy-pages:
     printf '%s\n' \
       '/dashboard /dashboard/index.html 200' \
       '/dashboard/sales /dashboard/index.html 200' \
+      '/dashboard/recruits /dashboard/index.html 200' \
       '/dashboard/hr /dashboard/index.html 200' \
       '/dashboard/finance /dashboard/index.html 200' \
       '/dashboard/accounts /dashboard/index.html 200' \

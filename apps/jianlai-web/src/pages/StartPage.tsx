@@ -40,7 +40,7 @@ const COPY: Record<LeadKind, KindCopy> = {
 }
 
 export function StartPage() {
-  const search = useSearch({ from: '/start' })
+  const search = useSearch({ from: '/site/start' })
   const navigate = useNavigate({ from: '/start' })
   const kind: LeadKind = search.kind === 'referral' ? 'referral' : 'project'
   const copy = COPY[kind]

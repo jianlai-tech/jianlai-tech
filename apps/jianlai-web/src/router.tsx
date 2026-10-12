@@ -1,4 +1,4 @@
-import { RouterProvider, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
+import { Outlet, RouterProvider, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
 import { SiteShell } from '@/components/SiteShell'
 import { CasePage } from '@/pages/CasePage'
 import { HomePage } from '@/pages/HomePage'
@@ -8,35 +8,42 @@ import { StartPage } from '@/pages/StartPage'
 import { WorkPage } from '@/pages/WorkPage'
 
 const rootRoute = createRootRoute({
+  component: Outlet,
+})
+
+/** 官网框架：顶栏 + 页脚。英雄帖是独立帖子页，不挂在这下面 */
+const siteRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: 'site',
   component: SiteShell,
 })
 
 const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => siteRoute,
   path: '/',
   component: HomePage,
 })
 
 const workRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => siteRoute,
   path: '/work',
   component: WorkPage,
 })
 
 const caseRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => siteRoute,
   path: '/work/$slug',
   component: CasePage,
 })
 
 const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => siteRoute,
   path: '/people',
   component: PeoplePage,
 })
 
 const startRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => siteRoute,
   path: '/start',
   component: StartPage,
   validateSearch: (search: Record<string, unknown>): { kind?: 'project' | 'referral' } =>
@@ -49,7 +56,10 @@ const joinRoute = createRoute({
   component: JoinPage,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, workRoute, caseRoute, peopleRoute, startRoute, joinRoute])
+const routeTree = rootRoute.addChildren([
+  siteRoute.addChildren([indexRoute, workRoute, caseRoute, peopleRoute, startRoute]),
+  joinRoute,
+])
 
 const router = createRouter({
   routeTree,
