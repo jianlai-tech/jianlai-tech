@@ -56,7 +56,7 @@ deploy-api:
 # 官网在根路径，内务后台在 /dashboard。账号是 Cloudflare 的 onion。
 # 后台登录打 Railway 上的 jianlai-api。
 deploy-pages:
-    cd apps/jianlai-web && bun run build
+    cd apps/jianlai-web && VITE_API_BASE_URL=https://jianlai-api-production.up.railway.app bun run build
     cd apps/jianlai-console && VITE_API_BASE_URL=https://jianlai-api-production.up.railway.app bun run build
     rm -rf dist-pages
     mkdir -p dist-pages/dashboard
