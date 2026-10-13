@@ -3,15 +3,18 @@ import { errorText } from '@/lib/api'
 import { cn } from '@/lib/cn'
 import {
   RECRUIT_STATUSES,
+  RECRUIT_TRACK_LABEL,
   fetchRecruits,
   updateRecruit,
   type Recruit,
   type RecruitList,
   type RecruitStatus,
+  type RecruitTrack,
 } from '@/lib/recruits'
 import { Chip, Empty, MetricStrip, PageHead, Segmented, Sheet, Stamp, type Tone } from '@/components/ui'
 
 type Filter = RecruitStatus | 'all'
+type TrackFilter = RecruitTrack | 'all'
 
 const STATUS_TONE: Record<RecruitStatus, Tone> = {
   new: 'cinnabar',
@@ -54,7 +57,9 @@ function Detail({ row, onSaved }: { row: Recruit; onSaved: (next: Recruit) => vo
           <div className="min-w-0">
             <h3 className="title-serif truncate text-[18px] leading-7">
               {row.name}
-              <span className="ml-2 text-[14px] font-normal text-ink3">{row.age} 岁</span>
+              <span className="ml-2 text-[14px] font-normal text-ink3">
+                {row.grade ?? (row.age != null ? `${row.age} 岁` : '')}
+              </span>
             </h3>
             <p className="text-[14px] text-ink2">
               {row.major}
@@ -66,10 +71,39 @@ function Detail({ row, onSaved }: { row: Recruit; onSaved: (next: Recruit) => vo
       </div>
 
       <dl className="grid grid-cols-[5rem_minmax(0,1fr)] gap-x-3 gap-y-3 px-4 py-3 text-[14px]">
-        <dt className="label pt-0.5">AI 经历</dt>
-        <dd className="whitespace-pre-wrap leading-6">{row.ai_story}</dd>
-        <dt className="label pt-0.5">特长</dt>
-        <dd className="whitespace-pre-wrap leading-6">{row.strengths}</dd>
+        {row.track ? (
+          <>
+            <dt className="label pt-0.5">意向</dt>
+            <dd>
+              <Chip tone={row.track === 'work' ? 'jade' : 'plain'}>{RECRUIT_TRACK_LABEL[row.track]}</Chip>
+              {row.weekly_hours ? <span className="ml-2 text-ink2">每周 {row.weekly_hours}</span> : null}
+            </dd>
+          </>
+        ) : null}
+        {row.cs_base ? (
+          <>
+            <dt className="label pt-0.5">计算机</dt>
+            <dd>{row.cs_base}</dd>
+          </>
+        ) : null}
+        {row.talents.length ? (
+          <>
+            <dt className="label pt-0.5">一技之长</dt>
+            <dd>{row.talents.join('、')}</dd>
+          </>
+        ) : null}
+        {row.ai_story ? (
+          <>
+            <dt className="label pt-0.5">AI 经历</dt>
+            <dd className="whitespace-pre-wrap leading-6">{row.ai_story}</dd>
+          </>
+        ) : null}
+        {row.strengths ? (
+          <>
+            <dt className="label pt-0.5">{row.track ? '自述' : '特长'}</dt>
+            <dd className="whitespace-pre-wrap leading-6">{row.strengths}</dd>
+          </>
+        ) : null}
         <dt className="label pt-0.5">手机</dt>
         <dd>
           <a href={`tel:${row.phone}`} className="font-semibold tabular-nums underline decoration-ink/30 underline-offset-4">
@@ -133,6 +167,7 @@ export function RecruitsPage() {
   const [data, setData] = useState<RecruitList | null>(null)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
+  const [trackFilter, setTrackFilter] = useState<TrackFilter>('all')
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -155,10 +190,11 @@ export function RecruitsPage() {
     return data.items.filter(
       (row) =>
         (filter === 'all' || row.status === filter) &&
+        (trackFilter === 'all' || row.track === trackFilter) &&
         (!q ||
-          [row.name, row.major, row.school ?? '', row.phone].some((v) => v.toLowerCase().includes(q))),
+          [row.name, row.major, row.school ?? '', row.phone, row.strengths ?? '', row.talents.join(' ')].some((v) => v.toLowerCase().includes(q))),
     )
-  }, [data, filter, query])
+  }, [data, filter, trackFilter, query])
 
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0] ?? null
 
@@ -209,6 +245,8 @@ export function RecruitsPage() {
               tone: (counts?.new ?? 0) > 0 ? 'cinnabar' : 'ink',
             },
             { label: '近 7 天递帖', value: String(thisWeek) },
+            { label: '想驻场接活', value: String(data?.tracks?.work ?? 0), tone: 'jade' },
+            { label: '观摩学习', value: String(data?.tracks?.watch ?? 0) },
             { label: '约聊 / 试手', value: String((counts?.contacted ?? 0) + (counts?.trial ?? 0)) },
             { label: '已入门', value: String(counts?.joined ?? 0), tone: 'jade' },
             { label: '帖子总数', value: String(data?.total ?? 0) },
@@ -226,11 +264,21 @@ export function RecruitsPage() {
             ...RECRUIT_STATUSES.map((s) => ({ key: s.key as Filter, label: `${s.label} ${counts?.[s.key] ?? 0}` })),
           ]}
         />
+        <Segmented
+          label="按意向筛"
+          value={trackFilter}
+          onChange={setTrackFilter}
+          options={[
+            { key: 'all' as TrackFilter, label: '全部意向' },
+            { key: 'work' as TrackFilter, label: `驻场接活 ${data?.tracks?.work ?? 0}` },
+            { key: 'watch' as TrackFilter, label: `观摩学习 ${data?.tracks?.watch ?? 0}` },
+          ]}
+        />
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="搜姓名、专业、学校、手机"
+          placeholder="搜姓名、专业、学院、手机、自述"
           aria-label="搜英雄帖"
           className="field w-full sm:w-64"
         />
@@ -251,9 +299,11 @@ export function RecruitsPage() {
                 <thead>
                   <tr>
                     <th>姓名</th>
-                    <th className="num">年纪</th>
+                    <th>年级</th>
                     <th>专业</th>
-                    <th>AI 经历</th>
+                    <th>意向</th>
+                    <th>每周</th>
+                    <th>自述</th>
                     <th>递帖</th>
                     <th>状态</th>
                   </tr>
@@ -277,10 +327,18 @@ export function RecruitsPage() {
                         <div className="font-semibold">{row.name}</div>
                         {row.school ? <div className="text-[13px] text-ink3">{row.school}</div> : null}
                       </td>
-                      <td className="num">{row.age}</td>
+                      <td className="whitespace-nowrap">{row.grade ?? (row.age != null ? `${row.age} 岁` : '—')}</td>
                       <td>{row.major}</td>
-                      <td className="max-w-[280px] truncate text-ink2" title={row.ai_story}>
-                        {row.ai_story}
+                      <td className="whitespace-nowrap">
+                        {row.track ? (
+                          <Chip tone={row.track === 'work' ? 'jade' : 'plain'}>{RECRUIT_TRACK_LABEL[row.track]}</Chip>
+                        ) : (
+                          <span className="text-ink3">一期</span>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap text-ink2">{row.weekly_hours ?? '—'}</td>
+                      <td className="max-w-[240px] truncate text-ink2" title={row.strengths ?? row.ai_story ?? ''}>
+                        {row.strengths ?? row.ai_story ?? <span className="text-ink3">没写</span>}
                       </td>
                       <td className="whitespace-nowrap text-ink2 tabular-nums">{fmtWhen(row.created_at)}</td>
                       <td>

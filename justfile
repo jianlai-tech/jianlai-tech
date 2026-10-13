@@ -18,6 +18,7 @@ migrate:
     psql "${DATABASE_URL:-postgresql://jianlai:jianlai_dev@127.0.0.1:5434/jianlai}" -f schemas/004_accounts.sql
     psql "${DATABASE_URL:-postgresql://jianlai:jianlai_dev@127.0.0.1:5434/jianlai}" -f schemas/005_staff_hr.sql
     psql "${DATABASE_URL:-postgresql://jianlai:jianlai_dev@127.0.0.1:5434/jianlai}" -f schemas/006_recruits.sql
+    psql "${DATABASE_URL:-postgresql://jianlai:jianlai_dev@127.0.0.1:5434/jianlai}" -f schemas/007_recruits_intent.sql
 
 # 按本地名单开同门账号（名单不进仓库）。先不加 --apply 预览
 seed-accounts *args:

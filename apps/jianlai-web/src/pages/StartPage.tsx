@@ -223,7 +223,6 @@ export function StartPage() {
                 {message}
               </p>
             ) : null}
-            <p className="kai mt-6 text-[14px] text-ink/45">手机号只用来回访，不外传。</p>
           </form>
         </div>
           )}

@@ -13,6 +13,9 @@
       "prompt": "seamless faded indigo cotton book-case cloth texture (函套布)"
     }
   },
-  "unused_plates": ["assets/plates/shelf.png", "assets/plates/scroll.png"],
+  "unused_plates": [
+    "assets/plates/shelf.png",
+    "assets/plates/scroll.png"
+  ],
   "note": "书架、立轴最后用 CSS 画，生图只当参考，没上线"
 }

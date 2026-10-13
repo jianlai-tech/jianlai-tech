@@ -77,7 +77,7 @@ export function SiteShell() {
           <div className="guji-frame flex flex-col items-center bg-[#f2e7cf]/60 px-8 py-6 text-center sm:px-10">
             <Seal size={56} title="剑来科技" />
             <p className="brush mt-4 text-[30px] leading-none text-ink">剑来科技</p>
-            <p className="kai mt-3 text-[14px] tracking-[0.3em] text-ink/60">望城 · 风起大泽</p>
+            <p className="kai mt-3 text-[14px] tracking-[0.3em] text-ink/60">望城 · 风起大泽篇</p>
             <p className="kai mt-3 text-[15px] leading-[1.9] tracking-[0.12em] text-ink/75 md:hidden">
               此日楼台鼎鼐
               <br />
@@ -102,7 +102,7 @@ export function SiteShell() {
                 { to: '/work', label: '案例集' },
                 { to: '/people', label: '剑修名册' },
                 { to: '/start', label: '企业喊一声' },
-                { to: '/join', label: '英雄帖 · 招剑修' },
+                { to: '/join', label: '英雄帖 · 剑修二期' },
               ].map((item) => (
                 <span key={item.to} className="flex items-center">
                   <Link to={item.to} className="px-2 text-ink/75 no-underline transition-colors hover:text-cinnabar">

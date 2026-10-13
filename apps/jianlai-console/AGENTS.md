@@ -28,7 +28,7 @@ alwaysApply: false
 | 名册、门派、境界、四维口径 | 真 | `knowledge/工作室.md`，落在 `src/data/studio.ts`（含 `staff.id` UUID） |
 | 身份证、银行卡、手机 | 真，不进仓库 | `staff_hr`（DDL `schemas/005_staff_hr.sql`），名单 `apps/jianlai-api/staff_hr.local.csv` / `knowledge/人事.local.md` |
 | 公司主体 | 真 | `knowledge/公司.md`，落在 `studio.ts` 的 `COMPANY` |
-| 英雄帖（招剑修报名） | 真 | 官网 `/join` 写入 `recruits`（DDL `schemas/006_recruits.sql`），后台「英雄帖」页，接口 `/api/admin/recruits` 只给管理员；口径见 `knowledge/产品-英雄帖.md` |
+| 英雄帖（招剑修报名） | 真 | 官网 `/join` 写入 `recruits`（DDL `schemas/006_recruits.sql` + `007_recruits_intent.sql`），后台「英雄帖」页，接口 `/api/admin/recruits` 只给管理员；口径见 `knowledge/产品-英雄帖.md` |
 | 留资线索、现场分配、流水、应收、时间窗口 | **示意** | `src/data/store.tsx`，页面上都带「示意」标 |
 
 ## 登录与权限

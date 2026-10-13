@@ -10,14 +10,24 @@ export const RECRUIT_STATUSES: { key: RecruitStatus; label: string }[] = [
   { key: 'declined', label: '不合适' },
 ]
 
+export type RecruitTrack = 'watch' | 'work'
+
+export const RECRUIT_TRACK_LABEL: Record<RecruitTrack, string> = { watch: '观摩学习', work: '驻场接活' }
+
 export type Recruit = {
   id: string
   name: string
-  age: number
+  /** 一期帖子才有，二期不再问年纪 */
+  age: number | null
   school: string | null
   major: string
-  ai_story: string
-  strengths: string
+  grade: string | null
+  track: RecruitTrack | null
+  weekly_hours: string | null
+  cs_base: string | null
+  talents: string[]
+  ai_story: string | null
+  strengths: string | null
   phone: string
   wechat: string | null
   source: string
@@ -30,6 +40,7 @@ export type Recruit = {
 export type RecruitList = {
   items: Recruit[]
   counts: Record<RecruitStatus, number>
+  tracks: Record<RecruitTrack, number>
   total: number
 }
 

@@ -38,7 +38,7 @@ export function HomePage() {
               企业 AI 落地，<span className="title-swash">剑到人到</span>。
             </p>
             <p className="mt-3 text-[17px] leading-[1.85] text-ink/80 sm:text-[18px]">
-              驻场的人进你公司，把系统打通、把智能体做进日常，一处一处斩开卡点。不交方案，只认指标：
+              剑修下山进你公司，把系统打通、把智能体做进日常，一处一处斩开卡点。不交方案，只认指标：
             </p>
             {/* 三条指标：楷体短句，朱点起头，读起来像剑谱上的要诀 */}
             <ul className="kai mt-3 flex flex-wrap gap-x-6 gap-y-1.5 text-[17px] text-ink sm:text-[18px]">
@@ -156,6 +156,8 @@ export function HomePage() {
               不平事，不在远方。
               <br />
               在每天重录的那张单里，在月底对不上的那笔账里。
+              <br />
+              <span className="kai text-ink">斩重复，断烂账。</span>
             </p>
           </div>
           <p className="brush mt-8 text-[60px] leading-[1.05] sm:text-[96px] lg:-ml-2">

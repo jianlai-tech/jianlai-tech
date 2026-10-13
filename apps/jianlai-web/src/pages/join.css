@@ -20,33 +20,61 @@
   overflow-x: hidden;
 }
 
+/* 帖头：左品牌印、中标题、右小注，金线串起来 */
 .yx-top {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1080px;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: 14px;
-  letter-spacing: 0.2em;
+  align-items: center;
+  gap: 18px;
   color: rgba(227, 191, 106, 0.6);
 }
 
 .yx-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
   color: var(--gold);
   text-decoration: none;
-  font-size: 16px;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  transition: color 160ms;
 }
 
 .yx-brand:hover {
   color: #f3d78f;
 }
 
-.yx-foot {
-  margin-top: 28px;
-  font-size: 14px;
-  letter-spacing: 0.08em;
-  color: rgba(227, 191, 106, 0.55);
-  text-align: center;
+.yx-top-rule {
+  flex: 1;
+  min-width: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(227, 191, 106, 0.45), transparent);
+}
+
+.yx-top-title {
+  flex-shrink: 0;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  color: #f1d58e;
+}
+
+.yx-top-title b {
+  margin: 0 0.12em;
+  font-weight: 400;
+  color: #ffe7a8;
+  text-shadow: 0 0 18px rgba(227, 191, 106, 0.35);
+}
+
+.yx-top-note {
+  flex-shrink: 0;
+  padding: 3px 12px;
+  border: 1px solid rgba(227, 191, 106, 0.35);
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.2em;
 }
 
 .yx-link {
@@ -134,10 +162,10 @@
   color: rgba(240, 207, 126, 0.75);
 }
 
-/* 火漆：压在帖子右缘中间 */
+/* 火漆：压在帖子右缘中上，避开底部落款 */
 .yx-wax {
   position: absolute;
-  top: 50%;
+  top: 36%;
   right: -26px;
   width: 64px;
   height: 64px;
@@ -215,27 +243,203 @@
   text-shadow: 0 1px 0 #8a5a14;
 }
 
+/* 帖头下一道金线，中间压一个点 */
+.yx-decree-rule {
+  position: relative;
+  width: 62%;
+  height: 1px;
+  margin-top: 22px;
+  background: linear-gradient(90deg, transparent, var(--gold-soft) 20%, var(--gold-soft) 80%, transparent);
+}
+
+.yx-decree-rule::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--gold);
+  box-shadow: 0 0 0 3px var(--red);
+}
+
+/* 三段并排：左下联、中正文、右上联。竖排从右往左读，所以上联在右 */
+.yx-decree-main {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  margin-top: 22px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+/* 一行一列，从右往左；列首对齐 */
 .yx-decree-body {
   flex: 1;
-  margin-top: 30px;
+  min-width: 0;
   writing-mode: vertical-rl;
   text-orientation: upright;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0 14px;
-  max-height: 340px;
-  font-size: 21px;
-  letter-spacing: 0.22em;
-  line-height: 1.3;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  font-size: 19px;
+  letter-spacing: 0.2em;
+  line-height: 1;
   color: rgba(246, 222, 160, 0.95);
 }
 
-.yx-decree-body span {
+.yx-col {
+  display: block;
   animation: yx-ink 800ms cubic-bezier(0.65, 0, 0.35, 1) both;
 }
 
-.yx-decree-body span:last-child {
+/* 题眼：大一号，金色更亮 */
+.yx-col.is-lead {
+  font-size: 27px;
+  letter-spacing: 0.3em;
+  color: #fbe3a0;
+  text-shadow: 0 1px 0 #8a5a14;
+}
+
+/* 落款句：往下沉一截，像落笔的位置 */
+.yx-col.is-end {
+  padding-top: 1.4em;
   color: #fff0c4;
+}
+
+.yx-tcy {
+  text-combine-upright: all;
+  letter-spacing: 0;
+}
+
+/* 剑修四要：帖子下半截，一字为纲，两行小字 */
+.yx-rules {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.yx-rules-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  letter-spacing: 0.5em;
+  padding-left: 0.5em;
+  color: rgba(246, 222, 160, 0.75);
+}
+
+.yx-rules-title span {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-soft));
+}
+
+.yx-rules-title span:last-child {
+  background: linear-gradient(270deg, transparent, var(--gold-soft));
+}
+
+.yx-rules ul {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.yx-rule {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 4px 10px;
+  border: 1px solid rgba(227, 191, 106, 0.32);
+  border-radius: 3px;
+  background: rgba(70, 8, 6, 0.18);
+  text-align: center;
+  animation: yx-fade 900ms ease both;
+}
+
+.yx-rule b {
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  color: #fbe3a0;
+  text-shadow: 0 1px 0 #8a5a14;
+}
+
+.yx-rule > span {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: nowrap;
+  color: rgba(246, 222, 160, 0.82);
+}
+
+/* 加分项：洒金底红字，和对联同一块料 */
+.yx-rule.is-bonus {
+  border-style: dashed;
+}
+
+.yx-rule em {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 6px;
+  font-size: 11px;
+  font-style: normal;
+  line-height: 16px;
+  letter-spacing: 0.15em;
+  color: #6d1511;
+  background: #ecd49a;
+  border-radius: 2px;
+}
+
+/* 对联：红底上的洒金条，竖写，上联右下联左 */
+.yx-couplet {
+  flex: none;
+  align-self: center;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  padding: 14px 8px;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0.3em;
+  padding-left: calc(8px + 0.3em);
+  color: #6d1511;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(0, 0, 0, 0.05)),
+    #ecd49a;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 2px #ecd49a,
+    inset 0 0 0 3px rgba(124, 20, 16, 0.4),
+    0 8px 14px -8px rgba(0, 0, 0, 0.55);
+  animation: yx-fade 900ms ease both;
+}
+
+/* 上下联同高同位，左右对称 */
+.yx-couplet-upper,
+.yx-couplet-lower {
+  margin-top: 0;
+  /* 竖排里 height 是行长：6 字 × (1em + 0.3em 字距) + 上下留白 */
+  height: calc(6 * 1.3em + 28px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@keyframes yx-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 @keyframes yx-ink {
@@ -249,26 +453,84 @@
   }
 }
 
+/* 卷尾落款：朱印 + 篇名居中，两侧金线收口 */
 .yx-decree-foot {
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
   margin-top: 18px;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.3em;
-  color: rgba(240, 207, 126, 0.7);
+  color: rgba(240, 207, 126, 0.8);
 }
 
+.yx-decree-foot i {
+  margin: 0 0.25em;
+  font-style: normal;
+  color: rgba(240, 207, 126, 0.5);
+}
+
+.yx-foot-rule {
+  flex: 1;
+  max-width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-soft));
+}
+
+.yx-foot-rule:last-child {
+  background: linear-gradient(270deg, transparent, var(--gold-soft));
+}
+
+/* 实心朱印，白文剑来 */
 .yx-seal {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0;
   writing-mode: vertical-rl;
-  padding: 6px 5px;
-  font-size: 22px;
-  line-height: 1.05;
-  color: #f6dfae;
-  border: 2px solid #f0cf7e;
+  color: #fbe7b5;
+  background: #7c1410;
+  box-shadow: inset 0 0 0 1.5px rgba(240, 207, 126, 0.7);
   border-radius: 3px;
-  transform: rotate(-5deg);
+  transform: rotate(-4deg);
+}
+
+/* 帖眼：剑心通明，压在正文和四要之间 */
+.yx-motto {
+  width: 100%;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.yx-motto span {
+  flex: 1;
+  max-width: 90px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-soft));
+}
+
+.yx-motto span:last-child {
+  background: linear-gradient(270deg, transparent, var(--gold-soft));
+}
+
+.yx-motto b {
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.35em;
+  padding-left: 0.35em;
+  color: #ffe7a8;
+  text-shadow: 0 0 16px rgba(227, 191, 106, 0.4), 0 1px 0 #8a5a14;
+  animation: yx-fade 900ms 1200ms ease both;
 }
 
 /* —— 右页：米色信笺投名状 —— */
@@ -305,9 +567,32 @@
   font-weight: 400;
 }
 
-.yx-form-head p {
+.yx-ask {
+  margin-top: 10px;
   font-size: 14px;
+  color: rgba(28, 26, 23, 0.7);
+}
+
+.yx-ask-list {
+  margin-top: 6px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 18px;
+  font-size: 13px;
   color: rgba(28, 26, 23, 0.55);
+}
+
+.yx-ask-list li::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin: 0 8px 2px 0;
+  transform: rotate(45deg);
+  background: var(--red);
+  opacity: 0.7;
 }
 
 .yx-form fieldset {
@@ -337,8 +622,115 @@
   gap: 14px 22px;
 }
 
-.yx-grid-4 {
-  grid-template-columns: 1.1fr 0.55fr 1.1fr 1.5fr;
+.yx-grid-3 {
+  grid-template-columns: 1fr 1.2fr 1.2fr;
+}
+
+/* 预设选项：竹签式小签，选中压朱 */
+.yx-field {
+  margin-top: 14px;
+}
+
+.yx-field-label {
+  display: block;
+  font-size: 14px;
+  color: rgba(28, 26, 23, 0.65);
+}
+
+.yx-chips {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.yx-chip {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgba(28, 26, 23, 0.25);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  font-family: inherit;
+  font-size: 14px;
+  color: rgba(28, 26, 23, 0.78);
+  cursor: pointer;
+  transition: border-color 160ms, background-color 160ms, color 160ms;
+}
+
+.yx-chip:hover {
+  border-color: rgba(163, 32, 27, 0.6);
+  color: var(--red);
+}
+
+.yx-chip.is-on {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fbecc8;
+}
+
+.yx-chip:focus-visible,
+.yx-track:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+/* 两条路：观摩学习 / 驻场接活 */
+.yx-tracks {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.yx-track {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(28, 26, 23, 0.25);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  font-family: inherit;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 160ms, background-color 160ms;
+}
+
+.yx-track b {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.yx-track span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(28, 26, 23, 0.6);
+}
+
+.yx-track:hover:not(:disabled) {
+  border-color: rgba(163, 32, 27, 0.6);
+}
+
+.yx-track.is-on {
+  border-color: var(--red);
+  background: rgba(163, 32, 27, 0.07);
+  box-shadow: inset 3px 0 0 var(--red);
+}
+
+.yx-track.is-on b {
+  color: var(--red);
+}
+
+.yx-track:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.yx-form .yx-field + textarea {
+  margin-top: 14px;
 }
 
 .yx-form label {
@@ -485,13 +877,6 @@
   margin-top: 12px;
   font-size: 15px;
   color: var(--red);
-  text-align: right;
-}
-
-.yx-fine {
-  margin-top: 10px;
-  font-size: 13px;
-  color: rgba(28, 26, 23, 0.45);
   text-align: right;
 }
 
@@ -693,9 +1078,25 @@
   animation: yx-arrive-m 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.yx-stack .yx-decree-main {
+  min-height: 330px;
+  gap: 8px;
+}
+
 .yx-stack .yx-decree-body {
-  max-height: 260px;
-  font-size: 18px;
+  gap: 13px;
+  font-size: 17px;
+  letter-spacing: 0.18em;
+}
+
+.yx-stack .yx-col.is-lead {
+  font-size: 24px;
+}
+
+.yx-stack .yx-couplet {
+  padding: 14px 7px;
+  padding-left: calc(7px + 0.25em);
+  font-size: 21px;
 }
 
 .yx-stack .yx-page {
@@ -712,8 +1113,12 @@
     font-size: 46px;
   }
 
-  .yx-grid-4 {
-    grid-template-columns: 1fr 5.5rem;
+  .yx-grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .yx-grid-3 label:first-child {
+    grid-column: 1 / -1;
   }
 
   .yx-sign {
@@ -726,9 +1131,34 @@
     margin-top: 6px;
   }
 
-  .yx-fine,
+  .yx-rules ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 14px;
+  }
+
+  .yx-ask-list {
+    grid-template-columns: 1fr;
+  }
+
   .yx-error {
     text-align: center;
+  }
+
+  .yx-top {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 14px;
+  }
+
+  .yx-top .yx-top-rule {
+    display: none;
+  }
+
+  .yx-top-title {
+    order: 3;
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
   }
 
   .yx-cover-title {
