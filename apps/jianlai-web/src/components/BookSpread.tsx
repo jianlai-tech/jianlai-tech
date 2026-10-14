@@ -109,18 +109,20 @@ export function BookSpread({
               </div>
             ) : null}
             {item.processWords.length > 0 ? (
-              <p className="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-[16px] tracking-[0.1em] text-ink/80">
-                {item.processWords.map((word, index) => (
-                  <span key={word}>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {item.processWords.map((word) => (
+                  <span
+                    key={word}
+                    className="kai rounded-[2px] border border-ink/25 bg-[#eddec4]/70 px-2.5 py-0.5 text-[13.5px] text-ink/75"
+                  >
                     {word}
-                    {index < item.processWords.length - 1 ? <span className="ml-4 text-ink/35">·</span> : null}
                   </span>
                 ))}
-              </p>
+              </div>
             ) : null}
-            {showLink ? (
+            {showLink && (item.plates.length > 1 || item.chapters?.length) ? (
               <Link to="/work/$slug" params={{ slug: item.slug }} className="ink-link mt-6 inline-block text-[16px]">
-                看这个项目
+                看这个项目 →
               </Link>
             ) : null}
           </div>

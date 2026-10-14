@@ -5,6 +5,19 @@ import { ComparisonTable } from '@/components/ComparisonTable'
 import { NineFormsBook } from '@/components/NineFormsBook'
 import { Seal } from '@/components/Seal'
 import { FORMS, ORDINALS } from '@/content/forms'
+import { cn } from '@/lib/cn'
+
+const FORM_HINTS = [
+  '消重复表',
+  '截算错钱',
+  '合散乱数',
+  '统各家账',
+  '管越权人',
+  '派智能体',
+  '追增长源',
+  '通多套壳',
+  '留带徒人',
+] as const
 
 export function HomePage() {
   const [bookPage, setBookPage] = useState(0)
@@ -107,20 +120,34 @@ export function HomePage() {
           className="relative z-10 mx-5 mt-8 border-y-2 border-ink sm:mx-[54px] lg:absolute lg:inset-x-0 lg:bottom-0 lg:mt-0"
         >
           <ol className="grid grid-cols-3 gap-px bg-ink/20 lg:grid-cols-9">
-            {FORMS.map((form, index) => (
-              <li key={form.name}>
-                <button
-                  type="button"
-                  onClick={() => openForm(index)}
-                  className="form-tab group flex w-full flex-col items-center gap-1 bg-[#eddec4] px-1 pb-4 pt-3 transition-colors hover:bg-[#e8d8bb] lg:pb-[18px] lg:pt-3.5"
-                >
-                  <span className="kai text-[12px] tracking-[0.2em] text-ink/50">第{ORDINALS[index]}式</span>
-                  <span className="brush text-[26px] leading-none transition-colors group-hover:text-cinnabar lg:text-[28px]">
-                    {form.name}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {FORMS.map((form, index) => {
+              const active = bookPage === index + 2
+              return (
+                <li key={form.name}>
+                  <button
+                    type="button"
+                    onClick={() => openForm(index)}
+                    className={cn(
+                      'form-tab group flex w-full flex-col items-center gap-1 px-1 pb-3.5 pt-2.5 transition-colors lg:pb-4 lg:pt-3',
+                      active ? 'bg-[#e6d4b4]' : 'bg-[#eddec4] hover:bg-[#e8d8bb]',
+                    )}
+                  >
+                    <span className="kai text-[11.5px] tracking-[0.2em] text-ink/50">第{ORDINALS[index]}式</span>
+                    <span
+                      className={cn(
+                        'brush text-[26px] leading-none transition-colors lg:text-[28px]',
+                        active ? 'text-cinnabar' : 'group-hover:text-cinnabar',
+                      )}
+                    >
+                      {form.name}
+                    </span>
+                    <span className="kai mt-0.5 text-[12.5px] tracking-[0.08em] text-ink/65 transition-colors group-hover:text-ink/90">
+                      {FORM_HINTS[index]}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
           </ol>
         </nav>
       </section>
@@ -131,9 +158,17 @@ export function HomePage() {
         aria-labelledby="forms-title"
       >
         <div className="mx-auto max-w-[1100px]">
-          <h2 id="forms-title" className="sr-only">
-            剑来九式
-          </h2>
+          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-ink/20 pb-3">
+            <div className="flex items-baseline gap-3">
+              <span className="kai text-[13px] tracking-[0.25em] text-cinnabar">〔 卷一 · 剑谱 〕</span>
+              <h2 id="forms-title" className="brush text-[34px] leading-none text-ink sm:text-[42px]">
+                剑来九式
+              </h2>
+            </div>
+            <p className="kai text-[14.5px] text-ink/60">
+              企业常见九处淤堵，一式破一处 · 点击封皮或右侧书签翻阅
+            </p>
+          </div>
           <NineFormsBook page={bookPage} onPageChange={setBookPage} />
         </div>
       </section>

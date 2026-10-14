@@ -7,17 +7,23 @@ const NAV = [
   { to: '/', label: '首页' },
   { to: '/work', label: '案例集' },
   { to: '/people', label: '剑修名册' },
+  { to: '/join', label: '英雄帖', badge: '二期' },
 ] as const
 
 /** 洒金笺对联条，竖写一联 */
-function CoupletStrip({ text }: { text: string }) {
+function CoupletStrip({ text, lower }: { text: string; lower?: boolean }) {
   return (
     <p
-      className="brush vertical relative px-3 py-6 text-[30px] leading-none tracking-[0.32em] text-ink/85 shadow-[0_10px_18px_-14px_rgba(28,26,23,0.6)]"
+      className={cn(
+        'brush vertical relative border border-ink/25 px-3.5 py-7 text-[30px] leading-none tracking-[0.32em] text-ink/90 shadow-[0_14px_24px_-16px_rgba(28,26,23,0.65)]',
+        lower ? 'mt-6' : '-mt-2',
+      )}
       style={{
         backgroundColor: '#e4cfa9',
-        backgroundImage: "url('/art/sajin.webp'), linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0.04))",
+        backgroundImage: "url('/art/sajin.webp'), linear-gradient(180deg, rgba(255,255,255,0.22), rgba(0,0,0,0.05))",
         backgroundSize: '220px, 100%',
+        boxShadow:
+          'inset 0 0 0 2px #f2e5c9, inset 0 0 0 3px rgba(168,50,42,0.28), 0 14px 24px -16px rgba(28,26,23,0.65)',
       }}
     >
       {text}
@@ -48,11 +54,16 @@ export function SiteShell() {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  'whitespace-nowrap pb-1 no-underline transition-colors',
+                  'inline-flex items-center gap-1.5 whitespace-nowrap pb-1 no-underline transition-colors',
                   active ? 'border-b-2 border-moss text-ink' : 'text-ink/75 hover:text-ink',
                 )}
               >
                 {item.label}
+                {'badge' in item && item.badge ? (
+                  <span className="kai rounded-[2px] bg-cinnabar px-1.5 py-0.5 text-[11px] leading-none tracking-wider text-[#f5ecd9]">
+                    {item.badge}
+                  </span>
+                ) : null}
               </Link>
             )
           })}
@@ -70,7 +81,7 @@ export function SiteShell() {
 
         <div className="mt-12 flex items-center justify-center gap-10 lg:gap-16">
           <span className="hidden md:block">
-            <CoupletStrip text="他时剑履山河" />
+            <CoupletStrip text="他时剑履山河" lower />
           </span>
 
           {/* 牌记：古籍卷末刊记的样子，双边框里落款 */}

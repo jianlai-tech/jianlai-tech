@@ -26,10 +26,21 @@ function Plate({ plate, className }: { plate: CasePlate; className?: string }) {
   )
 }
 
-/** 封面：磁青函套，题签写行业，三张截图斜叠像夹在书里的页 */
-function CaseCover({ item, vol }: { item: CaseRecord; vol: number }) {
+/** 封面：磁青函套，题签写行业，三张截图斜叠像夹在书里的页；整张封面可点翻开 */
+function CaseCover({ item, vol, onOpen }: { item: CaseRecord; vol: number; onOpen?: () => void }) {
   return (
-    <div className="relative flex min-h-[560px] overflow-hidden bg-[#2b3a3f] text-[#efe3c6] md:h-[640px]">
+    <div
+      role={onOpen ? 'button' : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (onOpen && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          onOpen()
+        }
+      }}
+      className="group relative flex min-h-[560px] cursor-pointer overflow-hidden bg-[#2b3a3f] text-[#efe3c6] md:h-[640px]"
+    >
       <div aria-hidden className="relative w-12 shrink-0 border-r border-[#efe3c6]/15 sm:w-16">
         {[10, 36, 64, 90].map((top) => (
           <span key={top} className="absolute left-0 h-px w-full bg-[#efe3c6]/40" style={{ top: `${top}%` }}>
@@ -44,17 +55,32 @@ function CaseCover({ item, vol }: { item: CaseRecord; vol: number }) {
       />
 
       <div className="relative flex min-h-0 flex-1 flex-col gap-6 p-8 sm:p-12">
-        <div className="flex self-start border border-[#1c1a17]/60 bg-[#efe3c6] px-3 py-5 text-ink shadow-[0_12px_24px_-14px_rgba(0,0,0,0.85)] sm:px-5 sm:py-7">
-          <p className="kai vertical mr-2 self-end text-[15px] tracking-[0.35em] text-ink/70 sm:text-[17px]">案例集 · 卷{cnNum(vol)}</p>
-          <h3 className="brush vertical text-[48px] leading-[1.1] tracking-[0.12em] sm:text-[64px]">{item.short ?? item.industry}</h3>
-        </div>
-        <div className="mt-auto max-w-[22em]">
-          <p className="kai text-[14px] tracking-[0.3em] text-[#efe3c6]/60">{item.industry}</p>
-          {item.ledger ? (
-            <p className="kai mt-2 text-[15px] leading-[1.9] text-[#efe3c6]/80">
-              {item.ledger.span} · {item.ledger.headline}
+        <div className="flex self-start border-2 border-[#1c1a17]/75 bg-[#efe3c6] px-3.5 py-5 text-ink shadow-[0_14px_28px_-14px_rgba(0,0,0,0.85)] outline outline-1 -outline-offset-4 outline-[#1c1a17]/35 transition-transform duration-300 group-hover:-translate-y-0.5 sm:px-5 sm:py-7">
+          <div className="mr-2.5 flex flex-col items-center justify-between border-r border-ink/25 pr-2">
+            <span className="kai vertical rounded-[1px] bg-cinnabar px-1 py-1.5 text-[11px] leading-none tracking-[0.2em] text-[#f5ecd9]">
+              实录
+            </span>
+            <p className="kai vertical text-[14px] tracking-[0.32em] text-ink/70 sm:text-[16px]">
+              案例集 · 卷{cnNum(vol)}
             </p>
-          ) : null}
+          </div>
+          <h3 className="brush vertical text-[48px] leading-[1.08] tracking-[0.12em] sm:text-[64px]">
+            {item.short ?? item.industry}
+          </h3>
+        </div>
+        <div className="mt-auto flex flex-col items-start gap-3.5">
+          <div>
+            <p className="kai text-[14px] tracking-[0.3em] text-[#efe3c6]/60">{item.industry}</p>
+            {item.ledger ? (
+              <p className="kai mt-1.5 whitespace-nowrap text-[15px] leading-[1.85] text-[#efe3c6]/85">
+                {item.ledger.span} · {item.ledger.headline}
+              </p>
+            ) : null}
+          </div>
+          <span className="kai inline-flex items-center gap-2 rounded-[2px] border border-[#e3bf6a]/45 bg-[#1a2428]/80 px-3.5 py-1.5 text-[13.5px] tracking-[0.2em] text-[#f0cf7e] transition-colors group-hover:border-[#e3bf6a] group-hover:bg-cinnabar group-hover:text-[#fbf3df]">
+            <span>轻触封皮 · 启卷阅案</span>
+            <span aria-hidden>→</span>
+          </span>
         </div>
       </div>
 
@@ -66,7 +92,7 @@ function CaseCover({ item, vol }: { item: CaseRecord; vol: number }) {
             src={plate.src}
             alt=""
             loading="lazy"
-            className="absolute w-[78%] border-[6px] border-[#efe3c6] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.75)] [filter:sepia(0.25)_saturate(0.7)]"
+            className="absolute w-[78%] border-[6px] border-[#efe3c6] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.75)] transition-transform duration-500 [filter:sepia(0.25)_saturate(0.7)] group-hover:scale-[1.02]"
             style={{ top: `${14 + i * 18}%`, right: `${8 + i * 7}%`, transform: `rotate(${[-4, 2.5, -1.5][i]}deg)` }}
           />
         ))}
@@ -269,7 +295,7 @@ function ChapterPage({ chapter, index, offset }: { chapter: CaseChapter; index: 
 export function casePages(item: CaseRecord, vol: number, go: (page: number) => void): GujiPage[] {
   const chapters = item.chapters ?? []
   return [
-    { name: '封面', cover: true, render: () => <CaseCover item={item} vol={vol} /> },
+    { name: '封面', cover: true, render: () => <CaseCover item={item} vol={vol} onOpen={() => go(1)} /> },
     { name: '目录', render: () => <CaseContents item={item} onPick={go} /> },
     ...(item.ledger ? [{ name: '账页 · 投入与产出', tab: '账', render: () => <LedgerPage item={item} /> }] : []),
     { name: '序一 · 生意', tab: '生', render: () => <ModelPage item={item} /> },

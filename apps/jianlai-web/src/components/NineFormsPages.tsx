@@ -26,9 +26,20 @@ function folioOf(page: number) {
   return ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一'][page] ?? String(page + 1)
 }
 
-export function Cover() {
+export function Cover({ onOpen }: { onOpen?: () => void }) {
   return (
-    <div className="relative flex min-h-[560px] overflow-hidden bg-[#26302f] text-[#efe3c6] md:h-[600px]">
+    <div
+      role={onOpen ? 'button' : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (onOpen && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          onOpen()
+        }
+      }}
+      className="group relative flex min-h-[560px] cursor-pointer overflow-hidden bg-[#26302f] text-[#efe3c6] md:h-[600px]"
+    >
       {/* 线装：书脊在左，四眼订线 */}
       <div aria-hidden className="relative w-12 shrink-0 border-r border-[#efe3c6]/15 sm:w-16">
         {[10, 36, 64, 90].map((top) => (
@@ -54,16 +65,48 @@ export function Cover() {
         style={{ backgroundImage: "url('/art/sajin.webp')", backgroundSize: '520px' }}
       />
 
-      <div className="relative flex flex-1 flex-col p-8 sm:p-12">
-        {/* 题签：贴在封面左上，靠书脊 */}
-        <div className="flex self-start border border-[#1c1a17]/60 bg-[#efe3c6] px-3 py-5 text-ink shadow-[0_12px_24px_-14px_rgba(0,0,0,0.85)] sm:px-5 sm:py-7">
-          <p className="kai vertical mr-2 self-end text-[15px] tracking-[0.35em] text-ink/70 sm:text-[17px]">九式卷</p>
-          <h3 className="brush vertical text-[46px] leading-[1.1] tracking-[0.14em] sm:text-[66px]">剑来剑谱</h3>
+      {/* 封面中上：泥金乌丝九式总纲暗刻，填补磁青纸留白且避开右下引言 */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-10 top-9 hidden md:flex lg:right-14"
+      >
+        <div className="vertical flex h-[268px] flex-col justify-between border-y border-[#e3bf6a]/22 px-3 py-4 text-[#e3bf6a]/35">
+          {FORMS.map((f, i) => (
+            <div
+              key={f.name}
+              className="flex items-center gap-2.5 border-l border-[#e3bf6a]/14 pl-3.5 first:border-l-0"
+            >
+              <span className="kai text-[11.5px] tracking-[0.22em] text-[#e3bf6a]/50">第{ORDINALS[i]}式</span>
+              <span className="brush text-[25px] leading-none text-[#efe3c6]/60">{f.name}</span>
+              <span className="kai text-[12px] tracking-[0.16em] text-[#efe3c6]/32">
+                {f.line.slice(0, 7)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative flex flex-1 flex-col justify-between p-8 sm:p-12">
+        {/* 题签：贴在封面左上，靠书脊，双边乌丝框 */}
+        <div className="flex self-start border-2 border-[#1c1a17]/75 bg-[#efe3c6] px-3.5 py-5 text-ink shadow-[0_14px_28px_-14px_rgba(0,0,0,0.85)] outline outline-1 -outline-offset-4 outline-[#1c1a17]/35 transition-transform duration-300 group-hover:-translate-y-0.5 sm:px-5 sm:py-7">
+          <div className="mr-2.5 flex flex-col items-center justify-between border-r border-ink/25 pr-2">
+            <span className="kai vertical rounded-[1px] bg-cinnabar px-1 py-1.5 text-[11px] leading-none tracking-[0.2em] text-[#f5ecd9]">
+              珍本
+            </span>
+            <p className="kai vertical text-[14px] tracking-[0.35em] text-ink/70 sm:text-[16px]">九式卷</p>
+          </div>
+          <h3 className="brush vertical text-[48px] leading-[1.08] tracking-[0.14em] sm:text-[68px]">剑来剑谱</h3>
         </div>
 
-        <p className="kai mt-auto max-w-[19em] self-end text-right text-[16px] leading-[2] text-[#efe3c6]/80 sm:text-[17px]">
-          驻场进一家公司能斩掉什么，一式一页：要你准备什么，我们在现场做什么，做完是什么样。
-        </p>
+        <div className="mt-auto flex flex-col items-end gap-4 self-end text-right">
+          <p className="kai max-w-[20em] text-[15.5px] leading-[1.95] text-[#efe3c6]/82 sm:text-[16.5px]">
+            驻场进一家公司能斩掉什么，一式一页：要你准备什么，我们在现场做什么，做完是什么样。
+          </p>
+          <span className="kai inline-flex items-center gap-2 rounded-[2px] border border-[#e3bf6a]/45 bg-[#19201f]/75 px-3.5 py-1.5 text-[13.5px] tracking-[0.2em] text-[#f0cf7e] transition-colors group-hover:border-[#e3bf6a] group-hover:bg-cinnabar group-hover:text-[#fbf3df]">
+            <span>轻触封皮 · 启卷阅谱</span>
+            <span aria-hidden>→</span>
+          </span>
+        </div>
       </div>
     </div>
   )

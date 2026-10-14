@@ -49,38 +49,49 @@ const ROWS: Row[] = [
   },
 ]
 
+const HAN_NUMS = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'] as const
+
 export function ComparisonTable() {
   return (
     <div className="guji-leaf guji-frame relative px-5 py-8 sm:px-10 sm:py-12">
       <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
-        <h2 id="compare-title" className="title-swash brush text-[40px] leading-none sm:text-[56px]">
-          同一件事，两种做法
-        </h2>
-        <p className="kai max-w-[22em] text-[15px] leading-[1.8] text-ink/60">
+        <div>
+          <span className="kai text-[13px] tracking-[0.25em] text-cinnabar">〔 卷二 · 辨法 〕</span>
+          <h2 id="compare-title" className="title-swash brush mt-1 text-[40px] leading-none sm:text-[56px]">
+            同一件事，两种做法
+          </h2>
+        </div>
+        <p className="kai max-w-[22em] text-[15px] leading-[1.8] text-ink/65">
           驻场在业内叫 FDE（前沿部署工程师）：人进现场，对业务结果负责。
         </p>
       </div>
 
-      <div className="mt-8 hidden border-y-2 border-ink md:grid md:grid-cols-[8.5rem_minmax(0,1fr)_minmax(0,1.15fr)]">
-        <span />
-        <p className="kai px-6 py-3 text-[16px] tracking-[0.15em] text-ink/55">传统软件开发</p>
-        <p className="flex items-center gap-2 border-l border-ink/25 bg-ink/[0.035] px-6 py-3">
-          <span className="brush text-[24px] leading-none">剑来驻场</span>
-        </p>
+      <div className="mt-8 hidden border-y-2 border-ink md:grid md:grid-cols-[9.5rem_minmax(0,0.95fr)_minmax(0,1.2fr)]">
+        <span className="kai flex items-center px-3 py-3 text-[13px] tracking-[0.2em] text-ink/45">九处分野</span>
+        <p className="kai flex items-center px-6 py-3 text-[16px] tracking-[0.15em] text-ink/55">传统软件开发</p>
+        <div className="flex items-center justify-between border-l-2 border-cinnabar/45 bg-[#ead8b8]/70 px-6 py-3">
+          <span className="brush text-[28px] leading-none text-cinnabar">剑来驻场</span>
+          <span className="kai rounded-[2px] border border-cinnabar/35 bg-cinnabar/10 px-2 py-0.5 text-[12px] tracking-[0.12em] text-cinnabar">
+            FDE · 现场铸剑
+          </span>
+        </div>
       </div>
 
       <dl className="mt-6 border-t-2 border-ink md:mt-0 md:border-t-0">
-        {ROWS.map((row) => (
+        {ROWS.map((row, idx) => (
           <div
             key={row.aspect}
-            className="grid border-b border-ink/20 py-4 md:grid-cols-[8.5rem_minmax(0,1fr)_minmax(0,1.15fr)] md:py-0"
+            className="grid border-b border-ink/20 py-4 md:grid-cols-[9.5rem_minmax(0,0.95fr)_minmax(0,1.2fr)] md:py-0"
           >
-            <dt className="kai text-[17px] text-cinnabar md:py-4 md:text-ink/75">{row.aspect}</dt>
+            <dt className="kai flex items-baseline gap-2.5 text-[17px] text-cinnabar md:px-3 md:py-4 md:text-ink/85">
+              <span className="text-[12px] text-cinnabar/75">{HAN_NUMS[idx]}</span>
+              <span>{row.aspect}</span>
+            </dt>
             <dd className="mt-2 text-[15px] leading-[1.75] text-ink/50 md:mt-0 md:px-6 md:py-4">
               <span className="kai mr-2 text-ink/40 md:hidden">传统</span>
               {row.old}
             </dd>
-            <dd className="mt-1.5 text-[16px] leading-[1.75] text-ink md:mt-0 md:border-l md:border-ink/25 md:bg-ink/[0.035] md:px-6 md:py-4">
+            <dd className="mt-1.5 text-[16px] leading-[1.75] text-ink md:mt-0 md:border-l-2 md:border-cinnabar/35 md:bg-[#ead8b8]/45 md:px-6 md:py-4">
               <span className="brush mr-2 text-[18px] text-cinnabar md:hidden">剑来</span>
               {row.ours}
             </dd>

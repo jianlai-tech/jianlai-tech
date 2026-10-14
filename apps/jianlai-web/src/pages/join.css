@@ -226,7 +226,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 46px 34px 36px;
+  padding: 40px 34px 30px;
   color: #f0cf7e;
   background:
     radial-gradient(ellipse at 70% 15%, rgba(255, 255, 255, 0.08), transparent 55%),
@@ -246,10 +246,22 @@
 /* 帖头下一道金线，中间压一个点 */
 .yx-decree-rule {
   position: relative;
-  width: 62%;
+  width: 72%;
   height: 1px;
-  margin-top: 22px;
-  background: linear-gradient(90deg, transparent, var(--gold-soft) 20%, var(--gold-soft) 80%, transparent);
+  margin-top: 16px;
+  background: linear-gradient(90deg, transparent, var(--gold-soft) 15%, var(--gold-soft) 85%, transparent);
+}
+
+.yx-decree-rule::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border: 1px solid rgba(227, 191, 106, 0.5);
+  background: var(--red);
 }
 
 .yx-decree-rule::after {
@@ -257,11 +269,10 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   transform: translate(-50%, -50%) rotate(45deg);
   background: var(--gold);
-  box-shadow: 0 0 0 3px var(--red);
 }
 
 /* 三段并排：左下联、中正文、右上联。竖排从右往左读，所以上联在右 */
@@ -269,84 +280,190 @@
   flex: 1;
   width: 100%;
   min-height: 0;
-  margin-top: 22px;
+  margin-top: 14px;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: space-between;
   gap: 14px;
 }
 
-/* 一行一列，从右往左；列首对齐 */
+/* 帖芯乌丝栏：一行一列，从右往左；外罩双边暗金小框，列间虚实有度 */
 .yx-decree-body {
+  position: relative;
   flex: 1;
   min-width: 0;
+  padding: 18px 14px 16px;
   writing-mode: vertical-rl;
   text-orientation: upright;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 16px;
-  font-size: 19px;
-  letter-spacing: 0.2em;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 19.5px;
+  letter-spacing: 0.18em;
   line-height: 1;
-  color: rgba(246, 222, 160, 0.95);
+  color: rgba(249, 228, 172, 0.96);
+  border-top: 1px solid rgba(227, 191, 106, 0.28);
+  border-bottom: 1px solid rgba(227, 191, 106, 0.28);
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(56, 6, 4, 0.24), transparent 75%);
+}
+
+/* 上下金线内侧再压一道极细副线，像古籍天头地脚界栏 */
+.yx-decree-body::before,
+.yx-decree-body::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(227, 191, 106, 0.18) 15%, rgba(227, 191, 106, 0.18) 85%, transparent);
+  pointer-events: none;
+}
+
+.yx-decree-body::before {
+  top: 3px;
+}
+
+.yx-decree-body::after {
+  bottom: 3px;
 }
 
 .yx-col {
-  display: block;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   animation: yx-ink 800ms cubic-bezier(0.65, 0, 0.35, 1) both;
 }
 
-/* 题眼：大一号，金色更亮 */
-.yx-col.is-lead {
-  font-size: 27px;
-  letter-spacing: 0.3em;
-  color: #fbe3a0;
-  text-shadow: 0 1px 0 #8a5a14;
+.yx-col-text {
+  display: inline;
 }
 
-/* 落款句：往下沉一截，像落笔的位置 */
+/* 语义分群：段落之间加一道淡金乌丝竖线，拉开呼吸 */
+.yx-col.is-group-end {
+  padding-left: 12px;
+  margin-left: 2px;
+}
+
+.yx-col.is-group-end::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(227, 191, 106, 0.34) 20%,
+    rgba(227, 191, 106, 0.34) 80%,
+    transparent
+  );
+}
+
+/* 列首小签：「招贤」引首朱签、「上山 / 下山 / 立身」泥金框签 */
+.yx-col-badge {
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  border-radius: 2px;
+}
+
+.yx-col-badge.is-tag {
+  padding: 4px 3px 2px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: #6d1511;
+  background: linear-gradient(180deg, #efd79c, #dfb968);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+}
+
+.yx-col-badge.is-step {
+  padding: 4px 3px 2px;
+  font-size: 13.5px;
+  letter-spacing: 0.16em;
+  color: #fbe5a5;
+  background: rgba(92, 12, 9, 0.68);
+  border: 1px solid rgba(227, 191, 106, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(255, 232, 175, 0.12);
+}
+
+/* 题眼：毛笔气韵更足，大一号，金色更亮 */
+.yx-col.is-lead .yx-col-text {
+  font-size: 27px;
+  letter-spacing: 0.26em;
+  color: #fbe3a0;
+  font-weight: 600;
+  text-shadow:
+    0 1px 0 #7a4b0e,
+    0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+/* 落款句：往下沉一截，像落笔的位置，尾缀朱砂圆印点 */
 .yx-col.is-end {
-  padding-top: 1.4em;
+  padding-top: 1.1em;
   color: #fff0c4;
+}
+
+.yx-col-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d94136;
+  box-shadow:
+    0 0 0 1.5px #f0cf7e,
+    0 2px 5px rgba(0, 0, 0, 0.35);
 }
 
 .yx-tcy {
   text-combine-upright: all;
-  letter-spacing: 0;
+  letter-spacing: -0.03em;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 0.92em;
+  color: #fde6a6;
 }
 
-/* 剑修四要：帖子下半截，一字为纲，两行小字 */
+/* 剑修四要：帖子下半截，四格主框 + 一条加分横幅 */
 .yx-rules {
   width: 100%;
-  margin-top: 18px;
+  margin-top: 10px;
 }
 
 .yx-rules-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  letter-spacing: 0.5em;
-  padding-left: 0.5em;
-  color: rgba(246, 222, 160, 0.75);
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  letter-spacing: 0.45em;
+  padding-left: 0.45em;
+  color: rgba(246, 222, 160, 0.72);
 }
 
-.yx-rules-title span {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-soft));
+.yx-rules-title::before,
+.yx-rules-title::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  transform: rotate(45deg);
+  background: rgba(227, 191, 106, 0.55);
 }
 
-.yx-rules-title span:last-child {
-  background: linear-gradient(270deg, transparent, var(--gold-soft));
+.yx-rules-title::before {
+  margin-right: 0.45em;
 }
 
 .yx-rules ul {
-  margin-top: 12px;
+  margin-top: 10px;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
   list-style: none;
   padding: 0;
 }
@@ -356,17 +473,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 4px 10px;
-  border: 1px solid rgba(227, 191, 106, 0.32);
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 6px 9px;
+  border: 1px solid rgba(227, 191, 106, 0.34);
   border-radius: 3px;
-  background: rgba(70, 8, 6, 0.18);
+  background: rgba(70, 8, 6, 0.2);
   text-align: center;
   animation: yx-fade 900ms ease both;
 }
 
 .yx-rule b {
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 400;
   line-height: 1;
   color: #fbe3a0;
@@ -377,29 +495,47 @@
   display: flex;
   flex-direction: column;
   font-size: 12px;
-  line-height: 1.55;
+  line-height: 1.5;
   white-space: nowrap;
-  color: rgba(246, 222, 160, 0.82);
+  color: rgba(246, 222, 160, 0.84);
 }
 
-/* 加分项：洒金底红字，和对联同一块料 */
-.yx-rule.is-bonus {
-  border-style: dashed;
+/* 加分项横幅：独立在四要之下，不再挤成五格 */
+.yx-bonus {
+  margin-top: 8px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px dashed rgba(227, 191, 106, 0.36);
+  border-radius: 3px;
+  background: rgba(70, 8, 6, 0.14);
+  animation: yx-fade 900ms ease both;
 }
 
-.yx-rule em {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0 6px;
+.yx-bonus em {
+  padding: 1px 6px;
   font-size: 11px;
   font-style: normal;
   line-height: 16px;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
   color: #6d1511;
-  background: #ecd49a;
+  background: #e5cb8f;
   border-radius: 2px;
+}
+
+.yx-bonus b {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  color: #fbe3a0;
+}
+
+.yx-bonus span {
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  color: rgba(246, 222, 160, 0.84);
 }
 
 /* 对联：红底上的洒金条，竖写，上联右下联左 */
@@ -408,20 +544,20 @@
   align-self: center;
   writing-mode: vertical-rl;
   text-orientation: upright;
-  padding: 14px 8px;
-  font-size: 20px;
+  padding: 13px 7px;
+  font-size: 19px;
   line-height: 1;
-  letter-spacing: 0.3em;
-  padding-left: calc(8px + 0.3em);
+  letter-spacing: 0.28em;
+  padding-left: calc(7px + 0.28em);
   color: #6d1511;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(0, 0, 0, 0.05)),
-    #ecd49a;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.08)),
+    #e2c789;
   border-radius: 2px;
   box-shadow:
-    inset 0 0 0 2px #ecd49a,
-    inset 0 0 0 3px rgba(124, 20, 16, 0.4),
-    0 8px 14px -8px rgba(0, 0, 0, 0.55);
+    inset 0 0 0 1.5px #e2c789,
+    inset 0 0 0 2.5px rgba(124, 20, 16, 0.42),
+    0 6px 12px -6px rgba(0, 0, 0, 0.5);
   animation: yx-fade 900ms ease both;
 }
 
@@ -429,8 +565,8 @@
 .yx-couplet-upper,
 .yx-couplet-lower {
   margin-top: 0;
-  /* 竖排里 height 是行长：6 字 × (1em + 0.3em 字距) + 上下留白 */
-  height: calc(6 * 1.3em + 28px);
+  /* 竖排里 height 是行长：6 字 × (1em + 0.28em 字距) + 上下留白 */
+  height: calc(6 * 1.28em + 26px);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -460,8 +596,8 @@
   justify-content: center;
   align-items: center;
   gap: 14px;
-  margin-top: 18px;
-  font-size: 15px;
+  margin-top: 14px;
+  font-size: 14px;
   letter-spacing: 0.3em;
   color: rgba(240, 207, 126, 0.8);
 }
@@ -504,7 +640,7 @@
 /* 帖眼：剑心通明，压在正文和四要之间 */
 .yx-motto {
   width: 100%;
-  margin-top: 14px;
+  margin-top: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -513,7 +649,7 @@
 
 .yx-motto span {
   flex: 1;
-  max-width: 90px;
+  max-width: 110px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold-soft));
 }
@@ -523,7 +659,7 @@
 }
 
 .yx-motto b {
-  font-size: 30px;
+  font-size: 29px;
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0.35em;
@@ -533,24 +669,53 @@
   animation: yx-fade 900ms 1200ms ease both;
 }
 
-/* —— 右页：米色信笺投名状 —— */
+/* —— 右页：米色宣纸投名状（不用竖栏底图，免得竖线穿过横排字） —— */
 .yx-page {
   position: relative;
   height: 100%;
   background:
-    linear-gradient(90deg, rgba(28, 26, 23, 0.1), transparent 5%),
-    url('/art/paper.png'),
+    linear-gradient(90deg, rgba(28, 26, 23, 0.11), rgba(28, 26, 23, 0.02) 4%, transparent 9%),
+    radial-gradient(ellipse at 85% 12%, rgba(255, 250, 238, 0.55), transparent 60%),
+    radial-gradient(ellipse at 20% 90%, rgba(196, 164, 112, 0.16), transparent 60%),
     var(--paper);
-  background-size: 100% 100%, 256px 144px, auto;
+  box-shadow: inset 0 0 0 1px rgba(28, 26, 23, 0.08);
   border-radius: 4px;
   overflow: auto;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(28, 26, 23, 0.22) transparent;
+}
+
+.yx-page::-webkit-scrollbar {
+  width: 5px;
+}
+
+.yx-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.yx-page::-webkit-scrollbar-thumb {
+  background: rgba(28, 26, 23, 0.2);
+  border-radius: 999px;
+}
+
+.yx-page::-webkit-scrollbar-thumb:hover {
+  background: rgba(163, 32, 27, 0.45);
 }
 
 .yx-form {
-  padding: 34px 40px 26px;
+  position: relative;
+  margin: 14px;
+  padding: 24px 28px 24px;
+  border: 1.5px solid rgba(138, 42, 34, 0.34);
+  outline: 1px solid rgba(138, 42, 34, 0.16);
+  outline-offset: -5px;
+  border-radius: 2px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 252, 244, 0.5), transparent 70%);
 }
 
+/* 文书题头：朱印引首 + 大字题名 + 右侧批注，底下上粗下细朱墨双栏线 */
 .yx-form-head {
   display: flex;
   flex-wrap: wrap;
@@ -558,107 +723,141 @@
   justify-content: space-between;
   gap: 8px 16px;
   padding-bottom: 12px;
-  border-bottom: 2px solid rgba(28, 26, 23, 0.75);
+  border-bottom: 2px solid rgba(28, 26, 23, 0.78);
+  box-shadow: 0 4px 0 -3px rgba(163, 32, 27, 0.42);
+}
+
+.yx-form-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.yx-form-stamp {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  padding: 4px 3px 2px;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  color: #fbecc8;
+  background: var(--red);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(251, 236, 200, 0.35);
 }
 
 .yx-form-head h1 {
-  font-size: 54px;
-  line-height: 1;
+  font-size: 48px;
+  line-height: 0.95;
   font-weight: 400;
+  color: #1c1814;
 }
 
-.yx-ask {
-  margin-top: 10px;
-  font-size: 14px;
-  color: rgba(28, 26, 23, 0.7);
-}
-
-.yx-ask-list {
-  margin-top: 6px;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 18px;
-  font-size: 13px;
-  color: rgba(28, 26, 23, 0.55);
-}
-
-.yx-ask-list li::before {
-  content: '';
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin: 0 8px 2px 0;
-  transform: rotate(45deg);
-  background: var(--red);
-  opacity: 0.7;
+.yx-form-sub {
+  font-size: 12.5px;
+  letter-spacing: 0.22em;
+  color: rgba(28, 26, 23, 0.52);
 }
 
 .yx-form fieldset {
-  margin-top: 22px;
+  margin-top: 20px;
   border: 0;
   padding: 0;
 }
 
 .yx-form legend {
+  width: 100%;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
+  color: #1c1814;
 }
 
-.yx-form legend .brush {
-  font-size: 28px;
-  line-height: 1;
+.yx-q-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px 1px;
+  font-size: 22px;
+  line-height: 1.05;
   font-weight: 400;
   color: var(--red);
+  background: rgba(163, 32, 27, 0.08);
+  border-left: 2.5px solid var(--red);
+  border-radius: 0 2px 2px 0;
+}
+
+.yx-q-title {
+  letter-spacing: 0.06em;
+}
+
+.yx-q-rule {
+  flex: 1;
+  height: 1px;
+  margin-left: 4px;
+  background: linear-gradient(90deg, rgba(163, 32, 27, 0.25), rgba(28, 26, 23, 0.08) 70%, transparent);
 }
 
 .yx-grid {
   margin-top: 10px;
   display: grid;
-  gap: 14px 22px;
+  gap: 12px 18px;
 }
 
 .yx-grid-3 {
-  grid-template-columns: 1fr 1.2fr 1.2fr;
+  grid-template-columns: 0.95fr 1.15fr 1.15fr;
 }
 
 /* 预设选项：竹签式小签，选中压朱 */
 .yx-field {
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .yx-field-label {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: rgba(28, 26, 23, 0.65);
 }
 
 .yx-chips {
-  margin-top: 8px;
+  margin-top: 6px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
+}
+
+/* 年级 8 档：桌面端一行排齐，不再掉 2 个尾巴到第二行 */
+.yx-chips-grade {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.yx-chips-grade .yx-chip {
+  padding: 0 4px;
+  text-align: center;
 }
 
 .yx-chip {
-  height: 32px;
-  padding: 0 14px;
-  border: 1px solid rgba(28, 26, 23, 0.25);
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(28, 26, 23, 0.22);
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 252, 245, 0.55);
+  box-shadow: 0 1px 0 rgba(28, 26, 23, 0.04);
   font-family: inherit;
-  font-size: 14px;
-  color: rgba(28, 26, 23, 0.78);
+  font-size: 13.5px;
+  color: rgba(28, 26, 23, 0.82);
   cursor: pointer;
-  transition: border-color 160ms, background-color 160ms, color 160ms;
+  transition: border-color 160ms, background-color 160ms, color 160ms, transform 120ms;
 }
 
 .yx-chip:hover {
   border-color: rgba(163, 32, 27, 0.6);
+  background: rgba(255, 252, 245, 0.85);
   color: var(--red);
 }
 
@@ -666,6 +865,7 @@
   border-color: var(--red);
   background: var(--red);
   color: #fbecc8;
+  box-shadow: inset 0 0 0 1px rgba(251, 236, 200, 0.28);
 }
 
 .yx-chip:focus-visible,
@@ -679,39 +879,59 @@
   margin-top: 10px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 .yx-track {
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 12px 14px;
-  border: 1px solid rgba(28, 26, 23, 0.25);
+  align-items: stretch;
+  gap: 5px;
+  padding: 11px 13px 10px;
+  border: 1px solid rgba(28, 26, 23, 0.24);
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 252, 245, 0.55);
   font-family: inherit;
   text-align: left;
   color: var(--ink);
   cursor: pointer;
-  transition: border-color 160ms, background-color 160ms;
+  transition: border-color 160ms, background-color 160ms, box-shadow 160ms;
+}
+
+.yx-track-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .yx-track b {
   font-size: 24px;
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.05;
+}
+
+.yx-track em {
+  font-style: normal;
+  padding: 2px 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(124, 20, 16, 0.8);
+  background: rgba(163, 32, 27, 0.08);
+  border: 1px solid rgba(163, 32, 27, 0.22);
+  border-radius: 2px;
 }
 
 .yx-track span {
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(28, 26, 23, 0.6);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: rgba(28, 26, 23, 0.64);
 }
 
 .yx-track:hover:not(:disabled) {
   border-color: rgba(163, 32, 27, 0.6);
+  background: rgba(255, 252, 245, 0.85);
 }
 
 .yx-track.is-on {
@@ -724,55 +944,112 @@
   color: var(--red);
 }
 
+.yx-track.is-on em {
+  color: #fbecc8;
+  background: var(--red);
+  border-color: var(--red);
+}
+
 .yx-track:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 
-.yx-form .yx-field + textarea {
-  margin-top: 14px;
+/* 四问引子卡片 + 朱丝手书八行笺 */
+.yx-ask-card {
+  margin-top: 9px;
+  padding: 9px 12px;
+  background: rgba(163, 32, 27, 0.045);
+  border-left: 2px solid rgba(163, 32, 27, 0.45);
+  border-radius: 0 2px 2px 0;
+}
+
+.yx-ask {
+  font-size: 13px;
+  color: rgba(28, 26, 23, 0.74);
+}
+
+.yx-ask-list {
+  margin-top: 5px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 14px;
+  font-size: 12.5px;
+  color: rgba(28, 26, 23, 0.58);
+}
+
+.yx-ask-list li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yx-ask-list li::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 6px 2px 0;
+  transform: rotate(45deg);
+  background: var(--red);
+  opacity: 0.75;
+}
+
+.yx-paper-pad {
+  margin-top: 10px;
+  padding: 4px 12px 6px;
+  border: 1px solid rgba(163, 32, 27, 0.26);
+  border-radius: 2px;
+  background: rgba(255, 253, 248, 0.52);
+  box-shadow: inset 0 1px 3px rgba(28, 26, 23, 0.04);
 }
 
 .yx-form label {
-  display: block;
-  font-size: 14px;
-  color: rgba(28, 26, 23, 0.65);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  font-size: 13px;
+  color: rgba(28, 26, 23, 0.68);
 }
 
 .yx-form em {
   font-style: normal;
-  font-size: 12px;
-  color: rgba(28, 26, 23, 0.4);
+  font-size: 11.5px;
+  color: rgba(28, 26, 23, 0.42);
 }
 
 .yx-form input,
 .yx-form textarea {
   display: block;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 3px;
   border: 0;
-  border-bottom: 1px solid rgba(28, 26, 23, 0.3);
+  border-bottom: 1px solid rgba(28, 26, 23, 0.28);
   background: transparent;
-  padding: 6px 0;
-  font-size: 16px;
+  padding: 5px 0 4px;
+  font-size: 15px;
   color: var(--ink);
   border-radius: 0;
   caret-color: var(--red);
   font-family: inherit;
+  transition: border-color 160ms;
 }
 
 .yx-form textarea {
-  margin-top: 8px;
+  margin-top: 0;
   border-bottom: 0;
   padding: 0;
-  resize: vertical;
-  line-height: 2rem;
+  resize: none;
+  line-height: 30px;
+  font-size: 14.5px;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
-    transparent calc(2rem - 1px),
-    rgba(28, 26, 23, 0.18) calc(2rem - 1px),
-    rgba(28, 26, 23, 0.18) 2rem
+    transparent 29px,
+    rgba(163, 32, 27, 0.18) 29px,
+    rgba(163, 32, 27, 0.18) 30px
   );
   background-attachment: local;
 }
@@ -783,13 +1060,18 @@
   border-bottom-color: var(--red);
 }
 
+.yx-paper-pad:focus-within {
+  border-color: rgba(163, 32, 27, 0.65);
+  background: rgba(255, 253, 248, 0.82);
+}
+
 .yx-form textarea:focus {
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
-    transparent calc(2rem - 1px),
-    rgba(163, 32, 27, 0.4) calc(2rem - 1px),
-    rgba(163, 32, 27, 0.4) 2rem
+    transparent 29px,
+    rgba(163, 32, 27, 0.34) 29px,
+    rgba(163, 32, 27, 0.34) 30px
   );
 }
 
@@ -797,35 +1079,68 @@
   color: rgba(28, 26, 23, 0.3);
 }
 
+/* 立状落款区：左联络方式紧凑排齐，右朱砂画押印堂 */
 .yx-sign {
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(28, 26, 23, 0.22);
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1.5px solid rgba(28, 26, 23, 0.55);
+  box-shadow: 0 -4px 0 -3px rgba(163, 32, 27, 0.28);
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  align-items: end;
-  gap: 16px 22px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px 24px;
+}
+
+.yx-sign-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.yx-sign-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1c1814;
+}
+
+.yx-sign-head em {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: rgba(28, 26, 23, 0.45);
+}
+
+.yx-sign-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 20px;
 }
 
 .yx-press {
   position: relative;
-  width: 112px;
-  height: 112px;
+  width: 108px;
+  height: 108px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 2px dashed rgba(163, 32, 27, 0.55);
-  background: transparent;
+  border: 2px dashed rgba(163, 32, 27, 0.62);
+  background: radial-gradient(circle, rgba(163, 32, 27, 0.06) 0%, rgba(163, 32, 27, 0.01) 70%);
+  box-shadow: inset 0 0 0 4px rgba(246, 236, 214, 0.9), inset 0 0 0 5px rgba(163, 32, 27, 0.22);
   color: var(--red);
   cursor: pointer;
-  transition: border-color 200ms ease, background-color 200ms ease;
+  transition: border-color 200ms ease, background-color 200ms ease, transform 200ms ease;
 }
 
 .yx-press:hover:not(:disabled) {
   border-color: var(--red);
-  background: rgba(163, 32, 27, 0.05);
+  background: radial-gradient(circle, rgba(163, 32, 27, 0.12) 0%, rgba(163, 32, 27, 0.03) 70%);
+  transform: scale(1.03);
 }
 
 .yx-press:focus-visible {
@@ -834,21 +1149,29 @@
 }
 
 .yx-press .brush {
-  margin-top: -4px;
-  font-size: 24px;
+  margin-top: -6px;
+  font-size: 25px;
   line-height: 1;
 }
 
+.yx-press small {
+  margin-top: 2px;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: rgba(163, 32, 27, 0.72);
+}
+
 .yx-thumb-ghost {
-  width: 50px;
-  height: 62px;
+  width: 44px;
+  height: 54px;
   transform: rotate(-6deg);
-  opacity: 0.25;
-  transition: opacity 260ms ease;
+  opacity: 0.28;
+  transition: opacity 260ms ease, transform 260ms ease;
 }
 
 .yx-press:hover .yx-thumb-ghost {
-  opacity: 0.6;
+  opacity: 0.62;
+  transform: rotate(-4deg) scale(1.04);
 }
 
 .yx-thumb-press {
@@ -1079,18 +1402,28 @@
 }
 
 .yx-stack .yx-decree-main {
-  min-height: 330px;
+  min-height: 300px;
   gap: 8px;
 }
 
 .yx-stack .yx-decree-body {
-  gap: 13px;
-  font-size: 17px;
-  letter-spacing: 0.18em;
+  padding: 14px 8px 12px;
+  gap: 8px;
+  font-size: 16.5px;
+  letter-spacing: 0.14em;
 }
 
-.yx-stack .yx-col.is-lead {
-  font-size: 24px;
+.yx-stack .yx-col.is-group-end {
+  padding-left: 8px;
+}
+
+.yx-stack .yx-col.is-lead .yx-col-text {
+  font-size: 22px;
+}
+
+.yx-stack .yx-col-badge.is-step {
+  font-size: 12px;
+  padding: 3px 2px 1px;
 }
 
 .yx-stack .yx-couplet {
@@ -1106,11 +1439,12 @@
 
 @media (max-width: 1023px) {
   .yx-form {
-    padding: 26px 20px 22px;
+    margin: 10px;
+    padding: 20px 16px 20px;
   }
 
   .yx-form-head h1 {
-    font-size: 46px;
+    font-size: 42px;
   }
 
   .yx-grid-3 {
@@ -1121,9 +1455,17 @@
     grid-column: 1 / -1;
   }
 
+  .yx-tracks {
+    grid-template-columns: 1fr;
+  }
+
   .yx-sign {
     grid-template-columns: 1fr;
     justify-items: stretch;
+  }
+
+  .yx-sign-inputs {
+    grid-template-columns: 1fr;
   }
 
   .yx-press {
@@ -1132,8 +1474,12 @@
   }
 
   .yx-rules ul {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 10px;
+  }
+
+  .yx-chips-grade {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .yx-ask-list {

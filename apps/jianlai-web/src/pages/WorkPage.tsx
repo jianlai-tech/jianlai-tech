@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { BookSpread } from '@/components/BookSpread'
 import { CaseBook } from '@/components/CaseBook'
 import { CaseIndex } from '@/components/CaseIndex'
@@ -73,15 +74,21 @@ export function WorkPage() {
   }, [go, currentIndex, current])
 
   return (
-    <main className="mx-auto max-w-[1280px] px-5 pb-10 sm:px-[54px]">
-      <div className="pt-8">
-        <h1 className="title-swash brush inline-block text-[56px] leading-none sm:text-[80px]">案例集</h1>
+    <main className="mx-auto max-w-[1280px] px-5 pb-12 sm:px-[54px]">
+      <div className="mx-auto max-w-[1000px] border-b border-ink/20 pb-5 pt-8">
+        <span className="kai text-[13px] tracking-[0.25em] text-cinnabar">〔 藏书阁 · 驻场实录 〕</span>
+        <div className="mt-1 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+          <h1 className="title-swash brush inline-block text-[54px] leading-none sm:text-[74px]">案例集</h1>
+          <p className="kai max-w-[28em] text-[15px] leading-[1.85] text-ink/65">
+            不写客户真名、不编业绩数字。一案一函，如实记下进场前的淤堵、驻场时的拆解，以及做出来的系统原貌。
+          </p>
+        </div>
       </div>
 
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+      <div className="mx-auto mt-6 flex max-w-[1000px] flex-wrap items-center justify-between gap-x-8 gap-y-4">
         {sectors.length > 2 ? (
           <div role="group" aria-label="按门类筛选" className="flex flex-wrap items-center gap-2">
-            <span className="kai mr-1 text-[16px] text-ink/60">门类</span>
+            <span className="kai mr-1 text-[15px] tracking-[0.15em] text-ink/55">门类</span>
             {sectors.map((s) => (
               <button
                 key={s.name}
@@ -89,14 +96,14 @@ export function WorkPage() {
                 aria-pressed={sector === s.name}
                 onClick={() => setSector(s.name)}
                 className={cn(
-                  'kai border px-3.5 py-1 text-[15px] transition-colors duration-200',
+                  'kai rounded-[2px] border px-3.5 py-1 text-[14.5px] transition-colors duration-200',
                   sector === s.name
-                    ? 'border-ink bg-ink text-[#f2e7cf]'
-                    : 'border-ink/30 text-ink/70 hover:border-ink hover:text-ink',
+                    ? 'border-cinnabar bg-cinnabar text-[#f5ecd9] shadow-[inset_0_0_0_1px_rgba(245,236,217,0.25)]'
+                    : 'border-ink/25 bg-[#f2e7cf]/50 text-ink/75 hover:border-cinnabar/60 hover:text-cinnabar',
                 )}
               >
                 {s.name}
-                <span className={cn('ml-1.5 text-[12px]', sector === s.name ? 'text-[#f2e7cf]/70' : 'text-ink/40')}>
+                <span className={cn('ml-1.5 text-[12px]', sector === s.name ? 'text-[#f5ecd9]/80' : 'text-ink/45')}>
                   {s.count}
                 </span>
               </button>
@@ -106,12 +113,13 @@ export function WorkPage() {
           <span />
         )}
 
-        <div className="flex items-center gap-5">
-          <div role="group" aria-label="陈列方式" className="flex border border-ink/35 text-[15px]">
+        <div className="flex items-center gap-4">
+          <span className="kai hidden text-[13.5px] text-ink/50 sm:inline">陈列</span>
+          <div role="group" aria-label="陈列方式" className="flex overflow-hidden rounded-[2px] border border-ink/30 bg-[#f2e7cf]/40 text-[14.5px]">
             {(
               [
-                ['shelf', '架上'],
-                ['index', '书目'],
+                ['shelf', '博古架'],
+                ['index', '总书目'],
               ] as const
             ).map(([key, label]) => (
               <button
@@ -120,7 +128,7 @@ export function WorkPage() {
                 aria-pressed={view === key}
                 onClick={() => setView(key)}
                 className={cn(
-                  'kai px-3 py-0.5 transition-colors',
+                  'kai px-3.5 py-1 transition-colors',
                   view === key ? 'bg-ink text-[#f2e7cf]' : 'text-ink/65 hover:text-ink',
                 )}
               >
@@ -131,7 +139,7 @@ export function WorkPage() {
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6">
         {view === 'shelf' ? (
           <>
             <CaseShelf key={sector} items={visible} current={current?.slug} onPick={pick} onPeek={setPeek} />
@@ -139,6 +147,7 @@ export function WorkPage() {
               entry={visible.find((s) => s.item.slug === (peek ?? current?.slug))}
               open={(peek ?? current?.slug) === current?.slug}
               onOpen={() => peek && pick(peek)}
+              onJumpBook={() => bookRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
             />
           </>
         ) : (
@@ -150,7 +159,7 @@ export function WorkPage() {
         <div
           ref={bookRef}
           key={current.slug}
-          className="shelf-rise mt-10 scroll-mt-6"
+          className="shelf-rise mx-auto mt-10 max-w-[1000px] scroll-mt-6"
           onTouchStart={(event) => {
             touchX.current = event.touches[0].clientX
           }}
@@ -180,6 +189,24 @@ export function WorkPage() {
           </button>
         </p>
       )}
+
+      {/* 卷尾呼应：看完案例后的行动收口 */}
+      <div className="mx-auto mt-14 flex max-w-[1000px] flex-wrap items-center justify-between gap-4 border-y border-ink/25 bg-[#f2e7cf]/45 px-6 py-5">
+        <div>
+          <p className="kai text-[13px] tracking-[0.2em] text-cinnabar">〔 阅卷毕 · 问诊 〕</p>
+          <p className="mt-1 text-[17px] font-medium text-ink">
+            你公司也有散在各处的表格、对不上的账、或想落地的智能体？
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-5">
+          <Link to="/start" className="ink-btn ink-btn-framed px-5 py-2.5 text-[16px] no-underline">
+            企业喊一声，剑来
+          </Link>
+          <Link to="/people" className="ink-link kai text-[15.5px]">
+            看看驻场剑修 →
+          </Link>
+        </div>
+      </div>
     </main>
   )
 }

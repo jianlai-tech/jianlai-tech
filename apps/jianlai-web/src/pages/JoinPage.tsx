@@ -4,32 +4,44 @@ import { submitRecruit, type RecruitTrack } from '@/lib/api/recruits'
 import { cn } from '@/lib/cn'
 import './join.css'
 
-/** 帖内正文，竖排，一行一列，从右往左读；每列不超过 7 字，免得折行 */
-const DECREE: { text: string; tone?: 'lead' | 'end' }[] = [
-  { text: '剑修二期', tone: 'lead' },
+/** 帖内正文，竖排，一行一列，从右往左读 */
+type DecreeLine = {
+  lead?: string
+  text: string
+  tone?: 'lead' | 'end'
+  groupEnd?: boolean
+}
+
+const DECREE: DecreeLine[] = [
+  { lead: '招贤', text: '剑修二期', tone: 'lead', groupEnd: true },
   { text: '广募中南学子' },
-  { text: '不问出身专业' },
-  { text: '上山　磨AI技艺' },
-  { text: '下山　落地企业AI' },
-  { text: '吃饱喝足　身体好' },
+  { text: '不问出身专业', groupEnd: true },
+  { lead: '上山', text: '磨AI技艺' },
+  { lead: '下山', text: '落地企业AI' },
+  { lead: '立身', text: '吃饱喝足身体好', groupEnd: true },
   { text: '书投名状一纸', tone: 'end' },
 ]
 
-/** 剑修四要 + 一项加分：一字为纲，小字每行不超过 6 字 */
-const RULES: { char: string; lines: string[]; bonus?: boolean }[] = [
+/** 剑修四要：一字为纲，两行小字齐整；加分项「艺」单独成横幅，让四要名副其实 */
+const RULES: { char: string; lines: [string, string] }[] = [
   { char: '韧', lines: ['扛得住压', '受得了磨'] },
   { char: '勤', lines: ['时间肯投入', '精力给得足'] },
   { char: '敏', lines: ['学得快', '说得清'] },
-  { char: '技', lines: ['有计算机基础', '更好；没有就', '加倍下苦功'] },
-  { char: '艺', lines: ['唱跳设计体育', '有一技更佳'], bonus: true },
+  { char: '技', lines: ['有编程底子更好', '没有就加倍苦功'] },
 ]
+
+const BONUS = {
+  tag: '加分',
+  char: '艺',
+  text: '唱跳、设计、体育、摄影、表达，有一技更佳',
+}
 
 /** 投名状预设项，和 API 的白名单一一对应 */
 const GRADES = ['大一', '大二', '大三', '大四', '研一', '研二', '研三', '博士'] as const
 const WATCH_ONLY = new Set<string>(['大一', '大二'])
-const TRACKS: { key: RecruitTrack; title: string; hint: string }[] = [
-  { key: 'watch', title: '观摩学习', hint: '跟着看真实项目怎么做，先学再上手' },
-  { key: 'work', title: '驻场接活', hint: '进企业现场干活，时间精力要跟得上' },
+const TRACKS: { key: RecruitTrack; badge: string; title: string; hint: string }[] = [
+  { key: 'watch', badge: '入山 · 习剑', title: '观摩学习', hint: '旁观真实项目拆解，先看懂再上手' },
+  { key: 'work', badge: '下山 · 出剑', title: '驻场接活', hint: '随道长入企业现场，真刀真枪干活' },
 ]
 const WEEKLY_HOURS = ['10 小时以内', '10–20 小时', '20–30 小时', '30 小时以上'] as const
 const CS_BASES = ['计算机相关专业', '自学过编程', '用 AI 做成过东西', '暂时没有'] as const
@@ -119,14 +131,27 @@ function Decree() {
         <p className="yx-couplet yx-couplet-lower brush" style={{ animationDelay: '1400ms' }}>
           {COUPLET.lower}
         </p>
-        <div className="yx-decree-body kai" aria-label={DECREE.map((l) => l.text.replace('　', '，')).join('，')}>
+        <div
+          className="yx-decree-body kai"
+          aria-label={DECREE.map((l) => (l.lead ? `${l.lead}，${l.text}` : l.text)).join('，')}
+        >
           {DECREE.map((line, i) => (
             <span
               key={line.text}
-              className={cn('yx-col', line.tone && `is-${line.tone}`)}
+              className={cn(
+                'yx-col',
+                line.tone && `is-${line.tone}`,
+                line.groupEnd && 'is-group-end',
+              )}
               style={{ animationDelay: `${420 + i * 130}ms` }}
             >
-              {renderLine(line.text)}
+              {line.lead ? (
+                <em className={cn('yx-col-badge', line.tone === 'lead' ? 'is-tag' : 'is-step')}>
+                  {line.lead}
+                </em>
+              ) : null}
+              <span className="yx-col-text">{renderLine(line.text)}</span>
+              {line.tone === 'end' ? <i className="yx-col-dot" aria-hidden /> : null}
             </span>
           ))}
         </div>
@@ -140,17 +165,14 @@ function Decree() {
         <span aria-hidden />
       </p>
       <div className="yx-rules">
-        <p className="yx-rules-title kai">
-          <span aria-hidden />剑修四要<span aria-hidden />
-        </p>
+        <p className="yx-rules-title kai">剑修四要</p>
         <ul>
           {RULES.map((rule, i) => (
             <li
               key={rule.char}
-              className={cn('yx-rule', rule.bonus && 'is-bonus')}
+              className="yx-rule"
               style={{ animationDelay: `${1300 + i * 110}ms` }}
             >
-              {rule.bonus ? <em className="kai">加分</em> : null}
               <b className="brush">{rule.char}</b>
               <span className="kai">
                 {rule.lines.map((line) => (
@@ -160,6 +182,11 @@ function Decree() {
             </li>
           ))}
         </ul>
+        <div className="yx-bonus" style={{ animationDelay: '1740ms' }}>
+          <em className="kai">{BONUS.tag}</em>
+          <b className="brush">{BONUS.char}</b>
+          <span className="kai">{BONUS.text}</span>
+        </div>
       </div>
       <div className="yx-decree-foot">
         <span className="yx-foot-rule" aria-hidden />
@@ -287,30 +314,38 @@ export function JoinPage() {
       ) : (
         <form onSubmit={onSubmit} className={cn('yx-form', phase === 'pressing' && 'pointer-events-none')} inert={!formLive}>
           <div className="yx-form-head">
-            <h1 className="brush">投名状</h1>
+            <div className="yx-form-title-wrap">
+              <span className="yx-form-stamp kai">立状</span>
+              <h1 className="brush">投名状</h1>
+            </div>
+            <span className="yx-form-sub kai">四问 · 照实手书 · 阅毕画押</span>
           </div>
 
           <fieldset>
             <legend>
-              <span className="brush">一问</span>你是谁
+              <span className="yx-q-badge brush">一问</span>
+              <span className="yx-q-title">你是谁</span>
+              <span className="yx-q-rule" aria-hidden />
             </legend>
             <div className="yx-grid yx-grid-3">
               <label>
-                姓名
-                <input required name="name" maxLength={20} autoComplete="name" />
+                <span>姓名</span>
+                <input required name="name" maxLength={20} autoComplete="name" placeholder="你的姓名" />
               </label>
               <label>
-                学院 <em>选填</em>
+                <span>
+                  学院 <em>选填</em>
+                </span>
                 <input name="school" maxLength={60} placeholder="如 计算机学院" />
               </label>
               <label>
-                专业
+                <span>专业</span>
                 <input required name="major" maxLength={40} placeholder="什么专业都行" />
               </label>
             </div>
             <div className="yx-field">
               <span className="yx-field-label">年级</span>
-              <div className="yx-chips" role="radiogroup" aria-label="年级">
+              <div className="yx-chips yx-chips-grade" role="radiogroup" aria-label="年级">
                 {GRADES.map((g) => (
                   <button
                     key={g}
@@ -332,7 +367,9 @@ export function JoinPage() {
 
           <fieldset>
             <legend>
-              <span className="brush">二问</span>走哪条路
+              <span className="yx-q-badge brush">二问</span>
+              <span className="yx-q-title">走哪条路</span>
+              <span className="yx-q-rule" aria-hidden />
             </legend>
             <div className="yx-tracks" role="radiogroup" aria-label="走哪条路">
               {TRACKS.map((t) => {
@@ -348,7 +385,10 @@ export function JoinPage() {
                     className={cn('yx-track', on && 'is-on')}
                     onClick={() => setTrack(t.key)}
                   >
-                    <b className="brush">{t.title}</b>
+                    <div className="yx-track-top">
+                      <b className="brush">{t.title}</b>
+                      <em className="kai">{t.badge}</em>
+                    </div>
                     <span>{locked ? '大三起开放，先观摩攒底子' : t.hint}</span>
                   </button>
                 )
@@ -375,7 +415,9 @@ export function JoinPage() {
 
           <fieldset>
             <legend>
-              <span className="brush">三问</span>你的底子
+              <span className="yx-q-badge brush">三问</span>
+              <span className="yx-q-title">你的底子</span>
+              <span className="yx-q-rule" aria-hidden />
             </legend>
             <div className="yx-field">
               <span className="yx-field-label">计算机基础</span>
@@ -419,42 +461,59 @@ export function JoinPage() {
 
           <fieldset>
             <legend>
-              <span className="brush">四问</span>说说你自己
+              <span className="yx-q-badge brush">四问</span>
+              <span className="yx-q-title">说说你自己</span>
+              <span className="yx-q-rule" aria-hidden />
             </legend>
-            <p className="yx-ask kai">写得越具体，道长越知道该带你做什么。下面几条挑着写：</p>
-            <ul className="yx-ask-list kai">
-              <li>做过的项目、作品、比赛，拿过什么奖</li>
-              <li>用 AI 做成过什么，卡在哪又怎么过去的</li>
-              <li>那些一技之长练到什么程度</li>
-              <li>为什么想来，想在剑来学到什么</li>
-            </ul>
-            <textarea
-              name="strengths"
-              rows={6}
-              maxLength={800}
-              aria-label="说说你自己"
-              placeholder="比如：大三，校队主力。用 AI 帮社团做过报名小程序……"
-            />
+            <div className="yx-ask-card">
+              <p className="yx-ask kai">写得越具体，道长越知道该带你做什么（挑几条写即可）：</p>
+              <ul className="yx-ask-list kai">
+                <li>做过的项目、作品、比赛或奖项</li>
+                <li>用 AI 做成过什么，怎么跨过卡点的</li>
+                <li>所选的一技之长练到了什么程度</li>
+                <li>为什么想来，想在剑来收获什么</li>
+              </ul>
+            </div>
+            <div className="yx-paper-pad">
+              <textarea
+                name="strengths"
+                rows={5}
+                maxLength={800}
+                aria-label="说说你自己"
+                placeholder="比如：大三，校队主力。用 AI 帮社团做过报名小程序……"
+              />
+            </div>
           </fieldset>
 
           <div className="yx-sign">
-            <label>
-              手机号
-              <input
-                required
-                name="phone"
-                type="tel"
-                inputMode="numeric"
-                pattern="1[0-9]{10}"
-                maxLength={11}
-                autoComplete="tel"
-                title="11 位手机号"
-              />
-            </label>
-            <label>
-              微信号 <em>选填</em>
-              <input name="wechat" maxLength={40} />
-            </label>
+            <div className="yx-sign-fields">
+              <p className="yx-sign-head kai">
+                <span>立状人联络</span>
+                <em>仅道长可见 · 约聊之用</em>
+              </p>
+              <div className="yx-sign-inputs">
+                <label>
+                  <span>手机号</span>
+                  <input
+                    required
+                    name="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="1[0-9]{10}"
+                    maxLength={11}
+                    autoComplete="tel"
+                    placeholder="11 位常用手机"
+                    title="11 位手机号"
+                  />
+                </label>
+                <label>
+                  <span>
+                    微信号 <em>选填</em>
+                  </span>
+                  <input name="wechat" maxLength={40} placeholder="方便加你好友" />
+                </label>
+              </div>
+            </div>
             <button type="submit" className="yx-press" disabled={sending || phase === 'pressing'} aria-label="按指印，递上投名状">
               {phase === 'pressing' ? (
                 <Thumbprint className="yx-thumb-press" />
@@ -462,6 +521,7 @@ export function JoinPage() {
                 <>
                   <Thumbprint className="yx-thumb-ghost" />
                   <span className="brush">{sending ? '递帖中' : '画押'}</span>
+                  <small className="kai">按印递帖</small>
                 </>
               )}
             </button>

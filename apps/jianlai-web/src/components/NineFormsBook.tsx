@@ -18,7 +18,7 @@ export function NineFormsBook({
 
   const pages = useMemo<GujiPage[]>(
     () => [
-      { name: '封面', cover: true, render: () => <Cover /> },
+      { name: '封面', cover: true, render: () => <Cover onOpen={() => setPage(1)} /> },
       { name: '目录', render: () => <Contents onPick={(form) => setPage(form + 2)} /> },
       ...FORMS.map((form, index) => ({
         name: `第${ORDINALS[index]}式 · ${form.name}`,
