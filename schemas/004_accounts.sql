@@ -64,14 +64,14 @@ CREATE TABLE IF NOT EXISTS projects (
     name text NOT NULL,
     industry text,
     client_account_id uuid REFERENCES accounts (id) ON DELETE SET NULL,
-    stage text NOT NULL DEFAULT '先看',
+    stage text NOT NULL DEFAULT '需求',
     progress int NOT NULL DEFAULT 0,
     progress_note text,
     started_on date,
     ended_on date,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
-    CONSTRAINT projects_stage_chk CHECK (stage IN ('先看', '先斩一处', '上线护航', '教会交接', '已完结')),
+    CONSTRAINT projects_stage_chk CHECK (stage IN ('需求', '报价', '签约', '前期', '中期', '后期', '维护', '已完结')),
     CONSTRAINT projects_progress_chk CHECK (progress BETWEEN 0 AND 100)
 );
 

@@ -14,6 +14,7 @@ import {
   type ContractInput,
 } from '@/lib/contracts'
 import { Avatar } from '@/components/ui'
+import type { Quote } from '@/lib/pipeline'
 
 const ROLES = ['驻场负责人', '驻场开发', '驻场设计', '跟场学习']
 
@@ -51,7 +52,23 @@ export function contractToInput(c: Contract): ContractInput {
     work_place: c.work_place,
     pay_terms: c.pay_terms,
     extra_terms: c.extra_terms,
+    quote_id: c.quote_id,
+    amount: c.amount,
     staff: c.staff.map((s) => ({ slug: s.slug, alias: s.alias, role: s.role })),
+  }
+}
+
+/** 从客户已认（或已发）的报价拟项目制合同：总价、工期、付款节点和功能清单都从报价带 */
+export function contractFromQuote(q: Quote, project: AdminProject | undefined): ContractInput {
+  return {
+    ...emptyContract(project),
+    mode: 'project',
+    party_a: q.party_a,
+    quote_id: q.id,
+    amount: q.total,
+    staff_fee: 0,
+    consult_fee: 0,
+    pay_terms: null,
   }
 }
 
@@ -59,6 +76,7 @@ export function ContractForm({
   initial,
   contractId,
   projects,
+  quotes,
   busyFor,
   onDone,
   onCancel,
@@ -66,6 +84,7 @@ export function ContractForm({
   initial: ContractInput
   contractId: string | null
   projects: AdminProject[]
+  quotes: Quote[]
   /** 每位剑修手上已挂的项目名，派人时提醒 */
   busyFor: (slug: string) => string[]
   onDone: (saved: Contract) => void
@@ -75,6 +94,8 @@ export function ContractForm({
   const [state, setState] = useState({ busy: false, msg: '' })
   const set = <K extends keyof ContractInput>(key: K, value: ContractInput[K]) => setInput((v) => ({ ...v, [key]: value }))
 
+  const project = input.mode === 'project'
+  const projectQuotes = quotes.filter((q) => q.project_id === input.project_id && q.status !== 'rejected')
   const headcount = input.staff.length
   const monthly = input.staff_fee * headcount + input.consult_fee
   const total = monthly * input.months
@@ -94,6 +115,8 @@ export function ContractForm({
     setInput((v) => ({
       ...v,
       project_id: id,
+      quote_id: v.mode === 'project' ? null : v.quote_id,
+      amount: v.mode === 'project' ? null : v.amount,
       party_a: v.party_a && v.party_a !== projects.find((p) => p.id === v.project_id)?.name ? v.party_a : project?.client_name || project?.name || '',
     }))
   }
@@ -101,7 +124,8 @@ export function ContractForm({
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
     if (!input.project_id) return setState({ busy: false, msg: '先选项目' })
-    if (headcount === 0) return setState({ busy: false, msg: '至少派一位剑修' })
+    if (!project && headcount === 0) return setState({ busy: false, msg: '至少派一位剑修' })
+    if (project && !input.amount) return setState({ busy: false, msg: '项目制先选一份报价，总价从报价带过来' })
     setState({ busy: true, msg: '' })
     try {
       onDone(contractId ? await updateContract(contractId, input) : await createContract(input))
@@ -127,11 +151,21 @@ export function ContractForm({
         <div>
           <span className="label">合作方式</span>
           <div className="mt-1 flex gap-1.5">
-            <button type="button" aria-pressed className="btn btn-primary flex-1">
+            <button
+              type="button"
+              aria-pressed={!project}
+              className={cn('btn flex-1', !project && 'btn-primary')}
+              onClick={() => setInput((v) => ({ ...v, mode: 'dispatch', quote_id: null, amount: null, staff_fee: v.staff_fee || 3000, consult_fee: v.consult_fee || 7000 }))}
+            >
               派遣制 · 按人月
             </button>
-            <button type="button" disabled title="项目制合同条款还没定，下一步补" className="btn flex-1">
-              项目制（待补）
+            <button
+              type="button"
+              aria-pressed={project}
+              className={cn('btn flex-1', project && 'btn-primary')}
+              onClick={() => setInput((v) => ({ ...v, mode: 'project', pay_terms: null }))}
+            >
+              项目制 · 按报价
             </button>
           </div>
         </div>
@@ -155,26 +189,46 @@ export function ContractForm({
           <span className="label">开始日</span>
           <input required type="date" value={input.start_on} onChange={(e) => set('start_on', e.target.value)} className="field mt-1 w-full" />
         </label>
-        <label className="block">
+        {project ? (
+          <div className="block">
+            <span className="label">报价（总价、付款节点、功能清单从这里来）</span>
+            <select
+              value={input.quote_id ?? ''}
+              onChange={(e) => {
+                const q = quotes.find((x) => x.id === e.target.value)
+                setInput((v) => ({ ...v, quote_id: q?.id ?? null, amount: q?.total ?? null, party_a: q?.party_a || v.party_a }))
+              }}
+              className="field mt-1 w-full"
+            >
+              <option value="">{projectQuotes.length ? '选报价' : '这个项目还没有报价'}</option>
+              {projectQuotes.map((q) => (
+                <option key={q.id} value={q.id}>
+                  {q.code} · {yuan(q.total)} · {q.weeks} 周
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+        <label className={cn('block', project && 'hidden')}>
           <span className="label">服务月数</span>
           <input required type="number" min={1} max={36} value={input.months} onChange={(e) => set('months', Math.max(1, Number(e.target.value) || 1))} className="field mt-1 w-full" />
         </label>
-        <label className="block">
+        <label className={cn('block', project && 'hidden')}>
           <span className="label">每位剑修 / 月（元）</span>
           <input required type="number" min={0} step={100} value={input.staff_fee} onChange={(e) => set('staff_fee', Number(e.target.value) || 0)} className="field mt-1 w-full" />
         </label>
-        <label className="block">
+        <label className={cn('block', project && 'hidden')}>
           <span className="label">道长顾问费 / 月（元）</span>
           <input required type="number" min={0} step={100} value={input.consult_fee} onChange={(e) => set('consult_fee', Number(e.target.value) || 0)} className="field mt-1 w-full" />
         </label>
-        <label className="block sm:col-span-2">
+        <label className={cn('block sm:col-span-2', project && 'hidden')}>
           <span className="label">服务地点</span>
           <input maxLength={120} value={input.work_place ?? ''} onChange={(e) => set('work_place', e.target.value || null)} className="field mt-1 w-full" />
         </label>
       </div>
 
       <div>
-        <span className="label">派哪几位剑修（{headcount} 位）</span>
+        <span className="label">{project ? `参与的剑修（选填，${headcount} 位；签约后挂进项目）` : `派哪几位剑修（${headcount} 位）`}</span>
         <ul className="mt-1 divide-y divide-ink/10 rounded-sm border border-ink/15">
           {DISPATCHABLE.map((item) => {
             const pick = input.staff.find((s) => s.slug === item.slug)
@@ -206,6 +260,18 @@ export function ContractForm({
         </ul>
       </div>
 
+      {project ? (
+        <div className="rounded-sm border border-ink/20 bg-sheet2 px-3 py-2.5 text-[14px] leading-6">
+          {input.amount ? (
+            <>
+              固定总价 <strong className="tabular-nums">{yuan(input.amount)}</strong>
+              <span className="ml-2 text-[12px] text-ink3">付款节点、功能清单（附件一）按报价写进合同；结束日按报价工期算</span>
+            </>
+          ) : (
+            <span className="text-ink3">先选报价</span>
+          )}
+        </div>
+      ) : (
       <div className="rounded-sm border border-ink/20 bg-sheet2 px-3 py-2.5 text-[14px] leading-6">
         剑修 {yuan(input.staff_fee)} × {headcount} 人 + 顾问费 {yuan(input.consult_fee)} ={' '}
         <strong className="tabular-nums">每月 {yuan(monthly)}</strong>
@@ -215,13 +281,14 @@ export function ContractForm({
           </>
         ) : null}
       </div>
+      )}
 
-      <label className="block">
+      <label className={cn('block', project && input.quote_id && 'hidden')}>
         <span className="label">支付方式</span>
         <textarea rows={2} maxLength={300} value={input.pay_terms ?? ''} onChange={(e) => set('pay_terms', e.target.value || null)} className="field mt-1 h-auto w-full resize-none py-1.5" />
       </label>
       <label className="block">
-        <span className="label">补充约定（写进第十三条）</span>
+        <span className="label">补充约定（写进「其他」条）</span>
         <textarea rows={2} maxLength={1000} value={input.extra_terms ?? ''} onChange={(e) => set('extra_terms', e.target.value || null)} className="field mt-1 h-auto w-full resize-none py-1.5" />
       </label>
 

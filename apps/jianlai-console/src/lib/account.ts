@@ -34,8 +34,10 @@ export type Cert = {
   certified_by: string | null
 }
 
-export type Stage = '先看' | '先斩一处' | '上线护航' | '教会交接' | '已完结'
-export const STAGES: Stage[] = ['先看', '先斩一处', '上线护航', '教会交接', '已完结']
+export type Stage = '需求' | '报价' | '签约' | '前期' | '中期' | '后期' | '维护' | '已完结'
+export const STAGES: Stage[] = ['需求', '报价', '签约', '前期', '中期', '后期', '维护', '已完结']
+/** 合作企业看到的进度条只从签约后开始 */
+export const CLIENT_STAGES: Stage[] = ['签约', '前期', '中期', '后期', '维护', '已完结']
 
 export type MyProject = {
   id: string
@@ -105,6 +107,10 @@ export type AdminProject = Omit<MyProject, 'members' | 'role'> & {
   client_account_id: string | null
   client_company: string | null
   updated_at: string
+  parent_id: string | null
+  doc_count: number
+  quote_count: number
+  contract_count: number
   members: { account_id: string; name: string; role: string }[]
 }
 
@@ -140,6 +146,7 @@ export type ProjectInput = {
   progress_note: string | null
   started_on: string | null
   ended_on: string | null
+  parent_id?: string | null
   members: { account_id: string; role: string }[]
 }
 

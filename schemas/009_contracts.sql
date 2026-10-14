@@ -14,13 +14,13 @@ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
--- 现有四个项目（code 固定，改名不会重复插入）
+-- 现有四个项目（code 固定，改名不会重复插入）。阶段用 010 之后的口径，每次启动都会重跑
 INSERT INTO projects (code, name, client_name, industry, stage, mode)
 VALUES
-    ('quxue', '趣学洋葱', '趣学洋葱', 'K12 一对一家教', '上线护航', NULL),
-    ('youlian', '友联医疗', '友联医疗', '医疗器械批发分销', '先斩一处', NULL),
-    ('hualing', '华菱钢管', '华菱钢管', '钢管', '先看', NULL),
-    ('maiya', '麦芽AI', '麦芽AI', 'AI', '先看', 'dispatch')
+    ('quxue', '趣学洋葱', '趣学洋葱', 'K12 一对一家教', '后期', NULL),
+    ('youlian', '友联医疗', '友联医疗', '医疗器械批发分销', '中期', NULL),
+    ('hualing', '华菱钢管', '华菱钢管', '钢管', '需求', NULL),
+    ('maiya', '麦芽AI', '麦芽AI', 'AI', '需求', 'dispatch')
 ON CONFLICT (code) WHERE code IS NOT NULL DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS contracts (

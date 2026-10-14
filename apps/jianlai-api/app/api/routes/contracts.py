@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import calendar
+import json
 from datetime import date
 from decimal import Decimal
 from typing import Annotated, Literal
@@ -33,7 +34,7 @@ ALLOWED_MIME = {
 _COLS = """c.id, c.code, c.project_id, c.mode, c.status, c.party_a, c.party_a_rep, c.party_a_contact,
            c.party_a_address, c.start_on, c.months, c.end_on, c.staff_fee, c.consult_fee,
            c.work_place, c.pay_terms, c.extra_terms, c.signed_on, c.file_name, c.file_mime,
-           c.file_size, c.uploaded_at, c.created_at, c.updated_at, p.name AS project_name"""
+           c.file_size, c.uploaded_at, c.created_at, c.updated_at, c.quote_id, c.amount, p.name AS project_name"""
 
 
 class StaffPick(BaseModel):
@@ -56,7 +57,10 @@ class ContractIn(BaseModel):
     work_place: str | None = Field(default=None, max_length=120)
     pay_terms: str | None = Field(default=None, max_length=300)
     extra_terms: str | None = Field(default=None, max_length=1000)
-    staff: list[StaffPick] = Field(min_length=1, max_length=20)
+    # 项目制：从报价生成，固定总价；派遣制不填
+    quote_id: UUID | None = None
+    amount: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
+    staff: list[StaffPick] = Field(default_factory=list, max_length=20)
 
 
 def _end_on(start: date, months: int) -> date:
@@ -75,16 +79,20 @@ def _clean(value: str | None) -> str | None:
 
 def _row(record, staff: list[dict]) -> dict:
     item = dict(record)
-    for key in ("id", "project_id"):
-        item[key] = str(item[key])
+    for key in ("id", "project_id", "quote_id"):
+        item[key] = str(item[key]) if item[key] else None
     for key, value in list(item.items()):
         if hasattr(value, "isoformat"):
             item[key] = value.isoformat()
         elif isinstance(value, Decimal):
             item[key] = float(value)
     sums = totals(record["staff_fee"], record["consult_fee"], len(staff), record["months"])
-    item["monthly_total"] = float(sums["monthly"])
-    item["total"] = float(sums["total"])
+    if record["mode"] == "project":
+        item["monthly_total"] = 0.0
+        item["total"] = float(record["amount"] or 0)
+    else:
+        item["monthly_total"] = float(sums["monthly"])
+        item["total"] = float(sums["total"])
     item["staff"] = staff
     item["has_file"] = record["file_name"] is not None
     return item
@@ -104,7 +112,12 @@ async def _staff_of(conn, ids: list) -> dict[str, list[dict]]:
     out: dict[str, list[dict]] = {}
     for r in rows:
         out.setdefault(str(r["contract_id"]), []).append(
-            {"slug": r["staff_slug"], "legal_name": r["legal_name"], "alias": r["alias"], "role": r["role"]}
+            {
+                "slug": r["staff_slug"],
+                "legal_name": r["legal_name"],
+                "alias": r["alias"],
+                "role": r["role"],
+            }
         )
     return out
 
@@ -138,11 +151,16 @@ async def list_contracts(_: AdminAccount, project_id: UUID | None = None):
 
 async def _save_staff(conn, contract_id, picks: list[StaffPick]) -> None:
     slugs = [p.slug for p in picks]
+    if not slugs:
+        await conn.execute("DELETE FROM contract_staff WHERE contract_id = $1", contract_id)
+        return
     if len(set(slugs)) != len(slugs):
         raise HTTPException(status_code=400, detail="同一位剑修只能写一次")
     names = {
         r["slug"]: r["name"]
-        for r in await conn.fetch("SELECT slug, name FROM staff WHERE slug = ANY($1::text[])", slugs)
+        for r in await conn.fetch(
+            "SELECT slug, name FROM staff WHERE slug = ANY($1::text[])", slugs
+        )
     }
     missing = [s for s in slugs if s not in names]
     if missing:
@@ -162,13 +180,27 @@ async def _save_staff(conn, contract_id, picks: list[StaffPick]) -> None:
     )
 
 
+async def _quote_weeks(conn, body: ContractIn) -> int | None:
+    if not body.quote_id:
+        return None
+    row = await conn.fetchrow("SELECT project_id, weeks FROM quotes WHERE id = $1", body.quote_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="没有这份报价")
+    if row["project_id"] != body.project_id:
+        raise HTTPException(status_code=400, detail="报价和合同不是同一个项目")
+    return row["weeks"]
+
+
 async def _next_code(conn, start: date) -> str:
     prefix = f"JL-{start:%Y%m}-"
     count = await conn.fetchval("SELECT count(*) FROM contracts WHERE code LIKE $1", prefix + "%")
     return f"{prefix}{count + 1:02d}"
 
 
-def _values(body: ContractIn) -> list:
+def _values(body: ContractIn, weeks: int | None = None) -> list:
+    end_on = _end_on(body.start_on, body.months)
+    if body.mode == "project" and weeks:
+        end_on = date.fromordinal(body.start_on.toordinal() + weeks * 7 - 1)
     return [
         body.mode,
         body.party_a.strip(),
@@ -177,17 +209,27 @@ def _values(body: ContractIn) -> list:
         _clean(body.party_a_address),
         body.start_on,
         body.months,
-        _end_on(body.start_on, body.months),
+        end_on,
         body.staff_fee,
         body.consult_fee,
         _clean(body.work_place),
         _clean(body.pay_terms),
         _clean(body.extra_terms),
+        body.quote_id,
+        body.amount if body.mode == "project" else None,
     ]
+
+
+def _check(body: ContractIn) -> None:
+    if body.mode == "dispatch" and not body.staff:
+        raise HTTPException(status_code=400, detail="派遣制至少派一位剑修")
+    if body.mode == "project" and not body.amount:
+        raise HTTPException(status_code=400, detail="项目制要写合同总价（从报价带过来）")
 
 
 @router.post("/contracts")
 async def create_contract(body: ContractIn, admin: AdminAccount):
+    _check(body)
     pool = await get_pool()
     async with pool.acquire() as conn, conn.transaction():
         if not await conn.fetchval("SELECT 1 FROM projects WHERE id = $1", body.project_id):
@@ -196,22 +238,37 @@ async def create_contract(body: ContractIn, admin: AdminAccount):
             """
             INSERT INTO contracts (code, project_id, mode, party_a, party_a_rep, party_a_contact,
                 party_a_address, start_on, months, end_on, staff_fee, consult_fee, work_place,
-                pay_terms, extra_terms, created_by, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16::uuid, $17, $17)
+                pay_terms, extra_terms, quote_id, amount, created_by, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::uuid, $19, $19)
             RETURNING id
             """,
             await _next_code(conn, body.start_on),
             body.project_id,
-            *_values(body),
+            *_values(body, await _quote_weeks(conn, body)),
             admin["id"],
             now_cn(),
         )
         await _save_staff(conn, contract_id, body.staff)
+        if body.quote_id:
+            await conn.execute(
+                "UPDATE quotes SET status = 'accepted', updated_at = $2 WHERE id = $1 AND status <> 'accepted'",
+                body.quote_id,
+                now_cn(),
+            )
+        await conn.execute(
+            """
+            UPDATE projects SET stage = '签约', updated_at = $2
+            WHERE id = $1 AND stage IN ('需求', '报价')
+            """,
+            body.project_id,
+            now_cn(),
+        )
         return await _fetch_one(conn, contract_id)
 
 
 @router.put("/contracts/{contract_id}")
 async def update_contract(contract_id: UUID, body: ContractIn, _: AdminAccount):
+    _check(body)
     pool = await get_pool()
     async with pool.acquire() as conn, conn.transaction():
         status = await conn.fetchval("SELECT status FROM contracts WHERE id = $1", contract_id)
@@ -224,11 +281,11 @@ async def update_contract(contract_id: UUID, body: ContractIn, _: AdminAccount):
             UPDATE contracts SET mode = $2, party_a = $3, party_a_rep = $4, party_a_contact = $5,
                 party_a_address = $6, start_on = $7, months = $8, end_on = $9, staff_fee = $10,
                 consult_fee = $11, work_place = $12, pay_terms = $13, extra_terms = $14,
-                updated_at = $15
+                quote_id = $15, amount = $16, updated_at = $17
             WHERE id = $1
             """,
             contract_id,
-            *_values(body),
+            *_values(body, await _quote_weeks(conn, body)),
             now_cn(),
         )
         await _save_staff(conn, contract_id, body.staff)
@@ -239,15 +296,27 @@ async def update_contract(contract_id: UUID, body: ContractIn, _: AdminAccount):
 async def export_docx(contract_id: UUID, _: AdminAccount):
     pool = await get_pool()
     async with pool.acquire() as conn:
-        record = await conn.fetchrow("SELECT * FROM contracts WHERE id = $1", contract_id)
+        record = await conn.fetchrow(
+            "SELECT c.*, p.name AS project_name FROM contracts c JOIN projects p ON p.id = c.project_id WHERE c.id = $1",
+            contract_id,
+        )
         if record is None:
             raise HTTPException(status_code=404, detail="没有这份合同")
         staff = (await _staff_of(conn, [contract_id])).get(str(contract_id), [])
+        quote_data = None
+        if record["quote_id"]:
+            q = await conn.fetchrow("SELECT * FROM quotes WHERE id = $1", record["quote_id"])
+            if q is not None:
+                quote_data = dict(q)
+                for key in ("items", "pay_plan", "schedule"):
+                    if isinstance(quote_data[key], str):
+                        quote_data[key] = json.loads(quote_data[key])
     data = dict(record)
-    if not data["pay_terms"]:
+    if not data["pay_terms"] and record["mode"] == "dispatch":
         data["pay_terms"] = "甲方于每个服务月开始后 5 个工作日内，支付当月服务费"
-    content = build_contract_docx(data, staff)
-    name = f"{record['code']}-{record['party_a']}-驻场技术服务合同.docx"
+    content = build_contract_docx(data, staff, quote_data)
+    kind = "驻场技术服务合同" if record["mode"] == "dispatch" else "技术开发服务合同"
+    name = f"{record['code']}-{record['party_a']}-{kind}.docx"
     return Response(
         content,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -305,7 +374,7 @@ async def sign_contract(
                 mode = $2,
                 started_on = LEAST(COALESCE(started_on, $3), $3),
                 ended_on = GREATEST(COALESCE(ended_on, $4), $4),
-                stage = CASE WHEN stage = '先看' THEN '先斩一处' ELSE stage END,
+                stage = CASE WHEN stage IN ('需求', '报价', '签约') THEN '前期' ELSE stage END,
                 updated_at = $5
             WHERE id = $1
             """,

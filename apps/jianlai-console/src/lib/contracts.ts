@@ -30,6 +30,8 @@ export type Contract = {
   file_name: string | null
   file_size: number | null
   has_file: boolean
+  quote_id: string | null
+  amount: number | null
   staff: ContractStaff[]
 }
 
@@ -47,6 +49,8 @@ export type ContractInput = {
   work_place: string | null
   pay_terms: string | null
   extra_terms: string | null
+  quote_id?: string | null
+  amount?: number | null
   staff: { slug: string; alias: string | null; role: string }[]
 }
 

@@ -1,6 +1,5 @@
-import { FormEvent, useCallback, useEffect, useState } from 'react'
+import { FormEvent, Fragment, useState } from 'react'
 import {
-  adminProjects,
   createProject,
   updateProject,
   MODE_LABEL,
@@ -11,7 +10,10 @@ import {
 } from '@/lib/account'
 import { errorText } from '@/lib/api'
 import { Chip, Empty, SectionHead, Sheet } from '@/components/ui'
-import { ProgressBar, stageTone } from '@/pages/MePage'
+import { stageTone } from '@/pages/MePage'
+import { ProjectFlow } from '@/pages/ProjectFlow'
+import type { Contract } from '@/lib/contracts'
+import type { Quote } from '@/lib/pipeline'
 import { cn } from '@/lib/cn'
 
 const ROLE_HINTS = ['主理', '驻场负责人', '开发', '设计', '跟场学习']
@@ -25,7 +27,7 @@ function emptyInput(): ProjectInput {
     mode: null,
     industry: null,
     client_account_id: null,
-    stage: '先看',
+    stage: '需求',
     progress: 0,
     progress_note: null,
     started_on: null,
@@ -46,6 +48,7 @@ function toInput(project: AdminProject): ProjectInput {
     progress_note: project.progress_note,
     started_on: project.started_on,
     ended_on: project.ended_on,
+    parent_id: project.parent_id,
     members: project.members.map((m) => ({ account_id: m.account_id, role: m.role })),
   }
 }
@@ -228,86 +231,138 @@ function ProjectForm({
   )
 }
 
-export function ProjectsAdmin({ accounts, onChanged }: { accounts: AdminAccountRow[]; onChanged?: () => void }) {
-  const [items, setItems] = useState<AdminProject[]>([])
-  const [error, setError] = useState('')
+export function ProjectsAdmin({
+  accounts,
+  items,
+  quotes,
+  contracts,
+  selectedId,
+  onSelect,
+  onChanged,
+  onNewQuote,
+  onEditQuote,
+  onNewContract,
+  onOpenContract,
+}: {
+  accounts: AdminAccountRow[]
+  items: AdminProject[]
+  quotes: Quote[]
+  contracts: Contract[]
+  selectedId: string | null
+  onSelect: (id: string | null) => void
+  onChanged: () => void
+  onNewQuote: (project: AdminProject) => void
+  onEditQuote: (q: Quote) => void
+  onNewContract: (project: AdminProject, q: Quote | null) => void
+  onOpenContract: (c: Contract) => void
+}) {
   const [editing, setEditing] = useState<string | 'new' | null>(null)
-
-  const load = useCallback(async () => {
-    try {
-      setItems((await adminProjects()).items)
-      setError('')
-    } catch (err) {
-      setError(errorText(err))
-    }
-  }, [])
-
-  useEffect(() => {
-    void load()
-  }, [load])
 
   const staff = accounts.filter((a) => a.kind === 'staff' && a.status === 'active')
   const clients = accounts.filter((a) => a.kind === 'client')
+  const roots = items.filter((p) => !p.parent_id)
+  const childrenOf = (id: string) => items.filter((p) => p.parent_id === id)
+  const selected = items.find((p) => p.id === selectedId) ?? null
   const current = editing && editing !== 'new' ? items.find((p) => p.id === editing) : null
 
+  function Row({ p, child }: { p: AdminProject; child?: boolean }) {
+    return (
+      <li className={cn('hair-b last:border-b-0', selected?.id === p.id && !editing && 'bg-sel')}>
+        <button
+          type="button"
+          onClick={() => {
+            onSelect(p.id)
+            setEditing(null)
+          }}
+          className={cn('block w-full px-4 py-2.5 text-left', child && 'pl-9')}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="flex flex-wrap items-center gap-2">
+              {child ? <span className="text-ink3">└</span> : null}
+              <span className="font-semibold">{p.name}</span>
+              <Chip tone={stageTone(p.stage)}>{p.stage}</Chip>
+              {p.mode ? <Chip>{MODE_LABEL[p.mode]}</Chip> : null}
+              {!child && p.client_name && p.client_name !== p.name ? <span className="text-[12px] text-ink3">{p.client_name}</span> : null}
+            </span>
+            <span className="flex items-center gap-3 text-[12px] tabular-nums text-ink3">
+              <span title="需求文档">需求 {p.doc_count}</span>
+              <span title="报价">报价 {p.quote_count}</span>
+              <span title="合同">合同 {p.contract_count}</span>
+            </span>
+          </div>
+          <div className="mt-0.5 text-[13px] text-ink2">
+            {p.members.length ? p.members.map((m) => `${m.name}（${m.role}）`).join('、') : <span className="text-ink3">还没挂人</span>}
+          </div>
+        </button>
+      </li>
+    )
+  }
+
   return (
-    <div className={cn('grid gap-4', editing && 'xl:grid-cols-[minmax(0,1fr)_480px]')}>
-      <Sheet>
+    <div className="grid items-start gap-4 xl:[grid-template-columns:minmax(0,1fr)_480px]">
+      <Sheet className="overflow-hidden">
         <SectionHead
           title="项目"
-          hint="进度、成员角色都算剑来认证，只有管理员改"
+          hint="需求 → 报价 → 签约 → 前中后期 → 维护；维护期新功能开成子模块"
           aside={
             <button type="button" className="btn" onClick={() => setEditing('new')}>
               新建项目
             </button>
           }
         />
-        {error ? <p className="px-4 py-2 text-[13px] text-cinnabar">{error}</p> : null}
-        {items.length === 0 ? (
-          <Empty title="还没有项目" hint="建一个项目，再去「合同」拟约；签约留档后剑修会自动挂上来。" />
+        {roots.length === 0 ? (
+          <Empty title="还没有项目" hint="客户来了先建项目，上传需求文档，再出报价。" />
         ) : (
           <ul>
-            {items.map((p) => (
-              <li key={p.id} className={cn('hair-b px-4 py-3 last:border-b-0', editing === p.id && 'bg-sel')}>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <button type="button" onClick={() => setEditing(p.id)} className="flex flex-wrap items-center gap-2 text-left">
-                    <span className="font-semibold">{p.name}</span>
-                    {p.industry ? <span className="text-[12px] text-ink3">{p.industry}</span> : null}
-                    <Chip tone={stageTone(p.stage)}>{p.stage}</Chip>
-                    {p.mode ? <Chip>{MODE_LABEL[p.mode]}</Chip> : null}
-                    {p.client_company ? <span className="text-[12px] text-ink3">· {p.client_company}</span> : null}
-                  </button>
-                  <ProgressBar value={p.progress} />
-                </div>
-                <div className="mt-1 text-[13px] text-ink2">
-                  {p.members.length
-                    ? p.members.map((m) => `${m.name}（${m.role}）`).join('、')
-                    : '还没挂人'}
-                </div>
-              </li>
+            {roots.map((p) => (
+              <Fragment key={p.id}>
+                <Row p={p} />
+                {childrenOf(p.id).map((c) => (
+                  <Row key={c.id} p={c} child />
+                ))}
+              </Fragment>
             ))}
           </ul>
         )}
       </Sheet>
 
-      {editing ? (
-        <Sheet className="self-start">
-          <SectionHead title={current ? `编辑 · ${current.name}` : '新建项目'} />
-          <ProjectForm
-            key={editing}
-            initial={current ? toInput(current) : emptyInput()}
-            projectId={current ? current.id : null}
-            staff={staff}
-            clients={clients}
-            onCancel={() => setEditing(null)}
-            onDone={() => {
-              setEditing(null)
-              void load()
-              onChanged?.()
-            }}
+      <Sheet className="xl:sticky xl:top-6">
+        {editing ? (
+          <>
+            <SectionHead title={current ? `改资料 · ${current.name}` : '新建项目'} />
+            <ProjectForm
+              key={editing}
+              initial={current ? toInput(current) : emptyInput()}
+              projectId={current ? current.id : null}
+              staff={staff}
+              clients={clients}
+              onCancel={() => setEditing(null)}
+              onDone={() => {
+                setEditing(null)
+                onChanged()
+              }}
+            />
+          </>
+        ) : selected ? (
+          <ProjectFlow
+            key={selected.id}
+            project={selected}
+            parent={selected.parent_id ? (items.find((p) => p.id === selected.parent_id) ?? null) : null}
+            modules={childrenOf(selected.id)}
+            quotes={quotes}
+            contracts={contracts}
+            onEditInfo={() => setEditing(selected.id)}
+            onNewQuote={() => onNewQuote(selected)}
+            onEditQuote={onEditQuote}
+            onNewContract={(q) => onNewContract(selected, q)}
+            onOpenContract={onOpenContract}
+            onOpenProject={(id) => onSelect(id)}
+            onChanged={onChanged}
           />
-        </Sheet>
-      ) : null}
+        ) : (
+          <Empty title="点一个项目看流程" hint="需求文档、报价、合同、分期都在这里。" />
+        )}
+      </Sheet>
     </div>
   )
 }

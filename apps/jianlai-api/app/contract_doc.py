@@ -70,6 +70,10 @@ def cn_date(day: date | None) -> str:
     return f"{day.year} 年 {day.month} 月 {day.day} 日" if day else "    年    月    日"
 
 
+def pct(value) -> str:
+    return f"{float(value):g}"
+
+
 def totals(staff_fee: Decimal, consult_fee: Decimal, headcount: int, months: int) -> dict:
     monthly = staff_fee * headcount + consult_fee
     return {
@@ -86,7 +90,9 @@ def _font(run, size: float = 11, bold: bool = False) -> None:
     run._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
 
 
-def _para(doc, text: str = "", *, bold: bool = False, size: float = 11, align=None, indent: bool = False):
+def _para(
+    doc, text: str = "", *, bold: bool = False, size: float = 11, align=None, indent: bool = False
+):
     para = doc.add_paragraph()
     para.paragraph_format.space_after = Pt(4)
     para.paragraph_format.line_spacing = 1.5
@@ -109,34 +115,20 @@ def _blank(value: str | None, width: int = 16) -> str:
     return value.strip() if value and value.strip() else "_" * width
 
 
-def build_contract_docx(c: dict, staff: list[dict]) -> bytes:
+def build_contract_docx(c: dict, staff: list[dict], quote: dict | None = None) -> bytes:
     dispatch = c["mode"] == "dispatch"
+    if not dispatch:
+        return _build_project_docx(c, staff, quote)
     sums = totals(c["staff_fee"], c["consult_fee"], len(staff), c["months"])
     doc = Document()
     for section in doc.sections:
         section.top_margin = section.bottom_margin = Cm(2.4)
         section.left_margin = section.right_margin = Cm(2.6)
 
-    title = "驻场技术服务合同（按人月）" if dispatch else "技术开发服务合同（项目制）"
+    title = "驻场技术服务合同（按人月）"
     _para(doc, title, bold=True, size=18, align=WD_ALIGN_PARAGRAPH.CENTER)
     _para(doc, f"合同编号：{c['code']}", size=10.5, align=WD_ALIGN_PARAGRAPH.RIGHT)
-
-    _para(doc, f"甲方（委托方）：{_blank(c['party_a'], 24)}", bold=True)
-    _para(doc, f"法定代表人 / 负责人：{_blank(c.get('party_a_rep'))}")
-    _para(doc, f"地址：{_blank(c.get('party_a_address'), 30)}")
-    _para(doc, f"联系人及电话：{_blank(c.get('party_a_contact'), 24)}")
-    _para(doc)
-    _para(doc, f"乙方（服务方）：{PARTY_B['name']}", bold=True)
-    _para(doc, f"统一社会信用代码：{PARTY_B['credit_code']}")
-    _para(doc, f"法定代表人：{PARTY_B['rep']}")
-    _para(doc, f"地址：{PARTY_B['address']}")
-    _para(doc)
-    _para(
-        doc,
-        "甲乙双方根据《中华人民共和国民法典》及相关法律法规，本着平等自愿、诚实信用的原则，"
-        "就乙方向甲方提供驻场技术服务事宜协商一致，订立本合同，共同遵守。",
-        indent=True,
-    )
+    _party_block(doc, c, "乙方向甲方提供驻场技术服务")
 
     n = [0]
 
@@ -293,7 +285,9 @@ def build_contract_docx(c: dict, staff: list[dict]) -> bytes:
     )
     clause(
         "争议解决",
-        ["因本合同产生的争议，双方先友好协商；协商不成的，提交乙方所在地有管辖权的人民法院诉讼解决。"],
+        [
+            "因本合同产生的争议，双方先友好协商；协商不成的，提交乙方所在地有管辖权的人民法院诉讼解决。"
+        ],
     )
     other = ["本合同一式两份，甲乙双方各执一份，自双方签字或盖章之日起生效。"]
     other.append("本合同未尽事宜，由双方另行签订补充协议，补充协议与本合同具有同等效力。")
@@ -301,6 +295,13 @@ def build_contract_docx(c: dict, staff: list[dict]) -> bytes:
         other.append("补充约定：" + c["extra_terms"].strip())
     clause("其他", other)
 
+    _sign_block(doc)
+    buffer = BytesIO()
+    doc.save(buffer)
+    return buffer.getvalue()
+
+
+def _sign_block(doc) -> None:
     _para(doc)
     sign = doc.add_table(rows=4, cols=2)
     rows = [
@@ -314,9 +315,241 @@ def build_contract_docx(c: dict, staff: list[dict]) -> bytes:
             _font(cell.paragraphs[0].add_run(text), 11)
             cell.paragraphs[0].paragraph_format.space_after = Pt(14)
 
+
+def _party_block(doc, c: dict, purpose: str) -> None:
+    _para(doc, f"甲方（委托方）：{_blank(c['party_a'], 24)}", bold=True)
+    _para(doc, f"法定代表人 / 负责人：{_blank(c.get('party_a_rep'))}")
+    _para(doc, f"地址：{_blank(c.get('party_a_address'), 30)}")
+    _para(doc, f"联系人及电话：{_blank(c.get('party_a_contact'), 24)}")
+    _para(doc)
+    _para(doc, f"乙方（服务方）：{PARTY_B['name']}", bold=True)
+    _para(doc, f"统一社会信用代码：{PARTY_B['credit_code']}")
+    _para(doc, f"法定代表人：{PARTY_B['rep']}")
+    _para(doc, f"地址：{PARTY_B['address']}")
+    _para(doc)
+    _para(
+        doc,
+        "甲乙双方根据《中华人民共和国民法典》及相关法律法规，本着平等自愿、诚实信用的原则，"
+        f"就{purpose}事宜协商一致，订立本合同，共同遵守。",
+        indent=True,
+    )
+
+
+def _build_project_docx(c: dict, staff: list[dict], quote: dict | None) -> bytes:
+    """项目制：固定总价、按里程碑付款、按功能清单验收。功能清单和付款节点来自报价。"""
+    q = quote or {}
+    items: list[dict] = q.get("items") or []
+    pay_plan: list[dict] = q.get("pay_plan") or []
+    weeks = q.get("weeks")
+    onsite = q.get("onsite_per_week") or 0
+    ai_fee = Decimal(str(q.get("ai_fee") or 0))
+    total = Decimal(str(c.get("amount") or 0))
+    if not total and items:
+        total = sum((Decimal(str(i.get("amount") or 0)) for i in items), Decimal(0)) + ai_fee
+
+    doc = Document()
+    for section in doc.sections:
+        section.top_margin = section.bottom_margin = Cm(2.4)
+        section.left_margin = section.right_margin = Cm(2.6)
+    _para(doc, "技术开发服务合同（项目制）", bold=True, size=18, align=WD_ALIGN_PARAGRAPH.CENTER)
+    _para(doc, f"合同编号：{c['code']}", size=10.5, align=WD_ALIGN_PARAGRAPH.RIGHT)
+    project_name = q.get("title") or c.get("project_name") or "本项目"
+    _party_block(doc, c, f"乙方为甲方开发「{project_name}」")
+
+    n = [0]
+
+    def clause(heading: str, lines: list[str]) -> None:
+        n[0] += 1
+        _para(doc, f"第{_ORDINALS[n[0]]}条　{heading}", bold=True, size=12)
+        for i, line in enumerate(lines, 1):
+            _para(doc, f"{n[0]}.{i}　{line}", indent=True)
+
+    clause(
+        "开发内容与范围",
+        [
+            f"乙方为甲方开发「{project_name}」，具体功能以本合同附件一《功能清单》为准，"
+            "附件一是验收的唯一依据。",
+            "附件一以外的新增功能或较大改动（如小程序、App、新业务模块），由双方另行签订合同或补充协议，"
+            "先报价、经甲方书面确认后开发。",
+            "乙方指派一名顾问（道长）全程负责需求判断、方案把关和交付质量"
+            + (
+                f"；开发期间每周到甲方现场沟通 {onsite} 次，每次约 2 小时，时间双方提前约定，"
+                "遇节假日或甲方不便可改为线上，次数不累计。"
+                if onsite
+                else "。"
+            ),
+        ],
+    )
+    period = [
+        f"开发周期 {weeks} 周，自甲方首期款到账且附件一经双方确认之日起算。"
+        if weeks
+        else "开发周期以附件一及双方确认的计划为准。",
+        "因甲方原因（需求变更、资料或账号延迟提供、确认延迟等）造成的延误，工期相应顺延。",
+    ]
+    if c.get("start_on"):
+        period.insert(
+            0, f"计划开始日期：{cn_date(c['start_on'])}；计划完成日期：{cn_date(c.get('end_on'))}。"
+        )
+    clause("开发周期", period)
+
+    fee = [
+        f"本合同为固定总价，合同总价人民币 {money(total)} 元（大写：{rmb_upper(total)}），含税"
+        + (
+            f"；其中开发期 AI 费用 {money(ai_fee)} 元按工期包干，超出部分由乙方承担。"
+            if ai_fee
+            else "。"
+        ),
+    ]
+    if pay_plan:
+        acc = Decimal(0)
+        parts = []
+        for i, p in enumerate(pay_plan):
+            amt = (
+                (total * Decimal(str(p["pct"])) / 100).quantize(Decimal(1))
+                if i < len(pay_plan) - 1
+                else total - acc
+            )
+            acc += amt
+            parts.append(
+                f"（{i + 1}）{p.get('name', '')} {pct(p['pct'])}%，即人民币 {money(amt)} 元：{p.get('condition', '')}"
+            )
+        fee.append("付款节点：" + "；".join(parts) + "。")
+    elif (c.get("pay_terms") or "").strip():
+        fee.append("支付方式：" + c["pay_terms"].strip().rstrip("。") + "。")
+    fee += [
+        "甲方以银行转账方式支付至乙方下列对公账户，乙方不接受向任何个人账户付款：",
+        f"户名：{PARTY_B['name']}；开户行：{PARTY_B['bank']}；账号：{PARTY_B['account']}。",
+        "乙方在每期收款后 5 个工作日内向甲方开具增值税发票。上述价格均为含税价，按开票时国家税收政策适用的"
+        "征收率开具（乙方现为增值税小规模纳税人）；合同价格不因发票类型或税收政策调整而变动。",
+    ]
+    clause("合同价款与支付", fee)
+
+    clause(
+        "第三方资源费用",
+        [
+            "项目运行所需的服务器、数据库、域名与备案、短信、第三方接口、上线后产品调用的大模型 API 等"
+            "费用由甲方承担，不包含在合同总价内。",
+            "上述账号以甲方名义开通、甲方直接付费，乙方凭甲方授权使用和维护，确保甲方可独立运营与迁移。",
+            "确需乙方代为开通或付费的，甲方预付备用金，乙方按实际扣费从备用金中扣减，不加价，"
+            "每月提供用量明细及平台账单；合同终止时多退少补，相关账号一并移交甲方。",
+        ],
+    )
+    clause(
+        "交付与验收",
+        [
+            "乙方完成开发并部署上线后，书面（含微信、邮件）通知甲方验收。",
+            "甲方应在收到通知后 7 个工作日内按附件一逐项验收，有问题的书面列明；逾期未书面提出的，视为验收通过。",
+            "验收中发现的问题，属于附件一范围内缺陷的，乙方免费修复后重新提交验收；属于新增需求的，按 1.2 处理。",
+            "乙方交付完整源代码、部署说明及使用培训，源代码不加密、不设第三方绑定。",
+        ],
+    )
+    clause(
+        "质保与运维",
+        [
+            "上线验收通过后 1 个月为质保期，乙方免费修复附件一范围内的缺陷。",
+            "质保期满后，甲方可另行签订月度运维，运维只包含缺陷修复与小需求，"
+            "较大功能按 1.2 另行签订合同。",
+        ],
+    )
+    clause(
+        "双方的权利与义务",
+        [
+            "甲方指定一名对接人，负责需求确认、进度沟通和验收；按时提供开发所需的资料、账号和必要的业务说明；按约付款。",
+            "乙方按附件一和约定工期完成开发；每周向甲方同步一次进度；线上问题一小时内响应。",
+            "乙方不将本项目转包给第三方；参与开发人员均为乙方自有团队。",
+        ],
+    )
+    clause(
+        "知识产权",
+        [
+            "乙方为本项目形成的成果（含源代码、文档、设计、配置等），其知识产权自甲方付清合同全款之日起归甲方所有。",
+            "乙方在本合同之前已有的通用工具、框架和方法，知识产权仍归乙方；其中被用于上述成果的部分，"
+            "甲方在自身业务范围内享有永久、免费的使用权。",
+            "甲方提供的业务数据、资料及甲方原有系统，其权利归甲方，乙方仅为履行本合同使用。",
+            "产品的业务合规（如网站备案、行业资质、所采集信息的合法性判断）由甲方负责，乙方按甲方要求实现相应技术措施。",
+        ],
+    )
+    clause(
+        "保密",
+        [
+            "双方对履行本合同知悉的对方商业秘密、技术资料和业务数据负有保密义务，保密期限为本合同终止后 2 年。",
+            "未经甲方书面同意，乙方不得在对外宣传中使用甲方名称；可以只写行业。",
+        ],
+    )
+    clause(
+        "违约责任",
+        [
+            "甲方逾期付款的，每逾期一日按应付未付金额的万分之五支付违约金，工期相应顺延；逾期超过 15 日的，乙方有权暂停开发。",
+            "因乙方原因逾期交付的，每逾期一日按合同总价的万分之五支付违约金，累计不超过合同总价的 10%。",
+            "除故意或重大过失外，乙方在本合同项下的累计赔偿责任以甲方已支付的款项为限。",
+        ],
+    )
+    clause(
+        "合同变更与解除",
+        [
+            "变更开发范围、工期或价款的，由双方书面确认。",
+            "甲方中途解除合同的，已支付款项不退，并按已完成工作量结算；乙方交付已完成部分的成果。",
+        ],
+    )
+    clause(
+        "争议解决",
+        [
+            "因本合同产生的争议，双方先友好协商；协商不成的，提交乙方所在地有管辖权的人民法院诉讼解决。"
+        ],
+    )
+    other = [
+        "本合同一式两份，甲乙双方各执一份，自双方签字或盖章之日起生效。附件与本合同具有同等效力。",
+        "本合同未尽事宜，由双方另行签订补充协议，补充协议与本合同具有同等效力。",
+    ]
+    if (c.get("extra_terms") or "").strip():
+        other.append("补充约定：" + c["extra_terms"].strip())
+    clause("其他", other)
+    _sign_block(doc)
+
+    doc.add_page_break()
+    _para(doc, "附件一　功能清单", bold=True, size=14, align=WD_ALIGN_PARAGRAPH.CENTER)
+    if items:
+        table = doc.add_table(rows=1, cols=3)
+        table.style = "Table Grid"
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        for cell, text in zip(table.rows[0].cells, ["序号", "模块", "功能内容"]):
+            _cell(cell, text, bold=True)
+        for i, it in enumerate(items, 1):
+            row = table.add_row().cells
+            _cell(row[0], str(i))
+            _cell(row[1], it.get("name", ""))
+            para = row[2].paragraphs[0]
+            _font(para.add_run(it.get("content", "")), 10.5)
+        for row in table.rows:
+            for cell, w in zip(row.cells, (1.2, 3.6, 11.2)):
+                cell.width = Cm(w)
+    else:
+        _para(doc, "（由双方另行确认后附上）", indent=True)
+    if (q.get("out_of_scope") or "").strip():
+        _para(doc)
+        _para(doc, "不在本期范围：" + q["out_of_scope"].strip(), indent=True)
+
     buffer = BytesIO()
     doc.save(buffer)
     return buffer.getvalue()
 
 
-_ORDINALS = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三"]
+_ORDINALS = [
+    "",
+    "一",
+    "二",
+    "三",
+    "四",
+    "五",
+    "六",
+    "七",
+    "八",
+    "九",
+    "十",
+    "十一",
+    "十二",
+    "十三",
+    "十四",
+    "十五",
+    "十六",
+]

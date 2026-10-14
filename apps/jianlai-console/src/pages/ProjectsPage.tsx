@@ -16,11 +16,15 @@ import {
   type LoadItem,
 } from '@/lib/contracts'
 import { Avatar, Chip, Empty, MetricStrip, PageHead, SectionHead, Sheet, Stamp, Tabs } from '@/components/ui'
-import { ContractForm, contractToInput, emptyContract } from '@/pages/ContractForm'
+import { ContractForm, contractFromQuote, contractToInput, emptyContract } from '@/pages/ContractForm'
 import { ProjectsAdmin } from '@/pages/ProjectsAdmin'
+import { emptyQuote, QuoteForm, quoteToInput } from '@/pages/QuoteForm'
+import { downloadQuoteDocx, fetchQuotes, QUOTE_STATUS_LABEL, setQuoteStatus, type Quote, type QuoteStatus } from '@/lib/pipeline'
+import type { ContractInput } from '@/lib/contracts'
+import type { QuoteInput } from '@/lib/pipeline'
 import { LeadsTab } from '@/pages/SalesPage'
 
-type Tab = 'projects' | 'contracts' | 'load' | 'leads'
+type Tab = 'projects' | 'quotes' | 'contracts' | 'load' | 'leads'
 
 const STATUS_LABEL: Record<Contract['status'], string> = { draft: '拟定中', signed: '已签', void: '作废' }
 const LOAD_LABEL: Record<LoadItem['state'], string> = { active: '在跟', upcoming: '待进场', planned: '拟派' }
@@ -93,20 +97,27 @@ function ContractDetail({ contract, onEdit, onChanged }: { contract: Contract; o
       <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-2 px-4 py-3 text-[14px]">
         <dt className="label pt-0.5">服务期</dt>
         <dd className="tabular-nums">
-          {contract.start_on} 至 {contract.end_on}（{contract.months} 个月）
+          {contract.start_on} 至 {contract.end_on}
+          {contract.mode === 'dispatch' ? `（${contract.months} 个月）` : ''}
         </dd>
         <dt className="label pt-0.5">剑修</dt>
-        <dd>{contract.staff.map((s) => `${s.alias ?? s.legal_name}（${s.role}）`).join('、')}</dd>
+        <dd>{contract.staff.length ? contract.staff.map((s) => `${s.alias ?? s.legal_name}（${s.role}）`).join('、') : '—'}</dd>
         <dt className="label pt-0.5">费用</dt>
-        <dd className="tabular-nums">
-          {yuan(contract.staff_fee)} × {contract.staff.length} 人 + 顾问费 {yuan(contract.consult_fee)}
-          <div className="font-semibold">
-            每月 {yuan(contract.monthly_total)}
-            {contract.months > 1 ? ` · 合计 ${yuan(contract.total)}` : ''}
-          </div>
-        </dd>
+        {contract.mode === 'project' ? (
+          <dd className="tabular-nums font-semibold">固定总价 {yuan(contract.total)}</dd>
+        ) : (
+          <dd className="tabular-nums">
+            {yuan(contract.staff_fee)} × {contract.staff.length} 人 + 顾问费 {yuan(contract.consult_fee)}
+            <div className="font-semibold">
+              每月 {yuan(contract.monthly_total)}
+              {contract.months > 1 ? ` · 合计 ${yuan(contract.total)}` : ''}
+            </div>
+          </dd>
+        )}
         <dt className="label pt-0.5">支付</dt>
-        <dd className="text-ink2">{contract.pay_terms ?? '默认：每月开始后 5 个工作日内付当月'}</dd>
+        <dd className="text-ink2">
+          {contract.mode === 'project' && contract.quote_id ? '按报价的付款节点' : (contract.pay_terms ?? '默认：每月开始后 5 个工作日内付当月')}
+        </dd>
         {contract.signed_on ? (
           <>
             <dt className="label pt-0.5">签约</dt>
@@ -158,19 +169,34 @@ function ContractDetail({ contract, onEdit, onChanged }: { contract: Contract; o
 function ContractsTab({
   contracts,
   projects,
+  quotes,
   load,
   reload,
+  selectedId,
+  setSelectedId,
+  draft,
+  setDraft,
 }: {
   contracts: Contract[]
   projects: AdminProject[]
+  quotes: Quote[]
   load: Record<string, LoadItem[]>
   reload: () => void
+  selectedId: string | null
+  setSelectedId: (id: string | null) => void
+  /** 新拟：带好的初始值；改：合同 id */
+  draft: ContractInput | string | null
+  setDraft: (d: ContractInput | string | null) => void
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [editing, setEditing] = useState<'new' | string | null>(contracts.length === 0 ? 'new' : null)
+  const editing = draft
+  const setEditing = (v: 'new' | string | null) => {
+    if (v === 'new') {
+      const p = projects.find((x) => x.mode === 'dispatch' && !contracts.some((c) => c.project_id === x.id)) ?? projects[0]
+      setDraft(emptyContract(p))
+    } else setDraft(v)
+  }
   const selected = contracts.find((c) => c.id === selectedId) ?? contracts[0] ?? null
-  const editingContract = editing && editing !== 'new' ? contracts.find((c) => c.id === editing) : null
-  const defaultProject = projects.find((p) => p.mode === 'dispatch' && !contracts.some((c) => c.project_id === p.id)) ?? projects[0]
+  const editingContract = typeof editing === 'string' ? contracts.find((c) => c.id === editing) : null
   const busyFor = (slug: string) => (load[slug] ?? []).map((item) => item.project)
 
   return (
@@ -196,7 +222,7 @@ function ContractsTab({
                   <th>方式</th>
                   <th>服务期</th>
                   <th>剑修</th>
-                  <th className="num">每月</th>
+                  <th className="num">金额</th>
                   <th>状态</th>
                 </tr>
               </thead>
@@ -221,7 +247,7 @@ function ContractsTab({
                       {fmtMD(c.start_on)} – {fmtMD(c.end_on)}
                     </td>
                     <td className="text-ink2">{c.staff.map((s) => s.alias ?? s.legal_name).join('、')}</td>
-                    <td className="num font-semibold">{yuan(c.monthly_total)}</td>
+                    <td className="num font-semibold">{c.mode === 'project' ? yuan(c.total) : `${yuan(c.monthly_total)} / 月`}</td>
                     <td>
                       <Chip tone={c.status === 'signed' ? 'jade' : c.status === 'draft' ? 'ochre' : 'plain'}>{STATUS_LABEL[c.status]}</Chip>
                     </td>
@@ -236,12 +262,13 @@ function ContractsTab({
       <Sheet className="xl:sticky xl:top-6">
         {editing ? (
           <>
-            <SectionHead title={editingContract ? `改合同 · ${editingContract.code}` : '拟新合同 · 派遣制'} />
+            <SectionHead title={editingContract ? `改合同 · ${editingContract.code}` : '拟新合同'} />
             <ContractForm
-              key={editing}
-              initial={editingContract ? contractToInput(editingContract) : emptyContract(defaultProject)}
+              key={typeof editing === 'string' ? editing : `new-${editing.quote_id ?? editing.project_id}`}
+              initial={editingContract ? contractToInput(editingContract) : (editing as ContractInput)}
               contractId={editingContract?.id ?? null}
               projects={projects}
+              quotes={quotes}
               busyFor={busyFor}
               onCancel={() => setEditing(null)}
               onDone={(saved) => {
@@ -255,6 +282,191 @@ function ContractsTab({
           <ContractDetail key={selected.id} contract={selected} onEdit={() => setEditing(selected.id)} onChanged={reload} />
         ) : (
           <Empty title="点一份合同看详情" />
+        )}
+      </Sheet>
+    </div>
+  )
+}
+
+function QuoteDetail({ quote, onEdit, onContract, onChanged }: { quote: Quote; onEdit: () => void; onContract: () => void; onChanged: () => void }) {
+  const [state, setState] = useState({ busy: '', msg: '' })
+  async function run(label: string, fn: () => Promise<unknown>, reload = false) {
+    setState({ busy: label, msg: '' })
+    try {
+      await fn()
+      setState({ busy: '', msg: '' })
+      if (reload) onChanged()
+    } catch (err) {
+      setState({ busy: '', msg: errorText(err) })
+    }
+  }
+  const status = (s: QuoteStatus) => run(s, () => setQuoteStatus(quote.id, s), true)
+  return (
+    <div className="flex flex-col">
+      <div className="hair-b flex items-start justify-between gap-3 px-4 py-3">
+        <div className="min-w-0">
+          <h3 className="title-serif truncate text-[18px] leading-7">{quote.title}</h3>
+          <p className="font-mono text-[12px] text-ink3">
+            {quote.code} · {quote.party_a}
+          </p>
+        </div>
+        <Chip tone={quote.status === 'accepted' ? 'jade' : quote.status === 'rejected' ? 'plain' : 'ochre'}>{QUOTE_STATUS_LABEL[quote.status]}</Chip>
+      </div>
+      <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-2 px-4 py-3 text-[14px]">
+        <dt className="label pt-0.5">总价</dt>
+        <dd className="tabular-nums">
+          <span className="font-semibold">{yuan(quote.total)}</span>
+          <span className="ml-2 text-[12px] text-ink3">
+            开发 {yuan(quote.dev_total)}
+            {quote.ai_fee ? ` + AI 包干 ${yuan(quote.ai_fee)}` : ''}
+          </span>
+        </dd>
+        <dt className="label pt-0.5">工期</dt>
+        <dd>
+          {quote.weeks} 周 · {quote.days_total} 人天{quote.onsite_per_week ? ` · 每周驻场 ${quote.onsite_per_week} 次` : ''}
+        </dd>
+        <dt className="label pt-0.5">模块</dt>
+        <dd className="text-ink2">{quote.items.map((i) => i.name).join('、')}</dd>
+        <dt className="label pt-0.5">付款</dt>
+        <dd className="text-ink2">{quote.pay_plan.map((p) => `${p.name} ${p.pct}%`).join(' / ') || '—'}</dd>
+      </dl>
+      <div className="hair-t space-y-3 px-4 py-3">
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="btn btn-primary" disabled={state.busy === 'docx'} onClick={() => void run('docx', () => downloadQuoteDocx(quote))}>
+            {state.busy === 'docx' ? '生成中' : '下载估算书 Word'}
+          </button>
+          {quote.status !== 'accepted' ? (
+            <button type="button" className="btn" onClick={onEdit}>
+              改报价
+            </button>
+          ) : null}
+          <button type="button" className="btn" onClick={onContract}>
+            拟合同
+          </button>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-[13px]">
+          <span className="label">客户反馈</span>
+          {quote.status === 'draft' ? (
+            <button type="button" className="btn btn-quiet h-7 px-2" onClick={() => void status('sent')}>
+              标记已发客户
+            </button>
+          ) : null}
+          {quote.status !== 'accepted' ? (
+            <button type="button" className="btn btn-quiet h-7 px-2" onClick={() => void status('accepted')}>
+              客户认了
+            </button>
+          ) : null}
+          {quote.status !== 'rejected' && quote.status !== 'accepted' ? (
+            <button type="button" className="btn btn-quiet h-7 px-2" onClick={() => void status('rejected')}>
+              没谈成
+            </button>
+          ) : null}
+        </div>
+        {state.msg ? <p className="text-[13px] text-cinnabar">{state.msg}</p> : null}
+      </div>
+    </div>
+  )
+}
+
+function QuotesTab({
+  quotes,
+  projects,
+  selectedId,
+  setSelectedId,
+  draft,
+  setDraft,
+  onContract,
+  reload,
+}: {
+  quotes: Quote[]
+  projects: AdminProject[]
+  selectedId: string | null
+  setSelectedId: (id: string | null) => void
+  draft: QuoteInput | string | null
+  setDraft: (d: QuoteInput | string | null) => void
+  onContract: (q: Quote) => void
+  reload: () => void
+}) {
+  const selected = quotes.find((q) => q.id === selectedId) ?? quotes[0] ?? null
+  const editingQuote = typeof draft === 'string' ? quotes.find((q) => q.id === draft) : null
+  return (
+    <div className="grid items-start gap-4 xl:[grid-template-columns:minmax(0,1fr)_560px]">
+      <Sheet className="overflow-hidden">
+        <SectionHead
+          title="报价"
+          hint="项目制：按模块列人天和价格 → 下载估算书发客户 → 客户认了拟合同"
+          aside={
+            <button type="button" className="btn" onClick={() => setDraft(emptyQuote(projects.find((p) => p.mode !== 'dispatch') ?? projects[0]))}>
+              出报价
+            </button>
+          }
+        />
+        {quotes.length === 0 ? (
+          <Empty title="还没有报价" hint="右边出一份，或者在项目流程里点「出报价」。" />
+        ) : (
+          <div className="overflow-auto">
+            <table className="ops-table min-w-[620px]">
+              <thead>
+                <tr>
+                  <th>报价 / 客户</th>
+                  <th>项目</th>
+                  <th>工期</th>
+                  <th className="num">总价</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                {quotes.map((q) => (
+                  <tr
+                    key={q.id}
+                    data-row
+                    tabIndex={0}
+                    aria-selected={!draft && selected?.id === q.id}
+                    onClick={() => {
+                      setSelectedId(q.id)
+                      setDraft(null)
+                    }}
+                  >
+                    <td>
+                      <div className="font-semibold">{q.title}</div>
+                      <div className="font-mono text-[12px] text-ink3">
+                        {q.code} · {q.party_a}
+                      </div>
+                    </td>
+                    <td className="text-ink2">{q.project_name}</td>
+                    <td className="tabular-nums text-ink2">{q.weeks} 周</td>
+                    <td className="num font-semibold">{yuan(q.total)}</td>
+                    <td>
+                      <Chip tone={q.status === 'accepted' ? 'jade' : q.status === 'rejected' ? 'plain' : 'ochre'}>{QUOTE_STATUS_LABEL[q.status]}</Chip>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Sheet>
+      <Sheet className="xl:sticky xl:top-6">
+        {draft ? (
+          <>
+            <SectionHead title={editingQuote ? `改报价 · ${editingQuote.code}` : '出报价 · 项目制'} />
+            <QuoteForm
+              key={typeof draft === 'string' ? draft : `new-${draft.project_id}`}
+              initial={editingQuote ? quoteToInput(editingQuote) : (draft as QuoteInput)}
+              quoteId={editingQuote?.id ?? null}
+              projects={projects}
+              onCancel={() => setDraft(null)}
+              onDone={(saved) => {
+                setDraft(null)
+                setSelectedId(saved.id)
+                reload()
+              }}
+            />
+          </>
+        ) : selected ? (
+          <QuoteDetail key={selected.id} quote={selected} onEdit={() => setDraft(selected.id)} onContract={() => onContract(selected)} onChanged={reload} />
+        ) : (
+          <Empty title="点一份报价看详情" />
         )}
       </Sheet>
     </div>
@@ -333,19 +545,24 @@ export function ProjectsPage() {
   const [accounts, setAccounts] = useState<AdminAccountRow[]>([])
   const [projects, setProjects] = useState<AdminProject[]>([])
   const [contracts, setContracts] = useState<Contract[]>([])
+  const [quotes, setQuotes] = useState<Quote[]>([])
+  const [projectId, setProjectId] = useState<string | null>(null)
+  const [quoteId, setQuoteId] = useState<string | null>(null)
+  const [quoteDraft, setQuoteDraft] = useState<QuoteInput | string | null>(null)
+  const [contractId, setContractId] = useState<string | null>(null)
+  const [contractDraft, setContractDraft] = useState<ContractInput | string | null>(null)
   const [load, setLoad] = useState<{ today: string; items: Record<string, LoadItem[]> }>({ today: todayIso(), items: {} })
   const [error, setError] = useState('')
-  const [version, setVersion] = useState(0)
 
   const reload = useCallback(async () => {
     try {
-      const [a, p, c, l] = await Promise.all([adminAccounts(), adminProjects(), fetchContracts(), fetchStaffLoad()])
+      const [a, p, c, l, q] = await Promise.all([adminAccounts(), adminProjects(), fetchContracts(), fetchStaffLoad(), fetchQuotes()])
       setAccounts(a.items)
       setProjects(p.items)
       setContracts(c.items)
+      setQuotes(q.items)
       setLoad(l)
       setError('')
-      setVersion((v) => v + 1)
     } catch (err) {
       setError(errorText(err))
     }
@@ -356,19 +573,20 @@ export function ProjectsPage() {
   }, [reload])
 
   const metrics = useMemo(() => {
-    const live = projects.filter((p) => p.stage !== '已完结').length
+    const live = projects.filter((p) => p.stage !== '已完结' && p.stage !== '需求' && p.stage !== '报价').length
+    const pending = quotes.filter((q) => q.status === 'draft' || q.status === 'sent').length
     const signed = contracts.filter((c) => c.status === 'signed' && c.end_on >= load.today)
     const monthly = signed.reduce((sum, c) => sum + c.monthly_total, 0)
     const drafts = contracts.filter((c) => c.status === 'draft').length
     const busy = DISPATCHABLE.filter((p) => (load.items[p.slug] ?? []).some((r) => r.state !== 'planned')).length
-    return { live, monthly, drafts, busy, signed: signed.length }
-  }, [projects, contracts, load])
+    return { live, monthly, drafts, busy, signed: signed.length, pending }
+  }, [projects, contracts, load, quotes])
 
   return (
     <>
       <PageHead
         title="项目管理"
-        note="项目、合同、剑修分配"
+        note="需求 → 报价 → 合同 → 分期执行 → 维护"
         tabs={
           <Tabs<Tab>
             label="项目管理"
@@ -376,6 +594,7 @@ export function ProjectsPage() {
             onChange={setTab}
             tabs={[
               { key: 'projects', label: '项目', count: projects.length },
+              { key: 'quotes', label: '报价', count: quotes.length },
               { key: 'contracts', label: '合同', count: contracts.length },
               { key: 'load', label: '剑修在跟' },
               { key: 'leads', label: '留资线索' },
@@ -387,7 +606,7 @@ export function ProjectsPage() {
       <div className="mb-4">
         <MetricStrip
           items={[
-            { label: '进行中的项目', value: String(metrics.live) },
+            { label: '已签在做的项目', value: String(metrics.live), sub: metrics.pending ? `${metrics.pending} 份报价在谈` : '没有在谈的报价' },
             { label: '在执行的合同', value: String(metrics.signed), sub: metrics.drafts ? `另有 ${metrics.drafts} 份在拟` : '没有在拟的' },
             { label: '已签合同 · 每月', value: yuan(metrics.monthly), sub: '剑修费 + 顾问费', tone: 'jade' },
             { label: '已派出的剑修', value: `${metrics.busy} / ${DISPATCHABLE.length}`, sub: `空闲 ${DISPATCHABLE.length - metrics.busy} 位` },
@@ -395,8 +614,63 @@ export function ProjectsPage() {
         />
       </div>
 
-      {tab === 'projects' ? <ProjectsAdmin key={version} accounts={accounts} onChanged={() => void reload()} /> : null}
-      {tab === 'contracts' ? <ContractsTab contracts={contracts} projects={projects} load={load.items} reload={() => void reload()} /> : null}
+      {tab === 'projects' ? (
+        <ProjectsAdmin
+          accounts={accounts}
+          items={projects}
+          quotes={quotes}
+          contracts={contracts}
+          selectedId={projectId}
+          onSelect={setProjectId}
+          onChanged={() => void reload()}
+          onNewQuote={(p) => {
+            setQuoteDraft(emptyQuote(p))
+            setTab('quotes')
+          }}
+          onEditQuote={(q) => {
+            setQuoteId(q.id)
+            setQuoteDraft(null)
+            setTab('quotes')
+          }}
+          onNewContract={(p, q) => {
+            setContractDraft(q ? contractFromQuote(q, p) : emptyContract(p))
+            setTab('contracts')
+          }}
+          onOpenContract={(c) => {
+            setContractId(c.id)
+            setContractDraft(null)
+            setTab('contracts')
+          }}
+        />
+      ) : null}
+      {tab === 'quotes' ? (
+        <QuotesTab
+          quotes={quotes}
+          projects={projects}
+          selectedId={quoteId}
+          setSelectedId={setQuoteId}
+          draft={quoteDraft}
+          setDraft={setQuoteDraft}
+          onContract={(q) => {
+            setContractDraft(contractFromQuote(q, projects.find((p) => p.id === q.project_id)))
+            setTab('contracts')
+          }}
+          reload={() => void reload()}
+        />
+      ) : null}
+      {tab === 'contracts' ? (
+        <ContractsTab
+          contracts={contracts}
+          projects={projects}
+          quotes={quotes}
+          load={load.items}
+          reload={() => void reload()}
+          selectedId={contractId}
+          setSelectedId={setContractId}
+          draft={contractDraft}
+          setDraft={setContractDraft}
+        />
+      ) : null}
       {tab === 'load' ? <LoadTab load={load.items} today={load.today} /> : null}
       {tab === 'leads' ? <LeadsTab /> : null}
     </>

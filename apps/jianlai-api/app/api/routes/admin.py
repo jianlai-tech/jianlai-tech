@@ -20,7 +20,7 @@ router = APIRouter(prefix="/api/admin", tags=["管理"])
 PHONE_RE = re.compile(r"^1\d{10}$")
 ID_TAIL_RE = re.compile(r"^\d{5}[\dXx]$")
 Gate = Literal["问剑门", "破阵门", "映剑门"]
-Stage = Literal["先看", "先斩一处", "上线护航", "教会交接", "已完结"]
+Stage = Literal["需求", "报价", "签约", "前期", "中期", "后期", "维护", "已完结"]
 
 
 def _check_phone(phone: str) -> str:
@@ -218,7 +218,10 @@ async def list_projects(_: AdminAccount):
         rows = await conn.fetch(
             """
             SELECT p.id, p.code, p.name, p.client_name, p.mode, p.industry, p.stage, p.progress, p.progress_note,
-                   p.started_on, p.ended_on, p.updated_at, p.client_account_id,
+                   p.started_on, p.ended_on, p.updated_at, p.client_account_id, p.parent_id,
+                   (SELECT count(*) FROM project_docs d WHERE d.project_id = p.id) AS doc_count,
+                   (SELECT count(*) FROM quotes q WHERE q.project_id = p.id) AS quote_count,
+                   (SELECT count(*) FROM contracts c WHERE c.project_id = p.id AND c.status <> 'void') AS contract_count,
                    ca.company AS client_company,
                    COALESCE(
                      json_agg(json_build_object('account_id', m.account_id, 'name', a.name, 'role', m.role))
@@ -230,7 +233,7 @@ async def list_projects(_: AdminAccount):
             LEFT JOIN project_members m ON m.project_id = p.id
             LEFT JOIN accounts a ON a.id = m.account_id
             GROUP BY p.id, ca.company
-            ORDER BY p.ended_on IS NOT NULL, p.updated_at DESC
+            ORDER BY p.stage = '已完结', p.updated_at DESC
             """
         )
     items = []
@@ -239,6 +242,7 @@ async def list_projects(_: AdminAccount):
         item["client_account_id"] = (
             str(row["client_account_id"]) if row["client_account_id"] else None
         )
+        item["parent_id"] = str(row["parent_id"]) if row["parent_id"] else None
         if isinstance(item["members"], str):
             item["members"] = json.loads(item["members"])
         items.append(item)
@@ -256,7 +260,8 @@ class ProjectIn(BaseModel):
     mode: Literal["dispatch", "project"] | None = None
     industry: str | None = Field(default=None, max_length=30)
     client_account_id: str | None = None
-    stage: Stage = "先看"
+    stage: Stage = "需求"
+    parent_id: str | None = None
     progress: int = Field(default=0, ge=0, le=100)
     progress_note: str | None = Field(default=None, max_length=300)
     started_on: date | None = None
@@ -287,8 +292,8 @@ async def create_project(body: ProjectIn, _: AdminAccount):
         project_id = await conn.fetchval(
             """
             INSERT INTO projects (name, industry, client_account_id, stage, progress, progress_note,
-                                  started_on, ended_on, created_at, updated_at, client_name, mode)
-            VALUES ($1, $2, $3::uuid, $4, $5, $6, $7, $8, $9, $9, $10, $11)
+                                  started_on, ended_on, created_at, updated_at, client_name, mode, parent_id)
+            VALUES ($1, $2, $3::uuid, $4, $5, $6, $7, $8, $9, $9, $10, $11, $12::uuid)
             RETURNING id
             """,
             body.name.strip(),
@@ -302,6 +307,7 @@ async def create_project(body: ProjectIn, _: AdminAccount):
             now_cn(),
             (body.client_name or "").strip() or None,
             body.mode,
+            body.parent_id,
         )
         await _save_members(conn, project_id, body.members)
     return {"ok": True, "id": str(project_id)}

@@ -20,7 +20,9 @@ export function realmLabel(realmNo: number) {
 }
 
 export function stageTone(stage: MyProject['stage']) {
-  return stage === '已完结' ? 'plain' : stage === '上线护航' ? 'jade' : 'ochre'
+  if (stage === '已完结') return 'plain'
+  if (stage === '前期' || stage === '中期' || stage === '后期' || stage === '维护') return 'jade'
+  return 'ochre'
 }
 
 export function ProgressBar({ value }: { value: number }) {

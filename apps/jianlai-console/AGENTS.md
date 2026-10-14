@@ -30,7 +30,7 @@ alwaysApply: false
 | 公司主体 | 真 | `knowledge/公司.md`，落在 `studio.ts` 的 `COMPANY` |
 | 英雄帖（招剑修报名） | 真 | 官网 `/join` 写入 `recruits`（DDL `schemas/006_recruits.sql` + `007_recruits_intent.sql`），后台「英雄帖」页，接口 `/api/admin/recruits` 只给管理员；口径见 `knowledge/产品-英雄帖.md` |
 | 财务流水 | 真 | `ledger` 表（DDL `schemas/008_ledger.sql`），接口 `/api/admin/ledger` 只给管理员，前端 `src/lib/ledger.ts`。来源：招行明细（带余额、`bank_ref` 去重）+ 手记；删错走作废不物理删。「股东投入」不计经营收入 |
-| 项目、合同、剑修在跟 | 真 | 「项目管理」`/projects`（旧 `/sales` 自动跳转）。`projects` 补了 `code` / `client_name` / `mode`，合同表 `contracts` + `contract_staff`（DDL `schemas/009_contracts.sql`），接口 `/api/admin/contracts*`、`/api/admin/staff-load`，前端 `src/lib/contracts.ts`。口径见 `knowledge/产品-项目与合同.md` |
+| 项目、报价、合同、分期、剑修在跟 | 真 | 「项目管理」`/projects`（旧 `/sales` 自动跳转）。流程 需求 → 报价 → 签约 → 前/中/后期 → 维护，维护期开子模块（`projects.parent_id`）。表 `contracts` + `contract_staff`（`009`）、`project_docs` / `quotes` / `project_phases`（`010_pipeline.sql`）。接口 `/api/admin/contracts*`、`/api/admin/quotes*`、`/api/admin/projects/{id}/docs|phases|modules`、`/api/admin/staff-load`；前端 `src/lib/contracts.ts`、`src/lib/pipeline.ts`，项目右栏 `ProjectFlow.tsx`。口径见 `knowledge/产品-项目与合同.md` |
 | 留资线索、应收、时间窗口 | **示意** | `src/data/store.tsx`，页面上都带「示意」标 |
 
 ## 登录与权限

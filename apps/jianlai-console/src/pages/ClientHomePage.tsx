@@ -1,7 +1,7 @@
 import { useAuth } from '@/data/auth'
 import { Chip, Empty, PageHead, SectionHead, Sheet } from '@/components/ui'
 import { ProgressBar, stageTone } from '@/pages/MePage'
-import { STAGES } from '@/lib/account'
+import { CLIENT_STAGES } from '@/lib/account'
 import { cn } from '@/lib/cn'
 
 /** 合作企业看到的：自己公司的项目进度和驻场的人，别的一律看不到 */
@@ -20,7 +20,7 @@ export function ClientHomePage() {
       ) : (
         <div className="space-y-4">
           {projects.map((p) => {
-            const at = STAGES.indexOf(p.stage)
+            const at = CLIENT_STAGES.indexOf(p.stage)
             return (
               <Sheet key={p.id}>
                 <SectionHead
@@ -34,8 +34,8 @@ export function ClientHomePage() {
                   }
                 />
                 <div className="space-y-4 px-4 py-4">
-                  <ol className="grid grid-cols-5 gap-px overflow-hidden rounded-sm border border-ink/15 bg-ink/10 text-center text-[13px]">
-                    {STAGES.map((stage, index) => (
+                  <ol className="grid grid-cols-6 gap-px overflow-hidden rounded-sm border border-ink/15 bg-ink/10 text-center text-[13px]">
+                    {CLIENT_STAGES.map((stage, index) => (
                       <li
                         key={stage}
                         className={cn(
