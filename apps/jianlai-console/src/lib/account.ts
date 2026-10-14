@@ -95,7 +95,13 @@ export type AdminAccountRow = {
   certified_at: string | null
 }
 
+export type CoopMode = 'dispatch' | 'project'
+export const MODE_LABEL: Record<CoopMode, string> = { dispatch: '派遣制', project: '项目制' }
+
 export type AdminProject = Omit<MyProject, 'members' | 'role'> & {
+  code: string | null
+  client_name: string | null
+  mode: CoopMode | null
   client_account_id: string | null
   client_company: string | null
   updated_at: string
@@ -125,6 +131,8 @@ export const adminProjects = () => api<{ items: AdminProject[] }>('/api/admin/pr
 
 export type ProjectInput = {
   name: string
+  client_name: string | null
+  mode: CoopMode | null
   industry: string | null
   client_account_id: string | null
   stage: Stage

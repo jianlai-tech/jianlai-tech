@@ -15,7 +15,7 @@ import { PEOPLE, type DimKey, type FormName, type Tier } from '@/data/studio'
  * 日期用 fromToday 偏移，所以示意数据永远跟着真实日期走。
  */
 
-/* ───────── 销售 ───────── */
+/* ───────── 留资线索（项目管理 · 留资线索页签） ───────── */
 
 export type Stage = 'new' | 'talked' | 'judge' | 'sent' | 'drop'
 
@@ -179,68 +179,8 @@ const SEED_WINDOWS: Record<string, boolean[]> = {
 
 /* ───────── 财务 ───────── */
 
-export type EntryKind = 'in' | 'out'
-
+/** 流水已接真账（lib/ledger.ts），这里只剩示意应收 */
 export const IN_CATS = ['驻场费', '开发费', '维保费'] as const
-export const OUT_CATS = ['驻场补贴', '模型与工具', '场地', '差旅', '税费', '其他'] as const
-
-export type Entry = {
-  id: string
-  date: string
-  kind: EntryKind
-  category: string
-  memo: string
-  counterparty: string
-  amount: number
-}
-
-const SEED_LEDGER: Entry[] = [
-  {
-    id: 'e1',
-    date: fromToday(-8),
-    kind: 'out',
-    category: '场地',
-    memo: '研发中心 1 期 2 栋 102 室 · 首季租金',
-    counterparty: '园区',
-    amount: 6000,
-  },
-  {
-    id: 'e2',
-    date: fromToday(-5),
-    kind: 'out',
-    category: '模型与工具',
-    memo: '文字模型接口充值',
-    counterparty: 'Sophnet',
-    amount: 500,
-  },
-  {
-    id: 'e3',
-    date: fromToday(-3),
-    kind: 'out',
-    category: '其他',
-    memo: '刻章与银行开户',
-    counterparty: '—',
-    amount: 420,
-  },
-  {
-    id: 'e4',
-    date: fromToday(-1),
-    kind: 'in',
-    category: '驻场费',
-    memo: '首期款',
-    counterparty: '医疗器械批发分销',
-    amount: 30000,
-  },
-  {
-    id: 'e5',
-    date: fromToday(0),
-    kind: 'out',
-    category: '模型与工具',
-    memo: '识图模型接口充值',
-    counterparty: 'OpenRouter',
-    amount: 300,
-  },
-]
 
 export type Receivable = {
   id: string
@@ -286,7 +226,6 @@ type Store = {
   sites: Site[]
   evals: Record<string, Eval>
   windows: Record<string, boolean[]>
-  ledger: Entry[]
   receivables: Receivable[]
   advanceLead: (id: string) => void
   sendLead: (id: string, slugs: string[]) => void
@@ -294,25 +233,16 @@ type Store = {
   reopenLead: (id: string) => void
   setEval: (slug: string, dim: DimKey, tier: Tier | null) => void
   toggleWindow: (slug: string, day: number) => void
-  addEntry: (entry: Omit<Entry, 'id'>) => void
   receive: (id: string) => void
 }
 
 const StoreContext = createContext<Store | null>(null)
-
-let seq = 100
-
-function nextId(prefix: string) {
-  seq += 1
-  return `${prefix}${seq}`
-}
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const [leads, setLeads] = useState(SEED_LEADS)
   const [sites] = useState(SEED_SITES)
   const [evals, setEvals] = useState<Record<string, Eval>>({})
   const [windows, setWindows] = useState(SEED_WINDOWS)
-  const [ledger, setLedger] = useState(SEED_LEDGER)
   const [receivables, setReceivables] = useState(SEED_RECEIVABLES)
 
   const patchLead = useCallback((id: string, patch: Partial<Lead>) => {
@@ -367,28 +297,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  const addEntry = useCallback((entry: Omit<Entry, 'id'>) => {
-    setLedger((rows) => [{ ...entry, id: nextId('e') }, ...rows])
-  }, [])
-
   const receive = useCallback(
     (id: string) => {
       const target = receivables.find((row) => row.id === id)
       if (!target || target.paidOn) return
       const date = todayIso()
       setReceivables((rows) => rows.map((row) => (row.id === id ? { ...row, paidOn: date } : row)))
-      setLedger((rows) => [
-        {
-          id: nextId('e'),
-          date,
-          kind: 'in',
-          category: target.category,
-          memo: target.reason,
-          counterparty: target.counterparty,
-          amount: target.amount,
-        },
-        ...rows,
-      ])
     },
     [receivables],
   )
@@ -399,7 +313,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       sites,
       evals,
       windows,
-      ledger,
       receivables,
       advanceLead,
       sendLead,
@@ -407,7 +320,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       reopenLead,
       setEval,
       toggleWindow,
-      addEntry,
       receive,
     }),
     [
@@ -415,7 +327,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       sites,
       evals,
       windows,
-      ledger,
       receivables,
       advanceLead,
       sendLead,
@@ -423,7 +334,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       reopenLead,
       setEval,
       toggleWindow,
-      addEntry,
       receive,
     ],
   )

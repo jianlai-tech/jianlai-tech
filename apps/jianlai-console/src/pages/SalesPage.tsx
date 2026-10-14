@@ -13,14 +13,11 @@ import {
   Avatar,
   AvatarStack,
   Chip,
+  DemoTag,
   Empty,
-  MetricStrip,
-  PageHead,
-  SectionHead,
   Segmented,
   Sheet,
   Stamp,
-  Tabs,
   type Tone,
 } from '@/components/ui'
 
@@ -268,7 +265,8 @@ function Detail({ lead }: { lead: Lead }) {
   )
 }
 
-function LeadsTab() {
+/** 留资线索还是示意数据，接库后去掉标 */
+export function LeadsTab() {
   const { leads } = useStore()
   const [filter, setFilter] = useState<Filter>('all')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -294,7 +292,8 @@ function LeadsTab() {
 
   return (
     <>
-      <div className="mb-3 overflow-x-auto">
+      <div className="mb-3 flex items-center gap-3 overflow-x-auto">
+        <DemoTag />
         <Segmented<Filter>
           label="按阶段筛"
           value={filter}
@@ -365,104 +364,6 @@ function LeadsTab() {
           )}
         </Sheet>
       </div>
-    </>
-  )
-}
-
-function SitesTab() {
-  const { sites } = useStore()
-  return (
-    <Sheet className="overflow-hidden">
-      <SectionHead title="现场" demo hint="只写行业，不写客户名" />
-      <div className="overflow-auto">
-        <table className="ops-table min-w-[680px]">
-          <thead>
-            <tr>
-              <th>现场</th>
-              <th>状态</th>
-              <th>驻场</th>
-              <th>开始</th>
-              <th>下一步</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sites.map((site) => (
-              <tr key={site.id}>
-                <td className="font-semibold">{site.industry}</td>
-                <td>
-                  <Chip tone={site.status === '驻场中' ? 'jade' : site.status === '立项中' ? 'ochre' : 'plain'}>
-                    {site.status}
-                  </Chip>
-                </td>
-                <td>
-                  <AvatarStack
-                    people={site.staff.flatMap((slug) => {
-                      const found = person(slug)
-                      return found ? [found] : []
-                    })}
-                  />
-                </td>
-                <td className="text-ink2 tabular-nums">{fmtMD(site.since)}</td>
-                <td className="text-ink2">{site.next}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Sheet>
-  )
-}
-
-export function SalesPage() {
-  const { leads, sites } = useStore()
-  const [tab, setTab] = useState<'leads' | 'sites'>('leads')
-  const today = todayIso()
-
-  const toFollow = leads.filter(
-    (lead) =>
-      (lead.stage === 'new' || lead.stage === 'talked') &&
-      lead.nextFollow !== null &&
-      diffDays(lead.nextFollow, today) <= 0,
-  ).length
-  const judging = leads.filter((lead) => lead.stage === 'judge').length
-  const sent = leads.filter((lead) => lead.stage === 'sent').length
-  const decided = leads.filter((lead) => lead.stage === 'sent' || lead.stage === 'drop').length
-
-  return (
-    <>
-      <PageHead
-        title="销售"
-        note="从留资到派人"
-        demo
-        tabs={
-          <Tabs
-            label="销售"
-            value={tab}
-            onChange={setTab}
-            tabs={[
-              { key: 'leads', label: '留资线索', count: leads.length },
-              { key: 'sites', label: '现场', count: sites.length },
-            ]}
-          />
-        }
-      />
-
-      <div className="mb-4">
-        <MetricStrip
-          items={[
-            { label: '今日待回访', value: String(toFollow), sub: '含已逾期', tone: toFollow > 0 ? 'cinnabar' : 'ink' },
-            { label: '等道长判断', value: String(judging) },
-            { label: '已派人', value: String(sent) },
-            {
-              label: '已判断的留资',
-              value: String(decided),
-              sub: decided > 0 ? `其中 ${sent} 个接了` : '还没有',
-            },
-          ]}
-        />
-      </div>
-
-      {tab === 'leads' ? <LeadsTab /> : <SitesTab />}
     </>
   )
 }

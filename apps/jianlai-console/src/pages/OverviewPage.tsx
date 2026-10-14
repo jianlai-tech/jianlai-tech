@@ -6,6 +6,7 @@ import { diffDays, dueText, fmtMDWeek, monthKey, todayIso } from '@/lib/date'
 import { yuan } from '@/lib/money'
 import { DIMS, PEOPLE, WEEKDAYS, person } from '@/data/studio'
 import { useStore } from '@/data/store'
+import { useLedger } from '@/lib/ledger'
 import {
   AvatarStack,
   Chip,
@@ -18,16 +19,17 @@ import {
 
 type Todo = {
   id: string
-  module: '销售' | '人事' | '财务'
+  module: '项目' | '人事' | '财务'
   text: string
   detail?: string
   due: string | null
   overdue: boolean
-  to: '/sales' | '/hr' | '/finance'
+  to: '/projects' | '/hr' | '/finance'
 }
 
 export function OverviewPage() {
-  const { leads, sites, evals, windows, ledger, receivables } = useStore()
+  const { leads, sites, evals, windows, receivables } = useStore()
+  const { ledger } = useLedger()
   const today = todayIso()
   const month = monthKey(today)
 
@@ -40,24 +42,24 @@ export function OverviewPage() {
         if (delta <= 0) {
           rows.push({
             id: `lead-${lead.id}`,
-            module: '销售',
+            module: '项目',
             text: `回访 ${lead.company}（${lead.contact}）`,
             detail: `要斩：${lead.scene}`,
             due: lead.nextFollow,
             overdue: delta < 0,
-            to: '/sales',
+            to: '/projects',
           })
         }
       }
       if (lead.stage === 'judge') {
         rows.push({
           id: `judge-${lead.id}`,
-          module: '销售',
+          module: '项目',
           text: `判断能不能接：${lead.company}`,
           detail: '等道长拍板，再派人',
           due: null,
           overdue: false,
-          to: '/sales',
+          to: '/projects',
         })
       }
     }
@@ -108,10 +110,10 @@ export function OverviewPage() {
   ).length
   const live = sites.filter((site) => site.status !== '维保').length
   const monthIn = ledger
-    .filter((e) => e.kind === 'in' && monthKey(e.date) === month)
+    .filter((e) => e.kind === 'in' && e.category !== '股东投入' && monthKey(e.occurred_on) === month)
     .reduce((sum, e) => sum + e.amount, 0)
   const monthOut = ledger
-    .filter((e) => e.kind === 'out' && monthKey(e.date) === month)
+    .filter((e) => e.kind === 'out' && monthKey(e.occurred_on) === month)
     .reduce((sum, e) => sum + e.amount, 0)
   const open = receivables.filter((row) => !row.paidOn)
   const openSum = open.reduce((sum, row) => sum + row.amount, 0)
@@ -130,8 +132,8 @@ export function OverviewPage() {
           { label: '今日待回访', value: String(toFollow), sub: '含已逾期', tone: toFollow > 0 ? 'cinnabar' : 'ink' },
           { label: '在册', value: `${PEOPLE.length} 人`, sub: `道长 1 · 道友 ${PEOPLE.length - 1}` },
           { label: '进行中的现场', value: String(live), sub: `另有 ${sites.length - live} 处在维保` },
-          { label: '本月收入', value: yuan(monthIn), sub: '示意', tone: 'jade' },
-          { label: '本月支出', value: yuan(monthOut), sub: '示意' },
+          { label: '本月经营收入', value: yuan(monthIn), sub: '真账，不含股东投入', tone: 'jade' },
+          { label: '本月支出', value: yuan(monthOut), sub: '真账' },
           {
             label: '应收未收',
             value: yuan(openSum),

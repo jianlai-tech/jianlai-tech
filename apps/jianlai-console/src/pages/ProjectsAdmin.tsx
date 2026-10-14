@@ -3,6 +3,7 @@ import {
   adminProjects,
   createProject,
   updateProject,
+  MODE_LABEL,
   STAGES,
   type AdminAccountRow,
   type AdminProject,
@@ -20,6 +21,8 @@ type Member = { account_id: string; role: string }
 function emptyInput(): ProjectInput {
   return {
     name: '',
+    client_name: null,
+    mode: null,
     industry: null,
     client_account_id: null,
     stage: '先看',
@@ -34,6 +37,8 @@ function emptyInput(): ProjectInput {
 function toInput(project: AdminProject): ProjectInput {
   return {
     name: project.name,
+    client_name: project.client_name,
+    mode: project.mode,
     industry: project.industry,
     client_account_id: project.client_account_id,
     stage: project.stage,
@@ -103,6 +108,18 @@ function ProjectForm({
           <input required maxLength={60} value={input.name} onChange={(e) => set('name', e.target.value)} className="field mt-1 w-full" />
         </label>
         <label className="block">
+          <span className="label">客户全称（写进合同甲方）</span>
+          <input maxLength={80} value={input.client_name ?? ''} onChange={(e) => set('client_name', e.target.value || null)} className="field mt-1 w-full" />
+        </label>
+        <label className="block">
+          <span className="label">合作方式</span>
+          <select value={input.mode ?? ''} onChange={(e) => set('mode', (e.target.value || null) as ProjectInput['mode'])} className="field mt-1 w-full">
+            <option value="">还没定</option>
+            <option value="dispatch">派遣制（按人月）</option>
+            <option value="project">项目制</option>
+          </select>
+        </label>
+        <label className="block">
           <span className="label">行业（对外只写行业）</span>
           <input maxLength={30} value={input.industry ?? ''} onChange={(e) => set('industry', e.target.value || null)} className="field mt-1 w-full" />
         </label>
@@ -167,7 +184,7 @@ function ProjectForm({
       </label>
 
       <div>
-        <span className="label">驻场成员与角色</span>
+        <span className="label">驻场成员与角色（签约留档后会自动挂上）</span>
         <ul className="mt-1 divide-y divide-ink/10 rounded-sm border border-ink/15">
           {staff.map((person) => {
             const member = input.members.find((m) => m.account_id === person.id)
@@ -211,7 +228,7 @@ function ProjectForm({
   )
 }
 
-export function ProjectsAdmin({ accounts }: { accounts: AdminAccountRow[] }) {
+export function ProjectsAdmin({ accounts, onChanged }: { accounts: AdminAccountRow[]; onChanged?: () => void }) {
   const [items, setItems] = useState<AdminProject[]>([])
   const [error, setError] = useState('')
   const [editing, setEditing] = useState<string | 'new' | null>(null)
@@ -247,7 +264,7 @@ export function ProjectsAdmin({ accounts }: { accounts: AdminAccountRow[] }) {
         />
         {error ? <p className="px-4 py-2 text-[13px] text-cinnabar">{error}</p> : null}
         {items.length === 0 ? (
-          <Empty title="还没有项目" hint="建一个项目，把驻场的人挂上去，他们的档案里就能看到。" />
+          <Empty title="还没有项目" hint="建一个项目，再去「合同」拟约；签约留档后剑修会自动挂上来。" />
         ) : (
           <ul>
             {items.map((p) => (
@@ -257,6 +274,7 @@ export function ProjectsAdmin({ accounts }: { accounts: AdminAccountRow[] }) {
                     <span className="font-semibold">{p.name}</span>
                     {p.industry ? <span className="text-[12px] text-ink3">{p.industry}</span> : null}
                     <Chip tone={stageTone(p.stage)}>{p.stage}</Chip>
+                    {p.mode ? <Chip>{MODE_LABEL[p.mode]}</Chip> : null}
                     {p.client_company ? <span className="text-[12px] text-ink3">· {p.client_company}</span> : null}
                   </button>
                   <ProgressBar value={p.progress} />
@@ -285,6 +303,7 @@ export function ProjectsAdmin({ accounts }: { accounts: AdminAccountRow[] }) {
             onDone={() => {
               setEditing(null)
               void load()
+              onChanged?.()
             }}
           />
         </Sheet>

@@ -21,7 +21,7 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   headers.set('Accept', 'application/json')
-  if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+  if (init.body && !(init.body instanceof FormData) && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
   const token = getToken()
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
@@ -56,4 +56,33 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 export function errorText(err: unknown, fallback = '出错了，稍后再试') {
   return err instanceof Error && err.message ? err.message : fallback
+}
+
+/** 带登录态取文件（合同 Word、签约留档），返回 blob 和服务端给的文件名 */
+export async function apiBlob(path: string): Promise<{ blob: Blob; name: string | null }> {
+  const token = getToken()
+  const resp = await fetch(API_BASE + path, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+  if (!resp.ok) {
+    let message = `出错了（${resp.status}）`
+    try {
+      const body = await resp.json()
+      if (typeof body?.detail === 'string') message = body.detail
+    } catch {
+      /* 非 JSON */
+    }
+    const err = new Error(message) as HttpError
+    err.status = resp.status
+    throw err
+  }
+  const match = /filename\*=UTF-8''([^;]+)/.exec(resp.headers.get('Content-Disposition') ?? '')
+  return { blob: await resp.blob(), name: match ? decodeURIComponent(match[1]) : null }
+}
+
+export function saveBlob(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = name
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }

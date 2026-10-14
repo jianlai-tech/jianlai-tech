@@ -17,7 +17,8 @@
     radial-gradient(ellipse 70% 55% at 50% 42%, rgba(178, 46, 34, 0.35), transparent 70%),
     radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.55), transparent 60%),
     #2a0f0c;
-  overflow-x: hidden;
+  /* clip 只裁横向，不把竖向变成滚动口。hidden 会让 overflow-y 变成 auto，微信里手势就被这层吃掉，页面滑不动 */
+  overflow-x: clip;
 }
 
 /* 帖头：左品牌印、中标题、右小注，金线串起来 */
@@ -1396,6 +1397,7 @@
 }
 
 .yx-stack .yx-decree {
+  height: auto;
   min-height: 0;
   padding: 30px 22px 24px;
   animation: yx-arrive-m 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1433,6 +1435,11 @@
 }
 
 .yx-stack .yx-page {
+  /* 桌面右页是定高内滚；手机跟着文档滚，否则 height:100% + overflow:auto 在微信里接不住滑动 */
+  height: auto;
+  flex-shrink: 0;
+  overflow: visible;
+  overscroll-behavior: auto;
   animation: yx-arrive-m 700ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
   scroll-margin-top: 12px;
 }

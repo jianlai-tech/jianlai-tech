@@ -217,7 +217,7 @@ async def list_projects(_: AdminAccount):
     async with pool.acquire() as conn:
         rows = await conn.fetch(
             """
-            SELECT p.id, p.name, p.industry, p.stage, p.progress, p.progress_note,
+            SELECT p.id, p.code, p.name, p.client_name, p.mode, p.industry, p.stage, p.progress, p.progress_note,
                    p.started_on, p.ended_on, p.updated_at, p.client_account_id,
                    ca.company AS client_company,
                    COALESCE(
@@ -252,6 +252,8 @@ class MemberIn(BaseModel):
 
 class ProjectIn(BaseModel):
     name: str = Field(min_length=1, max_length=60)
+    client_name: str | None = Field(default=None, max_length=80)
+    mode: Literal["dispatch", "project"] | None = None
     industry: str | None = Field(default=None, max_length=30)
     client_account_id: str | None = None
     stage: Stage = "先看"
@@ -285,8 +287,8 @@ async def create_project(body: ProjectIn, _: AdminAccount):
         project_id = await conn.fetchval(
             """
             INSERT INTO projects (name, industry, client_account_id, stage, progress, progress_note,
-                                  started_on, ended_on, created_at, updated_at)
-            VALUES ($1, $2, $3::uuid, $4, $5, $6, $7, $8, $9, $9)
+                                  started_on, ended_on, created_at, updated_at, client_name, mode)
+            VALUES ($1, $2, $3::uuid, $4, $5, $6, $7, $8, $9, $9, $10, $11)
             RETURNING id
             """,
             body.name.strip(),
@@ -298,6 +300,8 @@ async def create_project(body: ProjectIn, _: AdminAccount):
             body.started_on,
             body.ended_on,
             now_cn(),
+            (body.client_name or "").strip() or None,
+            body.mode,
         )
         await _save_members(conn, project_id, body.members)
     return {"ok": True, "id": str(project_id)}
@@ -311,7 +315,8 @@ async def update_project(project_id: str, body: ProjectIn, _: AdminAccount):
             """
             UPDATE projects SET
                 name = $2, industry = $3, client_account_id = $4::uuid, stage = $5,
-                progress = $6, progress_note = $7, started_on = $8, ended_on = $9, updated_at = $10
+                progress = $6, progress_note = $7, started_on = $8, ended_on = $9, updated_at = $10,
+                client_name = $11, mode = $12
             WHERE id = $1::uuid
             """,
             project_id,
@@ -324,6 +329,8 @@ async def update_project(project_id: str, body: ProjectIn, _: AdminAccount):
             body.started_on,
             body.ended_on,
             now_cn(),
+            (body.client_name or "").strip() or None,
+            body.mode,
         )
         if result.endswith(" 0"):
             raise HTTPException(status_code=404, detail="没有这个项目")

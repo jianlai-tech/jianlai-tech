@@ -11,6 +11,8 @@ dependencies = [
   "asyncpg>=0.30.0",
   "python-dotenv>=1.2.2",
   "wecom-aibot-python-sdk>=1.0.2",
+  "python-docx>=1.2.0",
+  "python-multipart>=0.0.32",
 ]
 
 [dependency-groups]

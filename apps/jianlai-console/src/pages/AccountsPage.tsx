@@ -13,11 +13,10 @@ import {
 } from '@/lib/account'
 import { errorText } from '@/lib/api'
 import { Chip, Empty, PageHead, SectionHead, Sheet, Tabs } from '@/components/ui'
-import { ProjectsAdmin } from '@/pages/ProjectsAdmin'
 import { realmLabel } from '@/pages/MePage'
 import { cn } from '@/lib/cn'
 
-type Tab = 'staff' | 'client' | 'projects'
+type Tab = 'staff' | 'client'
 
 const maskPhone = (phone: string) => phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
 
@@ -347,16 +346,12 @@ export function AccountsPage() {
             tabs={[
               { key: 'staff', label: '同门', count: staff.length },
               { key: 'client', label: '合作企业', count: clients.length },
-              { key: 'projects', label: '项目' },
             ]}
           />
         }
       />
       {error ? <p className="mb-3 text-[14px] text-cinnabar">{error}</p> : null}
 
-      {tab === 'projects' ? (
-        <ProjectsAdmin accounts={rows} />
-      ) : (
         <div className={cn('grid gap-4', selected && 'xl:grid-cols-[minmax(0,1fr)_400px]')}>
           <Sheet>
             <SectionHead
@@ -426,7 +421,6 @@ export function AccountsPage() {
             </Sheet>
           ) : null}
         </div>
-      )}
     </>
   )
 }

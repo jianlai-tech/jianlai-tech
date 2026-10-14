@@ -1,11 +1,11 @@
 ---
-description: jianlai-console — 剑来科技内务后台（销售 / 人事 / 财务）
+description: jianlai-console — 剑来科技内务后台（项目管理 / 人事 / 财务）
 alwaysApply: false
 ---
 
 # jianlai-console
 
-剑来科技**自己**的内务后台，不是客户业务后台。总览、销售、人事、财务四个模块。端口 **5191**，本地和线上都挂在 `/dashboard`。
+剑来科技**自己**的内务后台，不是客户业务后台。总览、项目管理、人事、财务四个模块。端口 **5191**，本地和线上都挂在 `/dashboard`。
 
 线上：`https://jianlai.brewshujian.cafe/dashboard`（Cloudflare Pages 项目 `jianlai`，和官网打在同一个站点里）。发版走仓库技能 `jianlai-ship`，重新发布用根目录 `just deploy-pages`。
 
@@ -29,7 +29,9 @@ alwaysApply: false
 | 身份证、银行卡、手机 | 真，不进仓库 | `staff_hr`（DDL `schemas/005_staff_hr.sql`），名单 `apps/jianlai-api/staff_hr.local.csv` / `knowledge/人事.local.md` |
 | 公司主体 | 真 | `knowledge/公司.md`，落在 `studio.ts` 的 `COMPANY` |
 | 英雄帖（招剑修报名） | 真 | 官网 `/join` 写入 `recruits`（DDL `schemas/006_recruits.sql` + `007_recruits_intent.sql`），后台「英雄帖」页，接口 `/api/admin/recruits` 只给管理员；口径见 `knowledge/产品-英雄帖.md` |
-| 留资线索、现场分配、流水、应收、时间窗口 | **示意** | `src/data/store.tsx`，页面上都带「示意」标 |
+| 财务流水 | 真 | `ledger` 表（DDL `schemas/008_ledger.sql`），接口 `/api/admin/ledger` 只给管理员，前端 `src/lib/ledger.ts`。来源：招行明细（带余额、`bank_ref` 去重）+ 手记；删错走作废不物理删。「股东投入」不计经营收入 |
+| 项目、合同、剑修在跟 | 真 | 「项目管理」`/projects`（旧 `/sales` 自动跳转）。`projects` 补了 `code` / `client_name` / `mode`，合同表 `contracts` + `contract_staff`（DDL `schemas/009_contracts.sql`），接口 `/api/admin/contracts*`、`/api/admin/staff-load`，前端 `src/lib/contracts.ts`。口径见 `knowledge/产品-项目与合同.md` |
+| 留资线索、应收、时间窗口 | **示意** | `src/data/store.tsx`，页面上都带「示意」标 |
 
 ## 登录与权限
 
@@ -37,7 +39,7 @@ alwaysApply: false
 
 | 身份 | 怎么来 | 能看 |
 |---|---|---|
-| 管理员 | 只有赵书剑（`is_admin`） | 总览 / 销售 / 英雄帖 / 人事 / 财务 / 账号与认证 / 我的档案 |
+| 管理员 | 只有赵书剑（`is_admin`） | 总览 / 项目管理 / 英雄帖 / 人事 / 财务 / 账号与认证 / 我的档案 |
 | 同门（驻场） | 名单经 `seed_accounts` 或「账号 → 新开同门」开通；初始密码身份证后 6 位，末位 X 大写 | 只有「我的档案」 |
 | 合作企业 | 管理员建号后是「待付款开通」，确认收款点「确认付款并开通」才能登录 | 只有「项目进度」，只看挂在自己名下的项目 |
 
@@ -50,7 +52,7 @@ alwaysApply: false
 - 示意数据日期一律用 `fromToday(n)` 偏移，不写死日历日。
 - 接库之前改动只活在内存里，刷新回到初始。
 - 禁止把示意金额、客户数写成真实业绩；客户只写行业；电话只留掩码。
-- 接库时：先把 `store.tsx` 的 seed 换成 `apps/jianlai-api` 的接口，删掉对应页面上的 `DemoTag`。`leads` 表已存在（`schemas/001_leads.sql`），`staff` 表已存在（`002_studio.sql`），`ledger` / `receivables` / `evals` / `windows` / `sites` 还没建。
+- 接库时：先把 `store.tsx` 的 seed 换成 `apps/jianlai-api` 的接口，删掉对应页面上的 `DemoTag`。`leads` 表已存在（`schemas/001_leads.sql`），`staff` 表已存在（`002_studio.sql`），`ledger` 已接；`receivables` / `evals` / `windows` / `sites` 还没建。
 
 ## 视觉约定
 

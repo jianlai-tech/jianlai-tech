@@ -198,14 +198,14 @@ async def update_recruit(recruit_id: UUID, body: RecruitPatch, _: AdminAccount):
     pool = await get_pool()
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            """
+            f"""
             UPDATE recruits
             SET status = COALESCE($2, status),
                 admin_note = CASE WHEN $3::boolean THEN $4 ELSE admin_note END,
                 handled_at = CASE WHEN $2::text IS NOT NULL AND $2 <> status THEN $5 ELSE handled_at END
             WHERE id = $1::uuid
             RETURNING {_COLUMNS}
-            """.format(_COLUMNS=_COLUMNS),
+            """,
             recruit_id,
             body.status,
             body.admin_note is not None,

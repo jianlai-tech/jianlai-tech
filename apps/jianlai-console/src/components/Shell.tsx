@@ -9,7 +9,7 @@ import { useStore } from '@/data/store'
 import { Avatar } from '@/components/ui'
 import { fetchRecruits } from '@/lib/recruits'
 
-type NavTo = '/' | '/sales' | '/recruits' | '/hr' | '/finance' | '/accounts' | '/me' | '/project'
+type NavTo = '/' | '/projects' | '/recruits' | '/hr' | '/finance' | '/accounts' | '/me' | '/project'
 
 type NavItem = {
   to: NavTo
@@ -20,7 +20,7 @@ type NavItem = {
 
 const ADMIN_NAV: NavItem[] = [
   { to: '/', label: '总览', hint: '今日要办', icon: ScrollText },
-  { to: '/sales', label: '销售', hint: '留资到派人', icon: Swords },
+  { to: '/projects', label: '项目', hint: '合同与派人', icon: Swords },
   { to: '/recruits', label: '英雄帖', hint: '招剑修', icon: Scroll },
   { to: '/hr', label: '人事', hint: '名册与四维', icon: Users },
   { to: '/finance', label: '财务', hint: '流水与应收', icon: Coins },
@@ -54,7 +54,7 @@ function useBadges(isAdmin: boolean): Partial<Record<NavTo, number>> {
       diffDays(lead.nextFollow, today) <= 0,
   ).length
   const overdue = receivables.filter((row) => !row.paidOn && diffDays(row.due, today) < 0).length
-  return { '/sales': toFollow, '/recruits': newRecruits, '/finance': overdue }
+  return { '/projects': toFollow, '/recruits': newRecruits, '/finance': overdue }
 }
 
 function isActive(pathname: string, to: NavTo) {
@@ -138,8 +138,8 @@ export function Shell() {
         <div className="border-t border-paper/15 px-4 py-4">
           {account.is_admin ? (
             <div className="mb-3 rounded-sm border border-paper/20 px-3 py-2 text-[13px] leading-5 text-[#d9d2bb]">
-              销售、财务、现场分配是<strong className="font-bold text-paper">示意数据</strong>
-              ，还没接库。账号、认证、项目、英雄帖是真的。
+              留资线索、应收、时间窗口是<strong className="font-bold text-paper">示意数据</strong>
+              ，还没接库。项目、合同、流水、账号、英雄帖是真的。
             </div>
           ) : null}
           <div className="flex items-center gap-3">

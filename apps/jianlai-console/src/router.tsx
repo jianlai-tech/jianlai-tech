@@ -11,9 +11,9 @@ import { LoginPage } from '@/pages/LoginPage'
 import { MePage } from '@/pages/MePage'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { RecruitsPage } from '@/pages/RecruitsPage'
-import { SalesPage } from '@/pages/SalesPage'
+import { ProjectsPage } from '@/pages/ProjectsPage'
 
-const ADMIN_PATHS = new Set(['/', '/sales', '/recruits', '/hr', '/finance', '/accounts'])
+const ADMIN_PATHS = new Set(['/', '/projects', '/sales', '/recruits', '/hr', '/finance', '/accounts'])
 
 function homeFor(kind: string, isAdmin: boolean) {
   if (kind === 'client') return '/project'
@@ -72,7 +72,13 @@ const admin = (Page: () => ReactNode) => () => (
 )
 
 const overviewRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: admin(OverviewPage) })
-const salesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sales', component: admin(SalesPage) })
+const projectsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/projects', component: admin(ProjectsPage) })
+/** 旧地址 /sales 还有人收藏着，转到项目管理 */
+const salesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sales',
+  component: () => <Navigate to="/projects" replace />,
+})
 const recruitsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/recruits', component: admin(RecruitsPage) })
 const hrRoute = createRoute({ getParentRoute: () => rootRoute, path: '/hr', component: admin(HrPage) })
 const financeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/finance', component: admin(FinancePage) })
@@ -98,6 +104,7 @@ const projectRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   overviewRoute,
+  projectsRoute,
   salesRoute,
   recruitsRoute,
   hrRoute,

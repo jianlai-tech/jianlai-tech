@@ -18,7 +18,7 @@ alwaysApply: true
 |------|------|
 | `apps/jianlai-api` | FastAPI，默认端口 **8020** |
 | `apps/jianlai-web` | React 人机界面（官网），默认端口 **5190** |
-| `apps/jianlai-console` | 内务后台（总览 / 销售 / 人事 / 财务），默认端口 **5191**，细则见该目录 `AGENTS.md` |
+| `apps/jianlai-console` | 内务后台（总览 / 项目管理 / 人事 / 财务），默认端口 **5191**，细则见该目录 `AGENTS.md` |
 | `knowledge/` | 产品业务知识；案例底稿在 `knowledge/案例/`；驻场怎么干见 `knowledge/驻场SOP.md` |
 | `schemas/` | PostgreSQL DDL（留资 / 名册 / 账号 / 人事档案结构） |
 
